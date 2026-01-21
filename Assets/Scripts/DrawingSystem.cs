@@ -15,12 +15,13 @@ public class DrawingSystem : MonoBehaviour
     private List<Vector3> points;
 
     // Creates line game object with given starting point
-    internal void StartLine(Vector3 worldPos)
+    internal GameObject StartLine(Vector3 worldPos)
     {
         GameObject lineObj = Instantiate(linePrefab, Vector3.zero, Quaternion.identity);
         currentLine = lineObj.GetComponent<LineRenderer>();
         points = new List<Vector3>();
         AddPoint(worldPos);
+        return lineObj;
     }
 
     // Adds a point to the current line
