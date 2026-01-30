@@ -3,13 +3,13 @@ using UnityEngine;
 
 public class Path : MonoBehaviour
 {
-    private List<Vector2> points;
+    private List<NodeSelectable> points;
     public int resolutionPerSegment = 20;
     private LineRenderer line;
 
     void Awake()
     {
-        points = new List<Vector2>();
+        points = new List<NodeSelectable>();
 
         line = GetComponent<LineRenderer>();
         if (line == null)
@@ -19,18 +19,13 @@ public class Path : MonoBehaviour
     public void Initialize(Vector2 start, Vector2 end)
     {
         points.Clear();
-        points.Add(start);
-        points.Add(end);
+        points.Add(new NodeSelectable(start));
+        points.Add(new NodeSelectable(end));
     }
 
     void Update()
     {
         DrawPath();
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            TryAddPoint();
-        }
     }
 
     void DrawPath()
@@ -44,8 +39,8 @@ public class Path : MonoBehaviour
 
         for (int i = 0; i < points.Count - 1; i++)
         {
-            Vector3 a = points[i];
-            Vector3 b = points[i + 1];
+            Vector3 a = points[i].GetPosition();
+            Vector3 b = points[i + 1].GetPosition();
 
             for (int j = 0; j <= resolutionPerSegment; j++)
             {
@@ -56,11 +51,11 @@ public class Path : MonoBehaviour
     }
 
 
-    void TryAddPoint()
+    public NodeSelectable TryAddPoint(Vector3 position)
     {
-        if (points.Count < 2) return;
+        if (points.Count < 2) return null;
 
-        Vector3 clickPos = InputManager.Instance.PointerWorldPos;
+        Vector3 clickPos = position;
 
         Vector3 closestPoint;
         int segmentIndex = FindClosestSegment(clickPos, out closestPoint);
@@ -70,9 +65,11 @@ public class Path : MonoBehaviour
         if (segmentIndex != -1 &&
             Vector3.Distance(closestPoint, clickPos) < clickThreshold)
         {
-            points.Insert(segmentIndex + 1, closestPoint);
-
+            NodeSelectable node = new NodeSelectable(closestPoint);
+            points.Insert(segmentIndex + 1, node);
+            return node;
         }
+        return null;
     }
 
 
@@ -84,8 +81,8 @@ public class Path : MonoBehaviour
 
         for (int i = 0; i < points.Count - 1; i++)
         {
-            Vector3 a = points[i];
-            Vector3 b = points[i + 1];
+            Vector3 a = points[i].GetPosition();
+            Vector3 b = points[i + 1].GetPosition();
 
             Vector3 projected = ClosestPointOnLineSegment(a, b, clickPos);
             float dist = Vector3.Distance(projected, clickPos);
@@ -110,7 +107,7 @@ public class Path : MonoBehaviour
         return a + ab * t;
     }
 
-    public List<Vector2> GetNodes()
+    public List<NodeSelectable> GetNodes()
     {
         return points;
     } 
@@ -119,7 +116,7 @@ public class Path : MonoBehaviour
     {
         Gizmos.color = Color.red;
         foreach (var p in points)
-            Gizmos.DrawSphere(p, 0.05f);
+            Gizmos.DrawSphere(p.GetPosition(), 0.05f);
     }
 
 }

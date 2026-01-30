@@ -1,17 +1,26 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-internal class NodeSelectable : MonoBehaviour, ISelectable
+public class NodeSelectable :  ISelectable
 {
     [SerializeField]Vector2 position;
 
     public float hitRadius = 0.1f;
 
-    void Awake()
+    public NodeSelectable(Vector2 position)
     {
-        
+        this.position = position;
     }
 
+    public void move(Vector2 position)
+    {
+        this.position = position;
+    }
+
+    public Vector2 GetPosition()
+    {
+        return this.position;
+    }
  
     public bool HitTest(Vector2 worldPoint)
     {
@@ -23,3 +32,4 @@ internal class NodeSelectable : MonoBehaviour, ISelectable
         throw new System.NotImplementedException();
     }
 }
+

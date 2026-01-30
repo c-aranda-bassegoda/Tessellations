@@ -10,14 +10,18 @@ public class Polygon : MonoBehaviour
     [SerializeField] private GameObject linePrefab; // Prefab with LineRenderer
     [SerializeField] private int resolutionPerSegment = 20;
 
-    internal void MovePoint(Vector2 pointerWorldPos)
-    {
-        throw new NotImplementedException();
-    }
+    
 
-    internal GameObject TryAddPoint(Vector2 pointerWorldPos)
+    internal NodeSelectable TryAddPoint(Vector3 pointerWorldPos)
     {
-        throw new NotImplementedException();
+        NodeSelectable node = null;
+        foreach (var edge in edges)
+        {
+            node = edge.TryAddPoint(pointerWorldPos);
+            if (node != null) break;
+        }
+
+        return node;
     }
 
     private void Awake()
@@ -35,7 +39,6 @@ public class Polygon : MonoBehaviour
             GameObject edgeObj = Instantiate(linePrefab, Vector3.zero, Quaternion.identity);
             edgeObj.transform.parent = transform;
 
-            edgeObj.AddComponent<LineRenderer>();
             Path path = edgeObj.AddComponent<Path>();
             path.resolutionPerSegment = resolutionPerSegment;
 
@@ -51,6 +54,6 @@ public class Polygon : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        
     }
 }
