@@ -8,12 +8,14 @@ public class Polygon : MonoBehaviour
     [SerializeField] List<Vector2> vertices;
     List<Path> edges;
     [SerializeField] private GameObject linePrefab; // Prefab with LineRenderer
+    [SerializeField] private GameObject nodePrefab;
     [SerializeField] private int resolutionPerSegment = 20;
 
-    
+    SpriteRenderer nodeRenderer;
 
-    internal NodeSelectable TryAddPoint(Vector3 pointerWorldPos)
+    internal GameObject TryAddPoint(Vector3 pointerWorldPos)
     {
+
         NodeSelectable node = null;
         foreach (var edge in edges)
         {
@@ -21,7 +23,7 @@ public class Polygon : MonoBehaviour
             if (node != null) break;
         }
 
-        return node;
+        return node.gameObject;
     }
 
     private void Awake()
@@ -41,7 +43,7 @@ public class Polygon : MonoBehaviour
 
             Path path = edgeObj.AddComponent<Path>();
             path.resolutionPerSegment = resolutionPerSegment;
-
+            path.nodePrefab = nodePrefab;
             path.Initialize(prev, vertices[i]);
             edges.Add(path);
             

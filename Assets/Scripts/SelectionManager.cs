@@ -43,10 +43,10 @@ public class SelectionManager : MonoBehaviour
 
         foreach (var s in selectables)
         {
-            //Debug.Log("Looking for a hit");
+            Debug.Log("Looking for a hit");
             if (s.HitTest(mouse))
             {
-                //Debug.Log("Got a hit");
+                Debug.Log("Got a hit");
                 Select(s);
                 return;
             }

@@ -1,35 +1,38 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class NodeSelectable :  ISelectable
+public class NodeSelectable : MonoBehaviour, ISelectable
 {
-    [SerializeField]Vector2 position;
+    //[SerializeField]Vector2 position;
+    [SerializeField] SpriteRenderer node;
 
-    public float hitRadius = 0.1f;
+    public float hitRadius = 1f;
 
-    public NodeSelectable(Vector2 position)
+    void Awake()
     {
-        this.position = position;
+        node = GetComponent<SpriteRenderer>();
     }
 
-    public void move(Vector2 position)
+    public void Move(Vector2 position)
     {
-        this.position = position;
+        transform.position = position;
     }
 
     public Vector2 GetPosition()
     {
-        return this.position;
+        return transform.position;
     }
  
     public bool HitTest(Vector2 worldPoint)
     {
-        throw new System.NotImplementedException();
+        Vector2 nodePos = new Vector2(transform.position.x, transform.position.y);
+        Debug.Log(nodePos + " " + worldPoint + " " + Vector2.Distance(worldPoint, nodePos) + " " + hitRadius);
+        return Vector2.Distance(worldPoint, nodePos) <= hitRadius;
     }
 
     public void SetSelected(bool selected)
     {
-        throw new System.NotImplementedException();
+        node.color = selected ? Color.blue : Color.white;
     }
 }
 

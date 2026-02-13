@@ -6,6 +6,7 @@ public class Path : MonoBehaviour
     private List<NodeSelectable> points;
     public int resolutionPerSegment = 20;
     private LineRenderer line;
+    public GameObject nodePrefab;
 
     void Awake()
     {
@@ -19,8 +20,15 @@ public class Path : MonoBehaviour
     public void Initialize(Vector2 start, Vector2 end)
     {
         points.Clear();
-        points.Add(new NodeSelectable(start));
-        points.Add(new NodeSelectable(end));
+
+        NodeSelectable a = Instantiate(nodePrefab, start, Quaternion.identity)
+                        .GetComponent<NodeSelectable>();
+
+        NodeSelectable b = Instantiate(nodePrefab, end, Quaternion.identity)
+                            .GetComponent<NodeSelectable>();
+
+        points.Add(a);
+        points.Add(b);
     }
 
     void Update()
@@ -65,7 +73,8 @@ public class Path : MonoBehaviour
         if (segmentIndex != -1 &&
             Vector3.Distance(closestPoint, clickPos) < clickThreshold)
         {
-            NodeSelectable node = new NodeSelectable(closestPoint);
+            NodeSelectable node = Instantiate(nodePrefab, closestPoint, Quaternion.identity)
+                        .GetComponent<NodeSelectable>();
             points.Insert(segmentIndex + 1, node);
             return node;
         }
