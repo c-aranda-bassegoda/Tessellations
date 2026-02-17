@@ -100,3 +100,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 873bb9a32d41f3e4b96070e852a14bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  node: {fileID: 5387434904350212521}
+  hitRadius: 0.15

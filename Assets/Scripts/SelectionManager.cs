@@ -9,6 +9,9 @@ public class SelectionManager : MonoBehaviour
     List<ISelectable> selectables = new List<ISelectable>();
     ISelectable selected;
 
+    IDraggable currentDraggable;
+    bool isDragging;
+
     private void Start()
     {
         Instance = this;
@@ -34,17 +37,33 @@ public class SelectionManager : MonoBehaviour
         if (InputManager.Instance.PointerDown)
         {
             TrySelect(InputManager.Instance.PointerWorldPos);
+
+            if (selected is IDraggable draggable)
+            {
+                currentDraggable = draggable;
+                isDragging = true;
+            }
+        }
+
+        if (isDragging && InputManager.Instance.PointerHeld)
+        {
+            currentDraggable?.OnDrag(InputManager.Instance.PointerWorldPos);
+        }
+
+        if (isDragging && InputManager.Instance.PointerUp)
+        {
+            isDragging = false;
+            currentDraggable = null;
         }
     }
 
     private void TrySelect(Vector2 pointerWorldPos)
     {
-        Vector2 mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
         foreach (var s in selectables)
         {
-            //Debug.Log("Looking for a hit");
-            if (s.HitTest(mouse))
+            Debug.Log("Looking for a hit");
+            if (s.HitTest(pointerWorldPos))
             {
                 // Already selected? Keep it selected
                 if (s == selected) return;

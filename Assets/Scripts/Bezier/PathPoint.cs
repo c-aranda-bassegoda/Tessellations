@@ -1,8 +1,7 @@
 using UnityEngine;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
-
-public class PathPoint : ISelectable
+public class PathPoint : ISelectable, IDraggable
 {
     public NodeSelectable anchor;
     public Vector3 handleInOffset;
@@ -92,4 +91,11 @@ public class PathPoint : ISelectable
         activePart = ActivePart.None;
         return false;
     }
+
+    public void OnDrag(Vector2 worldPosition)
+    {
+        MoveAnchor(worldPosition);
+        selectionHandler.OnSelected();
+    }
+
 }
