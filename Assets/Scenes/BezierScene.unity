@@ -149,6 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   polygon: {fileID: 1206904073}
+  handlePrefab: {fileID: 4631279889517319181, guid: 9c7fe6c06a281c64e8cedec3bba78f89, type: 3}
 --- !u!4 &135097867
 Transform:
   m_ObjectHideFlags: 0

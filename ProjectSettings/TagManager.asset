@@ -44,6 +44,9 @@ TagManager:
   - name: Line
     uniqueID: 2630933031
     locked: 0
+  - name: Handles
+    uniqueID: 427313571
+    locked: 0
   - name: Node
     uniqueID: 1401556181
     locked: 0

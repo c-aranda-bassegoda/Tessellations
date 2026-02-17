@@ -3,9 +3,23 @@ using UnityEngine;
 public class PathManager : MonoBehaviour
 {
     public Polygon polygon;
+    public GameObject handlePrefab;
     bool isEditing;
 
     private PathPoint currentNode;
+    private GameObject handleInVisual;
+    private GameObject handleOutVisual;
+
+
+    void Awake()
+    {
+        // Instantiate shared handle visuals
+        handleInVisual = Instantiate(handlePrefab);
+        handleOutVisual = Instantiate(handlePrefab);
+
+        handleInVisual.SetActive(false);
+        handleOutVisual.SetActive(false);
+    }
 
     void Update()
     {
@@ -19,7 +33,11 @@ public class PathManager : MonoBehaviour
         {
             currentNode = polygon.TryAddPoint(InputManager.Instance.PointerWorldPos, (ToolManager.Instance.CurrentTool == ToolType.Node));
             if (currentNode != null)
+            {
+                var handler = new PathPointSelectionHandler(currentNode, handleInVisual, handleOutVisual);
+                currentNode.SetSelectionHandler(handler);
                 isEditing = true;
+            }
         }
 
         if (InputManager.Instance.PointerHeld && isEditing)
@@ -29,9 +47,11 @@ public class PathManager : MonoBehaviour
 
         if (InputManager.Instance.PointerUp && isEditing)
         {
-            NodeSelectable nodeSelectable = currentNode?.anchor.GetComponent<NodeSelectable>();
-            if (nodeSelectable != null)
-                SelectionManager.Instance.Register(nodeSelectable);
+            //NodeSelectable nodeSelectable = currentNode?.anchor.GetComponent<NodeSelectable>();
+            if (currentNode != null)
+            {
+                SelectionManager.Instance.Register(currentNode);   
+            }
             isEditing = false;
         }
     }

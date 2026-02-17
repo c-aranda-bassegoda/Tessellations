@@ -2,30 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEditor.PlayerSettings;
 
-public class PathPoint
-{
-    public NodeSelectable anchor;
-    public NodeSelectable handleIn;
-    public NodeSelectable handleOut;
-    public bool smooth;
-
-    public void MoveAnchor(Vector3 newPosition)
-    {
-        Vector3 delta = newPosition - (Vector3)anchor.GetPosition();
-
-        anchor.Move(newPosition);
-
-        if (handleIn != null)
-            handleIn.Move((Vector3)handleIn.GetPosition() + delta);
-
-        if (handleOut != null)
-            handleOut.Move((Vector3)handleOut.GetPosition() + delta);
-    }
-
-
-
-}
-
 public class Path : MonoBehaviour
 {
     private List<PathPoint> points;
@@ -50,16 +26,16 @@ public class Path : MonoBehaviour
                         .GetComponent<NodeSelectable>();
         PathPoint p1 = new PathPoint();
         p1.anchor = a;
-        p1.handleIn = a;
-        p1.handleOut = a;
+        p1.handleInOffset = Vector3.zero;
+        p1.handleOutOffset = Vector3.zero;
         p1.smooth = false;
 
         NodeSelectable b = Instantiate(nodePrefab, end, Quaternion.identity)
                             .GetComponent<NodeSelectable>();
         PathPoint p2 = new PathPoint();
         p2.anchor = b;
-        p2.handleIn = b;
-        p2.handleOut = b;
+        p2.handleInOffset = Vector3.zero;
+        p2.handleOutOffset = Vector3.zero;
         p2.smooth = false;
 
         points.Add(p1);
@@ -94,8 +70,8 @@ public class Path : MonoBehaviour
 
                 Vector3 position;
 
-                Vector3 b = p0.handleOut.GetPosition();
-                Vector3 c = p1.handleIn.GetPosition();
+                Vector3 b = p0.HandleOutPos;
+                Vector3 c = p1.HandleInPos;
 
                 position = BezierCurve.CubicCurve(a, b, c, d, t);
                 line.SetPosition(index++, position);
@@ -129,19 +105,13 @@ public class Path : MonoBehaviour
                 Vector3 dir = (b - a).normalized;
                 float handleLength = Vector3.Distance(a, b) * 0.25f;
 
-                Vector3 handleInPos = closestPoint - dir * handleLength;
-                Vector3 handleOutPos = closestPoint + dir * handleLength;
-
-                p1.handleIn = Instantiate(nodePrefab, handleInPos, Quaternion.identity).GetComponent<NodeSelectable>();
-                p1.handleOut = Instantiate(nodePrefab, handleOutPos, Quaternion.identity).GetComponent<NodeSelectable>();
+                p1.handleInOffset = -dir * handleLength;
+                p1.handleOutOffset = dir * handleLength;
             } else
             {
 
-                p1.handleIn = Instantiate(nodePrefab, closestPoint, Quaternion.identity)
-                .GetComponent<NodeSelectable>();
-
-                p1.handleOut = Instantiate(nodePrefab, closestPoint, Quaternion.identity)
-                                .GetComponent<NodeSelectable>();
+                p1.handleInOffset = Vector3.zero;
+                p1.handleOutOffset = Vector3.zero;
             }
 
             points.Insert(segmentIndex + 1, p1);
@@ -160,8 +130,8 @@ public class Path : MonoBehaviour
         for (int i = 0; i < points.Count - 1; i++)
         {
             Vector3 a = points[i].anchor.GetPosition();
-            Vector3 b = points[i].handleOut.GetPosition();
-            Vector3 c = points[i + 1].handleIn.GetPosition();
+            Vector3 b = points[i].HandleOutPos;
+            Vector3 c = points[i + 1].HandleInPos;
             Vector3 d = points[i + 1].anchor.GetPosition();
 
             Vector3 projected = BezierCurve.GetClosestPointOnCubic(a, b, c, d, clickPos, resolutionPerSegment);
