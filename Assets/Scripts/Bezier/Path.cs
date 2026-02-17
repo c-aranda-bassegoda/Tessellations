@@ -1,16 +1,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class PathPoint
+{
+    public NodeSelectable anchor;
+    public NodeSelectable handleIn;
+    public NodeSelectable handleOut;
+    public bool smooth;
+}
+
 public class Path : MonoBehaviour
 {
-    private List<NodeSelectable> points;
+    private List<PathPoint> points;
     public int resolutionPerSegment = 20;
     private LineRenderer line;
     public GameObject nodePrefab;
 
     void Awake()
     {
-        points = new List<NodeSelectable>();
+        points = new List<PathPoint>();
 
         line = GetComponent<LineRenderer>();
         if (line == null)
@@ -23,12 +31,18 @@ public class Path : MonoBehaviour
 
         NodeSelectable a = Instantiate(nodePrefab, start, Quaternion.identity)
                         .GetComponent<NodeSelectable>();
+        PathPoint p1 = new PathPoint();
+        p1.anchor = a;
+        p1.smooth = false;
 
         NodeSelectable b = Instantiate(nodePrefab, end, Quaternion.identity)
                             .GetComponent<NodeSelectable>();
+        PathPoint p2 = new PathPoint();
+        p2.anchor = b;
+        p2.smooth = false;
 
-        points.Add(a);
-        points.Add(b);
+        points.Add(p1);
+        points.Add(p2);
     }
 
     void Update()
@@ -47,8 +61,8 @@ public class Path : MonoBehaviour
 
         for (int i = 0; i < points.Count - 1; i++)
         {
-            Vector3 a = points[i].GetPosition();
-            Vector3 b = points[i + 1].GetPosition();
+            Vector3 a = points[i].anchor.GetPosition();
+            Vector3 b = points[i + 1].anchor.GetPosition();
 
             for (int j = 0; j <= resolutionPerSegment; j++)
             {
@@ -59,7 +73,7 @@ public class Path : MonoBehaviour
     }
 
 
-    public NodeSelectable TryAddPoint(Vector3 position)
+    public NodeSelectable TryAddPoint(Vector3 position, bool smooth)
     {
         if (points.Count < 2) return null;
 
@@ -68,14 +82,17 @@ public class Path : MonoBehaviour
         Vector3 closestPoint;
         int segmentIndex = FindClosestSegment(clickPos, out closestPoint);
 
-        float clickThreshold = 0.2f; // tweak for your scale
+        float clickThreshold = 0.2f; // tweak for scale
 
-        if (segmentIndex != -1 &&
-            Vector3.Distance(closestPoint, clickPos) < clickThreshold)
+        if (segmentIndex != -1 && Vector3.Distance(closestPoint, clickPos) < clickThreshold)
         {
             NodeSelectable node = Instantiate(nodePrefab, closestPoint, Quaternion.identity)
                         .GetComponent<NodeSelectable>();
-            points.Insert(segmentIndex + 1, node);
+            PathPoint p1 = new PathPoint();
+            p1.anchor = node;
+            p1.smooth = false;
+
+            points.Insert(segmentIndex + 1, p1);
             return node;
         }
         return null;
@@ -90,8 +107,8 @@ public class Path : MonoBehaviour
 
         for (int i = 0; i < points.Count - 1; i++)
         {
-            Vector3 a = points[i].GetPosition();
-            Vector3 b = points[i + 1].GetPosition();
+            Vector3 a = points[i].anchor.GetPosition();
+            Vector3 b = points[i + 1].anchor.GetPosition();
 
             Vector3 projected = ClosestPointOnLineSegment(a, b, clickPos);
             float dist = Vector3.Distance(projected, clickPos);
@@ -118,14 +135,19 @@ public class Path : MonoBehaviour
 
     public List<NodeSelectable> GetNodes()
     {
-        return points;
+        List<NodeSelectable> anchors = new List<NodeSelectable> ();
+        foreach (var p  in points)
+        {
+            anchors.Add(p.anchor);
+        }
+        return anchors;
     } 
 
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         foreach (var p in points)
-            Gizmos.DrawSphere(p.GetPosition(), 0.05f);
+            Gizmos.DrawSphere(p.anchor.GetPosition(), 0.05f);
     }
 
 }

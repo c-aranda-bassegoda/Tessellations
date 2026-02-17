@@ -13,13 +13,13 @@ public class Polygon : MonoBehaviour
 
     SpriteRenderer nodeRenderer;
 
-    internal GameObject TryAddPoint(Vector3 pointerWorldPos)
+    internal GameObject TryAddPoint(Vector3 pointerWorldPos, bool smooth)
     {
 
         NodeSelectable node = null;
         foreach (var edge in edges)
         {
-            node = edge.TryAddPoint(pointerWorldPos);
+            node = edge.TryAddPoint(pointerWorldPos, smooth);
             if (node != null) break;
         }
 

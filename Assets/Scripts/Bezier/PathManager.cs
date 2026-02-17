@@ -17,7 +17,7 @@ public class PathManager : MonoBehaviour
 
         if (InputManager.Instance.PointerDown)
         {
-            currentNode = polygon.TryAddPoint(InputManager.Instance.PointerWorldPos);
+            currentNode = polygon.TryAddPoint(InputManager.Instance.PointerWorldPos, false);
             isEditing = true;
         }
 
