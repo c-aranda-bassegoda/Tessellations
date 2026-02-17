@@ -20,22 +20,18 @@ public class PathPointSelectionHandler : ISelectionHandler
         handleInVisual.SetActive(true);
         handleOutVisual.SetActive(true);
 
-        point.handleInSelectable = handleInVisual.GetComponent<HandleSelectable>();
-        point.handleOutSelectable = handleOutVisual.GetComponent<HandleSelectable>();
-        //var handleIn = handleInVisual.GetComponent<HandleSelectable>();
-        //var handleOut = handleOutVisual.GetComponent<HandleSelectable>();
+        var handleIn = handleInVisual.GetComponent<HandleSelectable>();
+        var handleOut = handleOutVisual.GetComponent<HandleSelectable>();
+        point.handleInSelectable = handleIn;
+        point.handleOutSelectable = handleOut;
 
-        //// Assign parent
-        //handleIn.parentPoint = point;
-        //handleOut.parentPoint = point;
+        // Assign parent
+        handleIn.parentPoint = point;
+        handleOut.parentPoint = point;
 
-        //// Make handles aware of each other for mirroring
-        //handleIn.oppositeHandle = handleOut;
-        //handleOut.oppositeHandle = handleIn;
-
-        //// Register handles so they can be selected and dragged
-        //SelectionManager.Instance.Register(handleIn);
-        //SelectionManager.Instance.Register(handleOut);
+        // Make handles aware of each other for mirroring
+        handleIn.oppositeHandle = handleOut;
+        handleOut.oppositeHandle = handleIn;
     }
 
     public void OnDeselected()
@@ -44,14 +40,8 @@ public class PathPointSelectionHandler : ISelectionHandler
         handleInVisual.SetActive(false);
         handleOutVisual.SetActive(false);
 
-        //var handleIn = handleInVisual.GetComponent<HandleSelectable>();
-        //var handleOut = handleOutVisual.GetComponent<HandleSelectable>();
-
-        //SelectionManager.Instance.Deregister(handleIn);
-        //SelectionManager.Instance.Deregister(handleOut);
-
-        //// Deselect the anchor
-        //point.anchor.SetSelected(false);
+        // Deselect the anchor
+        point.anchor.SetSelected(false);
     }
 
     private void UpdateHandlePositions()

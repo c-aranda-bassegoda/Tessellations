@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class PathPoint : ISelectable, IDraggable
@@ -94,8 +96,22 @@ public class PathPoint : ISelectable, IDraggable
 
     public void OnDrag(Vector2 worldPosition)
     {
-        MoveAnchor(worldPosition);
+        if (activePart == ActivePart.Anchor)
+        {
+            MoveAnchor(worldPosition);  
+        }
+        else
+        {
+            MoveHandle(worldPosition);
+        }
         selectionHandler.OnSelected();
     }
 
+    private void MoveHandle(Vector2 worldPosition)
+    {
+        if (activePart == ActivePart.HandleIn)
+            handleInSelectable.Move(worldPosition);
+        else 
+            handleOutSelectable.Move(worldPosition);
+    }
 }
