@@ -5,11 +5,11 @@ public class PathManager : MonoBehaviour
     public Polygon polygon;
     bool isEditing;
 
-    private GameObject currentNode;
+    private PathPoint currentNode;
 
     void Update()
     {
-        if (ToolManager.Instance.CurrentTool != ToolType.Node)
+        if (ToolManager.Instance.CurrentTool != ToolType.Node && ToolManager.Instance.CurrentTool != ToolType.SharpNode)
             return;
 
         if (InputManager.Instance.PointerOverUI)
@@ -17,18 +17,19 @@ public class PathManager : MonoBehaviour
 
         if (InputManager.Instance.PointerDown)
         {
-            currentNode = polygon.TryAddPoint(InputManager.Instance.PointerWorldPos, false);
-            isEditing = true;
+            currentNode = polygon.TryAddPoint(InputManager.Instance.PointerWorldPos, (ToolManager.Instance.CurrentTool == ToolType.Node));
+            if (currentNode != null)
+                isEditing = true;
         }
 
         if (InputManager.Instance.PointerHeld && isEditing)
         {
-            currentNode?.GetComponent<NodeSelectable>().Move(InputManager.Instance.PointerWorldPos);
+            currentNode.MoveAnchor(InputManager.Instance.PointerWorldPos);
         }
 
         if (InputManager.Instance.PointerUp && isEditing)
         {
-            NodeSelectable nodeSelectable = currentNode?.GetComponent<NodeSelectable>();
+            NodeSelectable nodeSelectable = currentNode?.anchor.GetComponent<NodeSelectable>();
             if (nodeSelectable != null)
                 SelectionManager.Instance.Register(nodeSelectable);
             isEditing = false;

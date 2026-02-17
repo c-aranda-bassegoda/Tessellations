@@ -13,17 +13,17 @@ public class Polygon : MonoBehaviour
 
     SpriteRenderer nodeRenderer;
 
-    internal GameObject TryAddPoint(Vector3 pointerWorldPos, bool smooth)
+    internal PathPoint TryAddPoint(Vector3 pointerWorldPos, bool smooth)
     {
 
-        NodeSelectable node = null;
+        PathPoint node = null;
         foreach (var edge in edges)
         {
             node = edge.TryAddPoint(pointerWorldPos, smooth);
             if (node != null) break;
         }
 
-        return node.gameObject;
+        return node;
     }
 
     private void Awake()
