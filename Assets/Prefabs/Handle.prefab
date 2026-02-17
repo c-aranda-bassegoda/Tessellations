@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 7884950081483899488}
   - component: {fileID: 5387434904350212521}
-  - component: {fileID: 7417721166036836005}
+  - component: {fileID: -4267175853908675328}
   m_Layer: 0
-  m_Name: Node 1
+  m_Name: Handle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28,7 +28,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.4954381, y: 0.99739194, z: 0}
-  m_LocalScale: {x: 0.08, y: 0.08, z: 0.08}
+  m_LocalScale: {x: 0.15, y: 0.15, z: 0.15}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -88,7 +88,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &7417721166036836005
+--- !u!114 &-4267175853908675328
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -97,8 +97,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 4631279889517319181}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7bcbd90f4ab7b3e4eb3715a735752d8a, type: 3}
+  m_Script: {fileID: 11500000, guid: 873bb9a32d41f3e4b96070e852a14bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  node: {fileID: 5387434904350212521}
-  hitRadius: 0.25

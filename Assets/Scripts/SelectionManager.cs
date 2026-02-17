@@ -43,14 +43,18 @@ public class SelectionManager : MonoBehaviour
 
         foreach (var s in selectables)
         {
-            Debug.Log("Looking for a hit");
+            //Debug.Log("Looking for a hit");
             if (s.HitTest(mouse))
             {
+                // Already selected? Keep it selected
+                if (s == selected) return;
+
                 Debug.Log("Got a hit");
                 Select(s);
                 return;
             }
         }
+
 
         Deselect();
     }
@@ -66,5 +70,15 @@ public class SelectionManager : MonoBehaviour
     {
         selected?.SetSelected(false); // if sth is selected deselect it
         selected = null;
+    }
+
+    internal void Deregister(ISelectable selectable)
+    {
+        if (selectables.Contains(selectable))
+            selectables.Remove(selectable);
+
+        // Also deselect if it was the currently selected object
+        if (selected == selectable)
+            Deselect(); 
     }
 }

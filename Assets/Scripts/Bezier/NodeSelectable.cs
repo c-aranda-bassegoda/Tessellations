@@ -4,7 +4,7 @@ using UnityEngine;
 public class NodeSelectable : MonoBehaviour, ISelectable
 {
     //[SerializeField]Vector2 position;
-    [SerializeField] SpriteRenderer node;
+    protected SpriteRenderer node;
 
     public float hitRadius = 1f;
 
@@ -13,7 +13,7 @@ public class NodeSelectable : MonoBehaviour, ISelectable
         node = GetComponent<SpriteRenderer>();
     }
 
-    public void Move(Vector2 position)
+    public virtual void Move(Vector2 position)
     {
         transform.position = position;
     }
@@ -30,7 +30,7 @@ public class NodeSelectable : MonoBehaviour, ISelectable
         return Vector2.Distance(worldPoint, nodePos) <= hitRadius;
     }
 
-    public void SetSelected(bool selected)
+    public virtual void SetSelected(bool selected)
     {
         node.color = selected ? Color.blue : Color.white;
 

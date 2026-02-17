@@ -15,7 +15,14 @@ public class PathManager : MonoBehaviour
     {
         // Instantiate shared handle visuals
         handleInVisual = Instantiate(handlePrefab);
+        HandleSelectable handleInSelectable = handleInVisual.GetComponent<HandleSelectable>();
+        handleInSelectable.isHandleIn = true;
         handleOutVisual = Instantiate(handlePrefab);
+        HandleSelectable handleOutSelectable = handleOutVisual.GetComponent<HandleSelectable>();
+        handleOutSelectable.isHandleIn = false;
+
+        handleInSelectable.oppositeHandle = handleOutSelectable;
+        handleOutSelectable.oppositeHandle = handleInSelectable;
 
         handleInVisual.SetActive(false);
         handleOutVisual.SetActive(false);
