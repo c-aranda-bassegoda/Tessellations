@@ -37,16 +37,42 @@ public class SelectionManager : MonoBehaviour
         }
     }
 
+    public void DeleteSelected()
+    {
+        if (selected == null)
+            return;
+
+        ISelectable toRemove = selected;
+        Deselect();
+        toRemove.Remove();
+    }
+
     private void TrySelect(Vector2 pointerWorldPos)
     {
         Vector2 mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-        foreach (var s in selectables)
+        for (int i = selectables.Count - 1; i >= 0; i--)
         {
+<<<<<<< Updated upstream
             //Debug.Log("Looking for a hit");
             if (s.HitTest(mouse))
             {
                 //Debug.Log("Got a hit");
+=======
+            var s = selectables[i];
+
+            if (s == null)
+            {
+                selectables.RemoveAt(i);
+                continue;
+            }
+
+            if (s.HitTest(pointerWorldPos))
+            {
+                if (s == selected)
+                    return;
+
+>>>>>>> Stashed changes
                 Select(s);
                 return;
             }

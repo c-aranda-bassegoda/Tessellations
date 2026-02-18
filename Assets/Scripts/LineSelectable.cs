@@ -49,4 +49,12 @@ public class LineSelectable : MonoBehaviour, ISelectable
         Vector2 closest = a + t * ab;
         return Vector2.Distance(p, closest);
     }
+
+    public void Remove()
+    {
+        Destroy(line);
+
+        if (SelectionManager.Instance != null)
+            SelectionManager.Instance.Deregister(this);
+    }
 }
