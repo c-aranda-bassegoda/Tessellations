@@ -9,6 +9,9 @@ public class SelectionManager : MonoBehaviour
     List<ISelectable> selectables = new List<ISelectable>();
     ISelectable selected;
 
+    IDraggable currentDraggable;
+    bool isDragging;
+
     private void Start()
     {
         Instance = this;
@@ -34,6 +37,23 @@ public class SelectionManager : MonoBehaviour
         if (InputManager.Instance.PointerDown)
         {
             TrySelect(InputManager.Instance.PointerWorldPos);
+
+            if (selected is IDraggable draggable)
+            {
+                currentDraggable = draggable;
+                isDragging = true;
+            }
+        }
+
+        if (isDragging && InputManager.Instance.PointerHeld)
+        {
+            currentDraggable?.OnDrag(InputManager.Instance.PointerWorldPos);
+        }
+
+        if (isDragging && InputManager.Instance.PointerUp)
+        {
+            isDragging = false;
+            currentDraggable = null;
         }
     }
 
@@ -49,34 +69,21 @@ public class SelectionManager : MonoBehaviour
 
     private void TrySelect(Vector2 pointerWorldPos)
     {
-        Vector2 mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
         for (int i = selectables.Count - 1; i >= 0; i--)
         {
-<<<<<<< Updated upstream
-            //Debug.Log("Looking for a hit");
-            if (s.HitTest(mouse))
-            {
-                //Debug.Log("Got a hit");
-=======
-            var s = selectables[i];
-
-            if (s == null)
-            {
-                selectables.RemoveAt(i);
-                continue;
-            }
-
+            Debug.Log("Looking for a hit");
             if (s.HitTest(pointerWorldPos))
             {
-                if (s == selected)
-                    return;
+                // Already selected? Keep it selected
+                if (s == selected) return;
 
->>>>>>> Stashed changes
+                Debug.Log("Got a hit");
                 Select(s);
                 return;
             }
         }
+
 
         Deselect();
     }
@@ -92,5 +99,15 @@ public class SelectionManager : MonoBehaviour
     {
         selected?.SetSelected(false); // if sth is selected deselect it
         selected = null;
+    }
+
+    internal void Deregister(ISelectable selectable)
+    {
+        if (selectables.Contains(selectable))
+            selectables.Remove(selectable);
+
+        // Also deselect if it was the currently selected object
+        if (selected == selectable)
+            Deselect(); 
     }
 }

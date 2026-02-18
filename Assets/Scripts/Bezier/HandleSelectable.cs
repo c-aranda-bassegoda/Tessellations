@@ -48,12 +48,4 @@ public class HandleSelectable : NodeSelectable
     {
         node.color = selected ? Color.blue : Color.red;
     }
-
-    public override void Remove()
-    {
-        Vector2 anchorPos = parentPoint.anchor.GetPosition();
-        parentPoint.handleInOffset = Vector3.zero;
-        parentPoint.handleOutOffset = Vector3.zero;
-        parentPoint.smooth = false;
-    }
 }

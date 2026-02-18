@@ -35,13 +35,5 @@ public class NodeSelectable : MonoBehaviour, ISelectable
         node.color = selected ? Color.blue : Color.white;
 
     }
-
-    public virtual void Remove()
-    {
-        Destroy(node);
-
-        if (SelectionManager.Instance != null)
-            SelectionManager.Instance.Deregister(this);
-    }
 }
 

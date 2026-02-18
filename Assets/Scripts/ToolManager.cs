@@ -3,7 +3,9 @@ public enum ToolType
 {
     None,
     Pencil,
-    Select
+    Select,
+    Node,
+    SharpNode
 }
 public class ToolManager : MonoBehaviour
 {
