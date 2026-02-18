@@ -73,32 +73,40 @@ public class SelectionManager : MonoBehaviour
         for (int i = selectables.Count - 1; i >= 0; i--)
         {
             Debug.Log("Looking for a hit");
+            var s = selectables[i];
+
+            if (s == null)
+            {
+                selectables.RemoveAt(i);
+                continue;
+            }
+
             if (s.HitTest(pointerWorldPos))
             {
-                // Already selected? Keep it selected
-                if (s == selected) return;
+                if (s == selected) return; // already selected, do nothing
 
-                Debug.Log("Got a hit");
                 Select(s);
                 return;
             }
         }
 
-
         Deselect();
+        
     }
 
     void Select(ISelectable s)
     {
-        selected?.SetSelected(false); // if sth is selected deselect it
+        if (selected != null)
+            selected.SetSelected(false); // if sth is selected deselect it
         selected = s;
         selected.SetSelected(true);
     }
 
     void Deselect()
     {
-        selected?.SetSelected(false); // if sth is selected deselect it
-        selected = null;
+            if (selected != null)
+                selected.SetSelected(false); // if sth is selected deselect it
+            selected = null;
     }
 
     internal void Deregister(ISelectable selectable)
