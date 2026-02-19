@@ -4,12 +4,12 @@ using UnityEngine;
 public class SnapDrawingSystem : ILineDrawer
 {
     private FreehandDrawingSystem baseDrawer;
-    private ConvexPolygon baseShape;
+    private abstractPolygon baseShape;
     private Vertex startVertex;
     private GameObject currentLine;
     private float snapDistance;
 
-    public SnapDrawingSystem(FreehandDrawingSystem drawer, ConvexPolygon shape, float snapDistance = 0.2f)
+    public SnapDrawingSystem(FreehandDrawingSystem drawer, abstractPolygon shape, float snapDistance = 0.2f)
     {
         baseDrawer = drawer;
         baseShape = shape;
@@ -38,7 +38,7 @@ public class SnapDrawingSystem : ILineDrawer
         bool valid =
             startVertex != null &&
             endVertex != null &&
-            VerticesCorrespondToEdge(startVertex, endVertex);
+            baseShape.HasEdge(endVertex, startVertex);
 
         if (valid)
         {
@@ -51,17 +51,6 @@ public class SnapDrawingSystem : ILineDrawer
 
         startVertex = null;
         currentLine = null;
-    }
-
-
-    private bool VerticesCorrespondToEdge(Vertex startVertex, Vertex endVertex)
-    {
-        foreach (var e in baseShape.Edges)
-        {
-            if ((e.A == startVertex && e.B == endVertex) || (e.B == startVertex && e.A == endVertex))
-                return true;
-        }
-        return false;
     }
 
     private Vertex FindClosestVertex(Vector3 pos)
@@ -78,15 +67,6 @@ public class SnapDrawingSystem : ILineDrawer
             }
         }
         return closest;
-    }
-
-    private Edge FindEdgeWithVertex(Vertex v)
-    {
-        foreach (var e in baseShape.Edges)
-        {
-            if (e.A == v || e.B == v) return e;
-        }
-        return null;
     }
 
     public void DeleteDrawing()

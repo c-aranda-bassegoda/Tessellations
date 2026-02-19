@@ -4,12 +4,12 @@ using UnityEngine;
 public class InsidePolygonDrawingSystem :  ILineDrawer
 {
     private FreehandDrawingSystem baseDrawer;
-    private ConvexPolygon baseShape;
+    private abstractPolygon baseShape;
 
     private bool isDrawingValid = true;
     private Vector3 lastPoint;
 
-    public InsidePolygonDrawingSystem(FreehandDrawingSystem drawer, ConvexPolygon shape)
+    public InsidePolygonDrawingSystem(FreehandDrawingSystem drawer, abstractPolygon shape)
     {
         baseDrawer = drawer;
         baseShape = shape;

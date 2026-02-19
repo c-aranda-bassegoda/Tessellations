@@ -1,20 +1,18 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ConvexPolygon : abstractPolygon
+public class NonConvexPolygon : abstractPolygon
 {
     private List<Edge> edges;
-    public IReadOnlyList<Edge> Edges => edges;
-
     [SerializeField] List<Vertex> vertices = new List<Vertex>();
+
+    public IReadOnlyList<Edge> Edges => edges;
     public IReadOnlyList<Vertex> Vertices => vertices;
 
     private void Start()
     {
         if (vertices == null)
             vertices = new List<Vertex>();
-        edges = new List<Edge>();
 
         if (vertices.Count < 3)
         {
@@ -25,47 +23,89 @@ public class ConvexPolygon : abstractPolygon
             vertices.Add(new Vertex(new Vector3(1, 0, 0)));
         }
 
-        int prev = vertices.Count - 1;
-        for (int i = 0; i < vertices.Count; i++)
-        {
-            edges.Add(new Edge(vertices[i], vertices[prev]));
-            prev = i;
-        }
+        BuildEdges();
 
         DrawEdges();
         DrawVertices();
     }
 
-    public override bool ContainsPoint(Vector3 point)
+    private void BuildEdges()
     {
-        bool inside = false;
+        edges = new List<Edge>();
 
-        for (int i = 0, j = Vertices.Count - 1; i < Vertices.Count; j = i++)
+        for (int i = 0; i < vertices.Count; i++)
         {
-            Vector2 vi = Vertices[i].Position;
-            Vector2 vj = Vertices[j].Position;
-
-            bool intersect =
-                ((vi.y > point.y) != (vj.y > point.y)) &&
-                (point.x < (vj.x - vi.x) * (point.y - vi.y) / (vj.y - vi.y) + vi.x);
-
-            if (intersect)
-                inside = !inside;
+            var a = vertices[i];
+            var b = vertices[(i + 1) % vertices.Count];
+            edges.Add(new Edge(a, b));
         }
-
-        return inside;
     }
-
 
     public override bool HasEdge(Vertex a, Vertex b)
     {
         foreach (var e in edges)
         {
-            if ((e.A == a && e.B == b) || (e.B == a && e.A == b))
+            if ((e.A == a && e.B == b) || (e.A == b && e.B == a))
                 return true;
         }
         return false;
     }
+
+    // Assumes edges are ordered (counter) clockwise
+    public override bool ContainsPoint(Vector3 point)
+    {
+        Vector2 p = new Vector2(point.x, point.y);
+        int windingNumber = 0;
+
+        for (int i = 0; i < vertices.Count; i++)
+        {
+            Vector2 v1 = To2D(vertices[i].Position);
+            Vector2 v2 = To2D(vertices[(i + 1) % vertices.Count].Position);
+
+            if (IsPointOnEdge(p, v1, v2))
+                return true; // treat boundary as inside
+
+            if (v1.y <= p.y)
+            {
+                if (v2.y > p.y && IsLeft(v1, v2, p) > 0)
+                    windingNumber++;
+            }
+            else
+            {
+                if (v2.y <= p.y && IsLeft(v1, v2, p) < 0)
+                    windingNumber--;
+            }
+        }
+
+        return windingNumber != 0;
+    }
+
+    private float IsLeft(Vector2 a, Vector2 b, Vector2 p)
+    {
+        return (b.x - a.x) * (p.y - a.y) - (p.x - a.x) * (b.y - a.y);
+    }
+
+    private bool IsPointOnEdge(Vector2 p, Vector2 a, Vector2 b)
+    {
+        float cross = IsLeft(a, b, p);
+        if (Mathf.Abs(cross) > 0.0001f)
+            return false;
+
+        float dot = Vector2.Dot(p - a, b - a);
+        if (dot < 0)
+            return false;
+
+        if (dot > (b - a).sqrMagnitude)
+            return false;
+
+        return true;
+    }
+
+    private Vector2 To2D(Vector3 v)
+    {
+        return new Vector2(v.x, v.y);
+    }
+
 
     /*---------------------------------------------------------------------------------------------
      * Rendering
@@ -75,6 +115,7 @@ public class ConvexPolygon : abstractPolygon
     [SerializeField] private GameObject vtxPrefab;
     [SerializeField] private int resolutionPerSegment = 3;
     private List<LineRenderer> edgeRenderers = new List<LineRenderer>();
+
     private void DrawVertices()
     {
         if (vertices == null) return;
@@ -112,4 +153,3 @@ public class ConvexPolygon : abstractPolygon
         }
     }
 }
-
