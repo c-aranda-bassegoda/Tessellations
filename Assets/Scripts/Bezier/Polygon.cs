@@ -13,10 +13,10 @@ public class Polygon : MonoBehaviour
 
     SpriteRenderer nodeRenderer;
 
-    internal PathPoint TryAddPoint(Vector3 pointerWorldPos, bool smooth)
+    internal PathPointSelectable TryAddPoint(Vector3 pointerWorldPos, bool smooth)
     {
 
-        PathPoint node = null;
+        PathPointSelectable node = null;
         foreach (var edge in edges)
         {
             node = edge.TryAddPoint(pointerWorldPos, smooth);
@@ -50,12 +50,6 @@ public class Polygon : MonoBehaviour
 
             prev = vertices[i];
         }
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
         
     }
 }

@@ -4,14 +4,14 @@ using static UnityEditor.PlayerSettings;
 
 public class Path : MonoBehaviour
 {
-    private List<PathPoint> points;
+    private List<PathPointSelectable> points;
     public int resolutionPerSegment = 20;
     private LineRenderer line;
     public GameObject nodePrefab;
 
     void Awake()
     {
-        points = new List<PathPoint>();
+        points = new List<PathPointSelectable>();
 
         line = GetComponent<LineRenderer>();
         if (line == null)
@@ -24,7 +24,7 @@ public class Path : MonoBehaviour
 
         NodeSelectable a = Instantiate(nodePrefab, start, Quaternion.identity)
                         .GetComponent<NodeSelectable>();
-        PathPoint p1 = new PathPoint();
+        PathPointSelectable p1 = new PathPointSelectable();
         p1.parentPath = this;
         p1.anchor = a;
         p1.handleInOffset = Vector3.zero;
@@ -33,7 +33,7 @@ public class Path : MonoBehaviour
 
         NodeSelectable b = Instantiate(nodePrefab, end, Quaternion.identity)
                             .GetComponent<NodeSelectable>();
-        PathPoint p2 = new PathPoint();
+        PathPointSelectable p2 = new PathPointSelectable();
         p2.parentPath = this;
         p2.anchor = b;
         p2.handleInOffset = Vector3.zero;
@@ -60,8 +60,8 @@ public class Path : MonoBehaviour
 
         for (int i = 0; i < points.Count - 1; i++)
         {
-            PathPoint p0 = points[i];
-            PathPoint p1 = points[i + 1];
+            PathPointSelectable p0 = points[i];
+            PathPointSelectable p1 = points[i + 1];
 
             Vector3 a = p0.anchor.GetPosition();
             Vector3 d = p1.anchor.GetPosition();
@@ -81,7 +81,7 @@ public class Path : MonoBehaviour
         }
     }
 
-    public void DeletePoint(PathPoint point)
+    public void DeletePoint(PathPointSelectable point)
     {
         if (points.Count <= 2)
             return;
@@ -95,7 +95,7 @@ public class Path : MonoBehaviour
     }
 
 
-    public PathPoint TryAddPoint(Vector3 position, bool smooth)
+    public PathPointSelectable TryAddPoint(Vector3 position, bool smooth)
     {
         if (points.Count < 2) return null;
 
@@ -110,7 +110,7 @@ public class Path : MonoBehaviour
         {
             NodeSelectable node = Instantiate(nodePrefab, closestPoint, Quaternion.identity)
                         .GetComponent<NodeSelectable>();
-            PathPoint p1 = new PathPoint();
+            PathPointSelectable p1 = new PathPointSelectable();
             p1.parentPath = this;
             p1.anchor = node;
             p1.smooth = smooth;

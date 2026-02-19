@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class HandleSelectable : NodeSelectable
 {
-    public PathPoint parentPoint;
+    public PathPointSelectable parentPoint;
     public bool isHandleIn; 
     public HandleSelectable oppositeHandle;
 

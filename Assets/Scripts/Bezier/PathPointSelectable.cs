@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
-public class PathPoint : ISelectable, IDraggable
+public class PathPointSelectable : ISelectable, IDraggable
 {
     public Path parentPath;
 

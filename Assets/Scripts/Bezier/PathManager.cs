@@ -6,7 +6,7 @@ public class PathManager : MonoBehaviour
     public GameObject handlePrefab;
     bool isEditing;
 
-    private PathPoint currentNode;
+    private PathPointSelectable currentNode;
     private GameObject handleInVisual;
     private GameObject handleOutVisual;
 
