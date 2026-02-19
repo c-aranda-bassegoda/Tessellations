@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
 
-public class DrawingSystem : MonoBehaviour
+public class FreehandDrawingSystem : MonoBehaviour, ILineDrawer
 {
     public bool OnDrawing = true;
 
@@ -15,13 +15,18 @@ public class DrawingSystem : MonoBehaviour
     private List<Vector3> points;
 
     // Creates line game object with given starting point
-    internal GameObject StartLine(Vector3 worldPos)
+    public GameObject StartLine(Vector3 worldPos)
     {
-        GameObject lineObj = Instantiate(linePrefab, Vector3.zero, Quaternion.identity);
+        GameObject lineObj = GameObject.Instantiate(linePrefab, Vector3.zero, Quaternion.identity);
         currentLine = lineObj.GetComponent<LineRenderer>();
         points = new List<Vector3>();
         AddPoint(worldPos);
         return lineObj;
+    }
+
+    public void UpdateDrawing(Vector3 currentPos)
+    {
+        AddPoint(currentPos);
     }
 
     // Adds a point to the current line
@@ -37,7 +42,7 @@ public class DrawingSystem : MonoBehaviour
         }
     }
 
-    internal void EndLine()
+    public void EndLine()
     {
         currentLine = null;
         points = null;

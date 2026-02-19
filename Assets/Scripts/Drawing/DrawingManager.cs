@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class DrawingManager : MonoBehaviour
 {
-    public DrawingSystem drawingSystem;
+    public FreehandDrawingSystem drawingSystem;
     bool isDrawing;
 
     private GameObject currentLine;
