@@ -5,7 +5,10 @@ using UnityEngine;
 public class BaseShape : MonoBehaviour
 {
     private List<Edge> edges;
+    public List<Edge> Edges => edges;
+
     [SerializeField] List<Vertex> vertices = new List<Vertex>();
+    public List<Vertex> Vertices => vertices;
 
     [SerializeField] private GameObject edgePrefab;
     [SerializeField] private GameObject vtxPrefab;

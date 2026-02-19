@@ -3,6 +3,7 @@ public enum ToolType
 {
     None,
     Pencil,
+    SnappingPencil,
     Select,
     Node,
     SharpNode

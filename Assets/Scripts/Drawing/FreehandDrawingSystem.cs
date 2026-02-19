@@ -3,25 +3,28 @@ using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
 
-public class FreehandDrawingSystem : MonoBehaviour, ILineDrawer
+public class FreehandDrawingSystem : ILineDrawer
 {
-    public bool OnDrawing = true;
-
-    [Header("Line Settings")]
-    [SerializeField] private GameObject linePrefab; // Prefab with LineRenderer
-    [SerializeField] private float minDistance = 0.05f; // How close can two adjacent points in a line be
-
-    private LineRenderer currentLine;
+    private GameObject currentLine;
+    private LineRenderer currentLineRenderer;
     private List<Vector3> points;
+    private GameObject linePrefab;
+    private float minDistance;
 
-    // Creates line game object with given starting point
-    public GameObject StartLine(Vector3 worldPos)
+    public FreehandDrawingSystem(GameObject prefab, float minDistance = 0.05f)
     {
-        GameObject lineObj = GameObject.Instantiate(linePrefab, Vector3.zero, Quaternion.identity);
-        currentLine = lineObj.GetComponent<LineRenderer>();
+        linePrefab = prefab;
+        this.minDistance = minDistance;
+    }
+
+    // Return the GameObject so the manager can register it
+    public GameObject StartDrawing(Vector3 startPos)
+    {
+        currentLine = GameObject.Instantiate(linePrefab, Vector3.zero, Quaternion.identity);
+        currentLineRenderer = currentLine.GetComponent<LineRenderer>();
         points = new List<Vector3>();
-        AddPoint(worldPos);
-        return lineObj;
+        AddPoint(startPos);
+        return currentLine;
     }
 
     public void UpdateDrawing(Vector3 currentPos)
@@ -29,22 +32,34 @@ public class FreehandDrawingSystem : MonoBehaviour, ILineDrawer
         AddPoint(currentPos);
     }
 
-    // Adds a point to the current line
-    internal void AddPoint(Vector3 worldPos)
+    public void EndDrawing(Vector3 endPos)
     {
-        if (currentLine == null) return;
+        AddPoint(endPos);
+        currentLine = null;
+        currentLineRenderer = null;
+        points = null;
+    }
 
-        if (points.Count == 0 || Vector3.Distance(points[points.Count - 1], worldPos) >= minDistance)
+    private void AddPoint(Vector3 pos)
+    {
+        if (currentLineRenderer == null) return;
+
+        if (points.Count == 0 || Vector3.Distance(points[points.Count - 1], pos) >= minDistance)
         {
-            points.Add(worldPos);
-            currentLine.positionCount = points.Count;
-            currentLine.SetPosition(points.Count - 1, worldPos);
+            points.Add(pos);
+            currentLineRenderer.positionCount = points.Count;
+            currentLineRenderer.SetPosition(points.Count - 1, pos);
         }
     }
 
-    public void EndLine()
+    public void DeleteDrawing()
     {
+        if (currentLine != null)
+            GameObject.Destroy(currentLine);
+
         currentLine = null;
+        currentLineRenderer = null;
         points = null;
     }
+
 }

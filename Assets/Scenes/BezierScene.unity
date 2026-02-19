@@ -1075,7 +1075,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea58ad63337ee8e4982699db2f04edd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toolType: 2
+  toolType: 3
   icon: {fileID: 1147643401}
   selectedColor: {r: 0, g: 1, b: 0.9570346, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
@@ -1331,7 +1331,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea58ad63337ee8e4982699db2f04edd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toolType: 4
+  toolType: 5
   icon: {fileID: 1252617379}
   selectedColor: {r: 0, g: 1, b: 0.9570346, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
@@ -1695,7 +1695,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea58ad63337ee8e4982699db2f04edd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toolType: 3
+  toolType: 4
   icon: {fileID: 1775876836}
   selectedColor: {r: 0, g: 1, b: 0.9570346, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}

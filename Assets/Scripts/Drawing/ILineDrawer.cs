@@ -2,7 +2,10 @@ using UnityEngine;
 
 public interface ILineDrawer
 {
-    GameObject StartLine(Vector3 startPos);
+    GameObject StartDrawing(Vector3 startPos);
     void UpdateDrawing(Vector3 currentPos);
-    void EndLine();
+    void EndDrawing(Vector3 endPos);
+
+    void DeleteDrawing();
 }
+
