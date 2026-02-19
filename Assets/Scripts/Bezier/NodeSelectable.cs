@@ -33,7 +33,6 @@ public class NodeSelectable : MonoBehaviour, ISelectable
     public virtual void SetSelected(bool selected)
     {
         node.color = selected ? Color.blue : Color.white;
-
     }
 
     public void Remove()
