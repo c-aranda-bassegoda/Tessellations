@@ -129,11 +129,5 @@ public class PathPoint : ISelectable, IDraggable
     {
         if (anchor != null)
             UnityEngine.Object.Destroy(anchor.gameObject);
-
-        if (handleInSelectable != null)
-            UnityEngine.Object.Destroy(handleInSelectable.gameObject);
-
-        if (handleOutSelectable != null)
-            UnityEngine.Object.Destroy(handleOutSelectable.gameObject);
     }
 }
