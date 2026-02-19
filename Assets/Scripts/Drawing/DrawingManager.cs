@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class DrawingManager : MonoBehaviour
 {
-    [SerializeField] private BaseShape baseShape;
+    [SerializeField] private ConvexPolygon baseShape;
     [SerializeField] private GameObject linePrefab;
 
     private ILineDrawer activeDrawer;
@@ -43,23 +43,27 @@ public class DrawingManager : MonoBehaviour
         if (InputManager.Instance.PointerUp && isDrawing)
         {
             activeDrawer.EndDrawing(pointerPos);
-            LineSelectable lineSelectable = currentLine?.GetComponent<LineSelectable>();
-            if (lineSelectable != null) 
-                SelectionManager.Instance.Register(lineSelectable);
+            if (currentLine != null)
+            {
+                LineSelectable lineSelectable = currentLine?.GetComponent<LineSelectable>();
+                if (lineSelectable != null)
+                    SelectionManager.Instance.Register(lineSelectable);
+            }
+            currentLine = null;
             isDrawing = false;
         }
     }
 
     private void SetupDrawer(ToolType tool)
     {
+        var freehand = new FreehandDrawingSystem(linePrefab);
         switch (tool)
         {
             case ToolType.Pencil:
-                activeDrawer = new FreehandDrawingSystem(linePrefab);
+                activeDrawer = new InsidePolygonDrawingSystem(freehand, baseShape);
                 break;
 
             case ToolType.SnappingPencil:
-                var freehand = new FreehandDrawingSystem(linePrefab);
                 activeDrawer = new SnapDrawingSystem(freehand, baseShape);
                 break;
 

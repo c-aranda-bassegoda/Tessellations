@@ -4,12 +4,12 @@ using UnityEngine;
 public class SnapDrawingSystem : ILineDrawer
 {
     private FreehandDrawingSystem baseDrawer;
-    private BaseShape baseShape;
+    private ConvexPolygon baseShape;
     private Vertex startVertex;
     private GameObject currentLine;
     private float snapDistance;
 
-    public SnapDrawingSystem(FreehandDrawingSystem drawer, BaseShape shape, float snapDistance = 0.2f)
+    public SnapDrawingSystem(FreehandDrawingSystem drawer, ConvexPolygon shape, float snapDistance = 0.2f)
     {
         baseDrawer = drawer;
         baseShape = shape;

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BaseShape : MonoBehaviour
+public class ConvexPolygon : MonoBehaviour
 {
     private List<Edge> edges;
     public List<Edge> Edges => edges;
@@ -78,6 +78,25 @@ public class BaseShape : MonoBehaviour
         }
     }
 
+    public bool ContainsPoint(Vector2 point)
+    {
+        bool inside = false;
+
+        for (int i = 0, j = Vertices.Count - 1; i < Vertices.Count; j = i++)
+        {
+            Vector2 vi = Vertices[i].Position;
+            Vector2 vj = Vertices[j].Position;
+
+            bool intersect =
+                ((vi.y > point.y) != (vj.y > point.y)) &&
+                (point.x < (vj.x - vi.x) * (point.y - vi.y) / (vj.y - vi.y) + vi.x);
+
+            if (intersect)
+                inside = !inside;
+        }
+
+        return inside;
+    }
 
 }
 
