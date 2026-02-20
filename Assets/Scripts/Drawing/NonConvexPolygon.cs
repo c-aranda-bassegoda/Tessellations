@@ -54,25 +54,24 @@ public class NonConvexPolygon : Polygon
     // Assumes edges are ordered (counter) clockwise
     public override bool ContainsPoint(Vector3 point)
     {
-        Vector2 p = new Vector2(point.x, point.y);
         int windingNumber = 0;
 
         for (int i = 0; i < vertices.Count; i++)
-        {
-            Vector2 v1 = To2D(vertices[i].Position);
-            Vector2 v2 = To2D(vertices[(i + 1) % vertices.Count].Position);
+        { 
+            Vector3 v1 = (vertices[i].Position);
+            Vector3 v2 = (vertices[(i + 1) % vertices.Count].Position);
 
-            if (IsPointOnEdge(p, v1, v2))
+            if (IsPointOnEdge(point, v1, v2))
                 return true; // treat boundary as inside
 
-            if (v1.y <= p.y)
+            if (v1.y <= point.y)
             {
-                if (v2.y > p.y && IsLeft(v1, v2, p) > 0)
+                if (v2.y > point.y && IsLeft(v1, v2, point) > 0)
                     windingNumber++;
             }
             else
             {
-                if (v2.y <= p.y && IsLeft(v1, v2, p) < 0)
+                if (v2.y <= point.y && IsLeft(v1, v2, point) < 0)
                     windingNumber--;
             }
         }
@@ -99,11 +98,6 @@ public class NonConvexPolygon : Polygon
             return false;
 
         return true;
-    }
-
-    private Vector2 To2D(Vector3 v)
-    {
-        return new Vector2(v.x, v.y);
     }
 
 
