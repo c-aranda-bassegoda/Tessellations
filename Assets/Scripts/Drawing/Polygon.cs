@@ -4,7 +4,7 @@ using UnityEngine;
 // polygon embeded in 2D - Otherwise ContainsPoint is a nonsensical method
 public abstract class Polygon : MonoBehaviour 
 {
-    public IReadOnlyList<Vertex> Vertices { get; }
+    public IReadOnlyList<Vertex> Vertices { get; set; }
     IReadOnlyList<Edge> Edges { get; }
 
     // Should indicate whether point is enclosed by the polygon

@@ -39,14 +39,14 @@ public class InsidePolygonDrawingSystem :  ILineDrawer
         baseDrawer.UpdateDrawing(currentPos);
     }
 
-    public void EndDrawing(Vector3 endPos)
+    public bool EndDrawing(Vector3 endPos)
     {
         if (!isDrawingValid)
         {
             endPos = lastPoint;
         }
 
-        baseDrawer.EndDrawing(endPos);
+        return baseDrawer.EndDrawing(endPos); ; //success
     }
 
     public void DeleteDrawing()

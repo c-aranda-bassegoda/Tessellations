@@ -13,6 +13,9 @@ public class ConvexPolygon : Polygon
     {
         if (vertices == null)
             vertices = new List<Vertex>();
+
+        base.Vertices = vertices;
+
         edges = new List<Edge>();
 
         if (vertices.Count < 3)

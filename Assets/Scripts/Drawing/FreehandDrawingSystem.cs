@@ -32,12 +32,13 @@ public class FreehandDrawingSystem : ILineDrawer
         AddPoint(currentPos);
     }
 
-    public void EndDrawing(Vector3 endPos)
+    public bool EndDrawing(Vector3 endPos)
     {
         AddPoint(endPos);
         currentLine = null;
         currentLineRenderer = null;
         points = null;
+        return true;
     }
 
     private void AddPoint(Vector3 pos)

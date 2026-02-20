@@ -31,7 +31,7 @@ public class SnapDrawingSystem : ILineDrawer
         baseDrawer.UpdateDrawing(currentPos);
     }
 
-    public void EndDrawing(Vector3 endPos)
+    public bool EndDrawing(Vector3 endPos)
     {
         Vertex endVertex = FindClosestVertex(endPos);
 
@@ -51,6 +51,8 @@ public class SnapDrawingSystem : ILineDrawer
 
         startVertex = null;
         currentLine = null;
+
+        return valid;
     }
 
     private Vertex FindClosestVertex(Vector3 pos)

@@ -42,8 +42,7 @@ public class DrawingManager : MonoBehaviour
 
         if (InputManager.Instance.PointerUp && isDrawing)
         {
-            activeDrawer.EndDrawing(pointerPos);
-            if (currentLine != null)
+            if (activeDrawer.EndDrawing(pointerPos) && currentLine != null)
             {
                 LineSelectable lineSelectable = currentLine?.GetComponent<LineSelectable>();
                 if (lineSelectable != null)

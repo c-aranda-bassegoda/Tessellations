@@ -12,6 +12,7 @@ public class NonConvexPolygon : Polygon
     {
         if (vertices == null)
             vertices = new List<Vertex>();
+        base.Vertices = vertices;
 
         if (vertices.Count < 3)
         {
