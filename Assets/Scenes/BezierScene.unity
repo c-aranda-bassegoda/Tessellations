@@ -1053,7 +1053,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseShape: {fileID: 1206904073}
-  linePrefab: {fileID: 8599736580140806056, guid: 050877c8eb864d7469a1fc0219816d60, type: 3}
+  linePrefab: {fileID: 4737950803987888381, guid: 59cbbdf3e8ecd8e4d91c8cc2d85ed050, type: 3}
 --- !u!4 &1128681751
 Transform:
   m_ObjectHideFlags: 0
