@@ -24,6 +24,7 @@ public class Path : MonoBehaviour
 
         NodeSelectable a = Instantiate(nodePrefab, start, Quaternion.identity)
                         .GetComponent<NodeSelectable>();
+        a.transform.SetParent(transform, true);
         PathPointSelectable p1 = new PathPointSelectable();
         p1.parentPath = this;
         p1.anchor = a;
@@ -33,6 +34,7 @@ public class Path : MonoBehaviour
 
         NodeSelectable b = Instantiate(nodePrefab, end, Quaternion.identity)
                             .GetComponent<NodeSelectable>();
+        b.transform.SetParent(transform, true);
         PathPointSelectable p2 = new PathPointSelectable();
         p2.parentPath = this;
         p2.anchor = b;
