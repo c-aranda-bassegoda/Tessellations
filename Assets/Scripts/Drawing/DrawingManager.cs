@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class DrawingManager : MonoBehaviour
 {
-    [SerializeField] private abstractPolygon baseShape;
+    [SerializeField] private Polygon baseShape;
     [SerializeField] private GameObject linePrefab;
 
     private ILineDrawer activeDrawer;

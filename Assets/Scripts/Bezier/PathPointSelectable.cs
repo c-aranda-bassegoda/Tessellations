@@ -8,6 +8,8 @@ public class PathPointSelectable : ISelectable, IDraggable
     public Path parentPath;
 
     public NodeSelectable anchor;
+    public Vector2 Position => anchor.GetPosition();
+
     public Vector3 handleInOffset;
     public Vector3 handleOutOffset;
     public HandleSelectable handleInSelectable;

@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class NodeSelectable : MonoBehaviour, ISelectable
 {
-    //[SerializeField]Vector2 position;
     protected SpriteRenderer node;
 
     public float hitRadius = 1f;

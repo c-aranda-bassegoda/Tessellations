@@ -4,12 +4,12 @@ using UnityEngine;
 public class SnapDrawingSystem : ILineDrawer
 {
     private FreehandDrawingSystem baseDrawer;
-    private abstractPolygon baseShape;
+    private Polygon baseShape;
     private Vertex startVertex;
     private GameObject currentLine;
     private float snapDistance;
 
-    public SnapDrawingSystem(FreehandDrawingSystem drawer, abstractPolygon shape, float snapDistance = 0.2f)
+    public SnapDrawingSystem(FreehandDrawingSystem drawer, Polygon shape, float snapDistance = 0.2f)
     {
         baseDrawer = drawer;
         baseShape = shape;
@@ -57,7 +57,7 @@ public class SnapDrawingSystem : ILineDrawer
     {
         Vertex closest = null;
         float minDist = snapDistance;
-        foreach (var v in baseShape.Vertices)
+        foreach (Vertex v in baseShape.Vertices)
         {
             float dist = Vector3.Distance(pos, v.Position);
             if (dist < minDist)

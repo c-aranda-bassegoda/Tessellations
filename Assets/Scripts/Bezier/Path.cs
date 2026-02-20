@@ -49,38 +49,6 @@ public class Path : MonoBehaviour
         DrawPath();
     }
 
-    void DrawPath()
-    {
-        if (line == null || points == null || points.Count < 2) return;
-
-        int totalPoints = (points.Count - 1) * (resolutionPerSegment + 1);
-        line.positionCount = totalPoints;
-
-        int index = 0;
-
-        for (int i = 0; i < points.Count - 1; i++)
-        {
-            PathPointSelectable p0 = points[i];
-            PathPointSelectable p1 = points[i + 1];
-
-            Vector3 a = p0.anchor.GetPosition();
-            Vector3 d = p1.anchor.GetPosition();
-
-            for (int j = 0; j <= resolutionPerSegment; j++)
-            {
-                float t = j / (float)resolutionPerSegment;
-
-                Vector3 position;
-
-                Vector3 b = p0.HandleOutPos;
-                Vector3 c = p1.HandleInPos;
-
-                position = BezierCurve.CubicCurve(a, b, c, d, t);
-                line.SetPosition(index++, position);
-            }
-        }
-    }
-
     public void DeletePoint(PathPointSelectable point)
     {
         if (points.Count <= 2)
@@ -181,7 +149,31 @@ public class Path : MonoBehaviour
             anchors.Add(p.anchor);
         }
         return anchors;
-    } 
+    }
+
+
+    public bool HasEdge(Vector2 a, Vector2 b)
+    {
+        for(int i = 0; i < points.Count; i++)
+        {
+            var p1 = points[i];
+            var p2 = points[(i + 1) % points.Count];
+            if ((p1.Position == a && p2.Position == b) || (p1.Position == b && p2.Position == a))
+                return true;
+        }
+        return false;
+    }
+
+    public PathPointSelectable GetPoint(int index)
+    {
+        return points[index];
+    }
+
+    /*
+     * -------------------------------------------------------------------------------------------
+     * Rendering
+     * -------------------------------------------------------------------------------------------
+     */
 
     void OnDrawGizmos()
     {
@@ -189,5 +181,35 @@ public class Path : MonoBehaviour
         foreach (var p in points)
             Gizmos.DrawSphere(p.anchor.GetPosition(), 0.05f);
     }
+    void DrawPath()
+    {
+        if (line == null || points == null || points.Count < 2) return;
 
+        int totalPoints = (points.Count - 1) * (resolutionPerSegment + 1);
+        line.positionCount = totalPoints;
+
+        int index = 0;
+
+        for (int i = 0; i < points.Count - 1; i++)
+        {
+            PathPointSelectable p0 = points[i];
+            PathPointSelectable p1 = points[i + 1];
+
+            Vector3 a = p0.anchor.GetPosition();
+            Vector3 d = p1.anchor.GetPosition();
+
+            for (int j = 0; j <= resolutionPerSegment; j++)
+            {
+                float t = j / (float)resolutionPerSegment;
+
+                Vector3 position;
+
+                Vector3 b = p0.HandleOutPos;
+                Vector3 c = p1.HandleInPos;
+
+                position = BezierCurve.CubicCurve(a, b, c, d, t);
+                line.SetPosition(index++, position);
+            }
+        }
+    }
 }

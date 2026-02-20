@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class abstractPolygon : MonoBehaviour 
+public abstract class Polygon : MonoBehaviour 
 {
     public IReadOnlyList<Vertex> Vertices { get; }
     IReadOnlyList<Edge> Edges { get; }

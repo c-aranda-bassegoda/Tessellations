@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ConvexPolygon : abstractPolygon
+public class ConvexPolygon : Polygon
 {
     private List<Edge> edges;
     public IReadOnlyList<Edge> Edges => edges;

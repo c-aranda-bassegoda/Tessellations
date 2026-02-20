@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NonConvexPolygon : abstractPolygon
+public class NonConvexPolygon : Polygon
 {
     private List<Edge> edges;
     [SerializeField] List<Vertex> vertices = new List<Vertex>();
