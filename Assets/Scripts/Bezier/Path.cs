@@ -169,6 +169,16 @@ public class Path : MonoBehaviour
         return points[index];
     }
 
+    public Vector2 GetCurveAtT(PathPointSelectable p0, PathPointSelectable p1, float t)
+    {
+        Vector2 a = p0.Position;
+        Vector2 b = p0.HandleOutPos;
+        Vector2 c = p1.HandleInPos;
+        Vector2 d = p1.Position;
+
+        return BezierCurve.CubicCurve(a, b, c, d, t);
+    }
+
     /*
      * -------------------------------------------------------------------------------------------
      * Rendering

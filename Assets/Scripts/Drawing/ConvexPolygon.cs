@@ -8,7 +8,6 @@ public class ConvexPolygon : Polygon
     public IReadOnlyList<Edge> Edges => edges;
 
     [SerializeField] List<Vertex> vertices = new List<Vertex>();
-    public IReadOnlyList<Vertex> Vertices => vertices;
 
     private void Start()
     {
@@ -19,10 +18,10 @@ public class ConvexPolygon : Polygon
         if (vertices.Count < 3)
         {
             vertices.Clear();
-            vertices.Add(new Vertex(new Vector3(0, 0, 0)));
-            vertices.Add(new Vertex(new Vector3(0, 1, 0)));
-            vertices.Add(new Vertex(new Vector3(1, 1, 0)));
-            vertices.Add(new Vertex(new Vector3(1, 0, 0)));
+            vertices.Add(new Vertex(new Vector2(0, 0)));
+            vertices.Add(new Vertex(new Vector2(0, 1)));
+            vertices.Add(new Vertex(new Vector2(1, 1)));
+            vertices.Add(new Vertex(new Vector2(1, 0)));
         }
 
         int prev = vertices.Count - 1;
@@ -36,7 +35,7 @@ public class ConvexPolygon : Polygon
         DrawVertices();
     }
 
-    public override bool ContainsPoint(Vector3 point)
+    public override bool ContainsPoint(Vector2 point)
     {
         bool inside = false;
 
@@ -81,7 +80,7 @@ public class ConvexPolygon : Polygon
 
         for (int i = 0; i < vertices.Count; i++)
         {
-            GameObject vtxObj = Instantiate(vtxPrefab, (Vector3)vertices[i].Position, Quaternion.identity);
+            GameObject vtxObj = Instantiate(vtxPrefab, (Vector2)vertices[i].Position, Quaternion.identity);
             Debug.Log("color: " + vtxObj.GetComponent<SpriteRenderer>().color);
         }
     }
@@ -92,20 +91,20 @@ public class ConvexPolygon : Polygon
 
         for (int i = 0; i < edges.Count; i++)
         {
-            GameObject edgeObj = Instantiate(edgePrefab, Vector3.zero, Quaternion.identity);
+            GameObject edgeObj = Instantiate(edgePrefab, Vector2.zero, Quaternion.identity);
             edgeObj.transform.parent = transform;
 
             LineRenderer lr = edgeObj.GetComponent<LineRenderer>();
             if (lr == null) return;
             lr.positionCount = resolutionPerSegment + 1;
 
-            Vector3 a = edges[i].A.Position;
-            Vector3 b = edges[i].B.Position;
+            Vector2 a = edges[i].A.Position;
+            Vector2 b = edges[i].B.Position;
 
             for (int j = 0; j <= resolutionPerSegment; j++)
             {
                 float t = j / (float)resolutionPerSegment;
-                lr.SetPosition(j, Vector3.Lerp(a, b, t));
+                lr.SetPosition(j, Vector2.Lerp(a, b, t));
             }
 
             edgeRenderers.Add(lr);

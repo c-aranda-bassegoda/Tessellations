@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
+// polygon with special vertices which are game objects rather than just data
 public class PiecewisePolygon : Polygon
 {
     [SerializeField] List<Vector2> vertices;
@@ -13,51 +14,41 @@ public class PiecewisePolygon : Polygon
 
     SpriteRenderer nodeRenderer;
 
+    // Uses winding number algorithm
     // Assumes edges are ordered (counter) clockwise
-    public override bool ContainsPoint(Vector3 point)
+    public override bool ContainsPoint(Vector2 point)
     {
-        Vector2 p = new Vector2(point.x, point.y);
         int windingNumber = 0;
 
         foreach (var edge in edges)
         {
             var nodes = edge.GetNodes();
-            if (nodes.Count < 2) continue;
-
             for (int i = 0; i < nodes.Count - 1; i++)
             {
                 PathPointSelectable p0 = edge.GetPoint(i);
                 PathPointSelectable p1 = edge.GetPoint(i + 1);
-
-                Vector3 a = p0.Position;
-                Vector3 b = p0.HandleOutPos;
-                Vector3 c = p1.HandleInPos;
-                Vector3 d = p1.Position;
-
-                Vector3 prev = a;
+                
+                Vector2 v1 = p0.Position;
 
                 for (int j = 1; j <= resolutionPerSegment; j++)
                 {
                     float t = j / (float)resolutionPerSegment;
-                    Vector3 current = BezierCurve.CubicCurve(a, b, c, d, t);
+                    Vector2 v2 = edge.GetCurveAtT(p0, p1, t);
 
-                    Vector2 v1 = new Vector2(prev.x, prev.y);
-                    Vector2 v2 = new Vector2(current.x, current.y);
-
-                    if (IsPointOnEdge(p, v1, v2))
+                    if (IsPointOnEdge(point, v1, v2))
                         return true;
 
-                    if (v1.y <= p.y)
+                    if (v1.y <= point.y)
                     {
-                        if (v2.y > p.y && IsLeft(v1, v2, p) > 0)
+                        if (v2.y > point.y && IsLeft(v1, v2, point) > 0)
                             windingNumber++;
                     }
                     else
                     {
-                        if (v2.y <= p.y && IsLeft(v1, v2, p) < 0)
+                        if (v2.y <= point.y && IsLeft(v1, v2, point) < 0)
                             windingNumber--;
                     }
-                    prev = current;
+                    v1 = v2;
                 }
             }
         }
@@ -86,7 +77,7 @@ public class PiecewisePolygon : Polygon
     }
 
 
-    // for completeness of interface implementation not really needed
+    // for completeness of interface implementation not really needed or used so might be buggy
     public override bool HasEdge(Vertex a, Vertex b)
     {
         foreach (var edge in edges)
@@ -97,7 +88,7 @@ public class PiecewisePolygon : Polygon
         return false;
     }
 
-    internal PathPointSelectable TryAddPoint(Vector3 pointerWorldPos, bool smooth)
+    internal PathPointSelectable TryAddPoint(Vector2 pointerWorldPos, bool smooth)
     {
 
         PathPointSelectable node = null;
@@ -119,10 +110,11 @@ public class PiecewisePolygon : Polygon
     {
         if (vertices == null || vertices.Count < 2) return;
 
+        // Makes polygon out of vertex list
         Vector2 prev = vertices[vertices.Count-1];
         for(int i=0; i<vertices.Count; i++)
         {
-            GameObject edgeObj = Instantiate(linePrefab, Vector3.zero, Quaternion.identity);
+            GameObject edgeObj = Instantiate(linePrefab, Vector2.zero, Quaternion.identity);
             edgeObj.transform.parent = transform;
 
             Path path = edgeObj.AddComponent<Path>();

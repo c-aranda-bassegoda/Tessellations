@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
+// A node or vertex with handles that define the curvature of an anchor point of a cubic bezier curve
 public class PathPointSelectable : ISelectable, IDraggable
 {
     public Path parentPath;
