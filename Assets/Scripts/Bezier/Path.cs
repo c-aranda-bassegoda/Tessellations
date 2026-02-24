@@ -5,9 +5,10 @@ using static UnityEditor.PlayerSettings;
 public class Path : MonoBehaviour
 {
     private List<PathPointSelectable> points;
-    public int resolutionPerSegment = 20;
+    private int resolutionPerSegment = 20;
     private LineRenderer line;
-    public GameObject nodePrefab;
+    private GameObject nodePrefab;
+    private float clickThreshold = 0.2f;
 
     void Awake()
     {
@@ -18,8 +19,12 @@ public class Path : MonoBehaviour
             Debug.LogError("No LineRenderer on Path");
     }
 
-    public void Initialize(Vector2 start, Vector2 end)
+    public void Initialize(Vector2 start, Vector2 end, GameObject nodePrefab, int resolution, float clickTreshold)
     {
+        this.nodePrefab = nodePrefab;
+        this.resolutionPerSegment = resolution;
+        this.clickThreshold = clickTreshold;
+
         points.Clear();
 
         NodeSelectable a = Instantiate(nodePrefab, start, Quaternion.identity)
@@ -73,8 +78,6 @@ public class Path : MonoBehaviour
 
         Vector3 closestPoint;
         int segmentIndex = FindClosestSegment(clickPos, out closestPoint);
-
-        float clickThreshold = 0.2f; // tweak for scale
 
         if (segmentIndex != -1 && Vector3.Distance(closestPoint, clickPos) < clickThreshold)
         {

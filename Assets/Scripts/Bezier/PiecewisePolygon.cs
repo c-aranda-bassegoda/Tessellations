@@ -11,6 +11,7 @@ public class PiecewisePolygon : Polygon
     [SerializeField] private GameObject linePrefab; // Prefab with LineRenderer
     [SerializeField] private GameObject nodePrefab;
     [SerializeField] private int resolutionPerSegment = 20;
+    [SerializeField] private float lineClickThreshold = 0.2f;
 
     SpriteRenderer nodeRenderer;
 
@@ -118,9 +119,9 @@ public class PiecewisePolygon : Polygon
             edgeObj.transform.parent = transform;
 
             Path path = edgeObj.AddComponent<Path>();
-            path.resolutionPerSegment = resolutionPerSegment;
-            path.nodePrefab = nodePrefab;
-            path.Initialize(prev, vertices[i]);
+            //path.resolutionPerSegment = resolutionPerSegment;
+            //path.nodePrefab = nodePrefab;
+            path.Initialize(prev, vertices[i], nodePrefab, resolutionPerSegment, lineClickThreshold);
             edges.Add(path);
             
 
