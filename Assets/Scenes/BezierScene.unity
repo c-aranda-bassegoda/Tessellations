@@ -281,7 +281,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 354fa5a770f4e284fb7e874c77112e46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  polygon: {fileID: 1206904073}
+  polygon: {fileID: 1492404489}
   handlePrefab: {fileID: 4631279889517319181, guid: 9c7fe6c06a281c64e8cedec3bba78f89, type: 3}
 --- !u!4 &135097867
 Transform:
@@ -1247,7 +1247,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1206904073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1663,6 +1663,61 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1333424628}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 183, y: 1000, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1492404488
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1492404491}
+  - component: {fileID: 1492404489}
+  m_Layer: 0
+  m_Name: Polygon (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1492404489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1492404488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2cb1d28c219df149a914da88b12221b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vertices:
+  - {x: -2, y: -2}
+  - {x: 2, y: -2}
+  - {x: 2, y: 2}
+  - {x: -2, y: 2}
+  linePrefab: {fileID: 4737950803987888381, guid: 59cbbdf3e8ecd8e4d91c8cc2d85ed050, type: 3}
+  nodePrefab: {fileID: 2200240886250214715, guid: 1b9bfe019cfc46448ab03e3c34371672, type: 3}
+  resolutionPerSegment: 10
+  enableSymmetry: 1
+  symmetricEdgeMap: 02000000030000000000000001000000
+  symmetryCenter: {x: 0, y: 0}
+--- !u!4 &1492404491
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1492404488}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 183, y: 1000, z: 0}
@@ -2262,6 +2317,7 @@ SceneRoots:
   m_Roots:
   - {fileID: 291103165}
   - {fileID: 1206904074}
+  - {fileID: 1492404491}
   - {fileID: 1333424630}
   - {fileID: 1640501501}
   - {fileID: 135097867}
