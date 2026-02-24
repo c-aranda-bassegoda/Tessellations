@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class PathPointSelectionHandler : ISelectionHandler
 {
-    private PathPoint point;
+    private PathPointSelectable point;
 
     private GameObject handleInVisual;
     private GameObject handleOutVisual;
 
-    public PathPointSelectionHandler(PathPoint point, GameObject handleIn, GameObject handleOut)
+    public PathPointSelectionHandler(PathPointSelectable point, GameObject handleIn, GameObject handleOut)
     {
         this.point = point;
         this.handleInVisual = handleIn;

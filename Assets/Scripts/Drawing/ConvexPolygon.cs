@@ -1,0 +1,117 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ConvexPolygon : Polygon
+{
+    private List<Edge> edges;
+    public IReadOnlyList<Edge> Edges => edges;
+
+    [SerializeField] List<Vertex> vertices = new List<Vertex>();
+
+    private void Start()
+    {
+        if (vertices == null)
+            vertices = new List<Vertex>();
+
+        base.Vertices = vertices;
+
+        edges = new List<Edge>();
+
+        if (vertices.Count < 3)
+        {
+            vertices.Clear();
+            vertices.Add(new Vertex(new Vector2(0, 0)));
+            vertices.Add(new Vertex(new Vector2(0, 1)));
+            vertices.Add(new Vertex(new Vector2(1, 1)));
+            vertices.Add(new Vertex(new Vector2(1, 0)));
+        }
+
+        int prev = vertices.Count - 1;
+        for (int i = 0; i < vertices.Count; i++)
+        {
+            edges.Add(new Edge(vertices[i], vertices[prev]));
+            prev = i;
+        }
+
+        DrawEdges();
+        DrawVertices();
+    }
+
+    public override bool ContainsPoint(Vector2 point)
+    {
+        bool inside = false;
+
+        for (int i = 0, j = Vertices.Count - 1; i < Vertices.Count; j = i++)
+        {
+            Vector2 vi = Vertices[i].Position;
+            Vector2 vj = Vertices[j].Position;
+
+            bool intersect =
+                ((vi.y > point.y) != (vj.y > point.y)) &&
+                (point.x < (vj.x - vi.x) * (point.y - vi.y) / (vj.y - vi.y) + vi.x);
+
+            if (intersect)
+                inside = !inside;
+        }
+
+        return inside;
+    }
+
+
+    public override bool HasEdge(Vertex a, Vertex b)
+    {
+        foreach (var e in edges)
+        {
+            if ((e.A == a && e.B == b) || (e.B == a && e.A == b))
+                return true;
+        }
+        return false;
+    }
+
+    /*---------------------------------------------------------------------------------------------
+     * Rendering
+     * --------------------------------------------------------------------------------------------*/
+
+    [SerializeField] private GameObject edgePrefab;
+    [SerializeField] private GameObject vtxPrefab;
+    [SerializeField] private int resolutionPerSegment = 3;
+    private List<LineRenderer> edgeRenderers = new List<LineRenderer>();
+    private void DrawVertices()
+    {
+        if (vertices == null) return;
+
+        for (int i = 0; i < vertices.Count; i++)
+        {
+            GameObject vtxObj = Instantiate(vtxPrefab, (Vector2)vertices[i].Position, Quaternion.identity);
+            Debug.Log("color: " + vtxObj.GetComponent<SpriteRenderer>().color);
+        }
+    }
+
+    private void DrawEdges()
+    {
+        if (edges == null) return;
+
+        for (int i = 0; i < edges.Count; i++)
+        {
+            GameObject edgeObj = Instantiate(edgePrefab, Vector2.zero, Quaternion.identity);
+            edgeObj.transform.parent = transform;
+
+            LineRenderer lr = edgeObj.GetComponent<LineRenderer>();
+            if (lr == null) return;
+            lr.positionCount = resolutionPerSegment + 1;
+
+            Vector2 a = edges[i].A.Position;
+            Vector2 b = edges[i].B.Position;
+
+            for (int j = 0; j <= resolutionPerSegment; j++)
+            {
+                float t = j / (float)resolutionPerSegment;
+                lr.SetPosition(j, Vector2.Lerp(a, b, t));
+            }
+
+            edgeRenderers.Add(lr);
+        }
+    }
+}
+

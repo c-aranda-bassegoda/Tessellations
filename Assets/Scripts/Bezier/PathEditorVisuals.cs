@@ -5,7 +5,7 @@ public class PathEditorVisuals : MonoBehaviour
     public GameObject handleInVisual;
     public GameObject handleOutVisual;
 
-    public void ShowHandles(PathPoint point)
+    public void ShowHandles(PathPointSelectable point)
     {
         handleInVisual.transform.position = point.HandleInPos;
         handleOutVisual.transform.position = point.HandleOutPos;

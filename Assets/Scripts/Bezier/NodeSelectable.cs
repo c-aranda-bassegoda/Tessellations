@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class NodeSelectable : MonoBehaviour, ISelectable
 {
-    //[SerializeField]Vector2 position;
     protected SpriteRenderer node;
 
     public float hitRadius = 1f;
@@ -33,7 +32,6 @@ public class NodeSelectable : MonoBehaviour, ISelectable
     public virtual void SetSelected(bool selected)
     {
         node.color = selected ? Color.blue : Color.white;
-
     }
 
     public void Remove()

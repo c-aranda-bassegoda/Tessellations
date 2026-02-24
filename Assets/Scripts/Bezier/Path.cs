@@ -4,14 +4,14 @@ using static UnityEditor.PlayerSettings;
 
 public class Path : MonoBehaviour
 {
-    private List<PathPoint> points;
+    private List<PathPointSelectable> points;
     public int resolutionPerSegment = 20;
     private LineRenderer line;
     public GameObject nodePrefab;
 
     void Awake()
     {
-        points = new List<PathPoint>();
+        points = new List<PathPointSelectable>();
 
         line = GetComponent<LineRenderer>();
         if (line == null)
@@ -24,7 +24,8 @@ public class Path : MonoBehaviour
 
         NodeSelectable a = Instantiate(nodePrefab, start, Quaternion.identity)
                         .GetComponent<NodeSelectable>();
-        PathPoint p1 = new PathPoint();
+        a.transform.SetParent(transform, true);
+        PathPointSelectable p1 = new PathPointSelectable();
         p1.parentPath = this;
         p1.anchor = a;
         p1.handleInOffset = Vector3.zero;
@@ -33,7 +34,8 @@ public class Path : MonoBehaviour
 
         NodeSelectable b = Instantiate(nodePrefab, end, Quaternion.identity)
                             .GetComponent<NodeSelectable>();
-        PathPoint p2 = new PathPoint();
+        b.transform.SetParent(transform, true);
+        PathPointSelectable p2 = new PathPointSelectable();
         p2.parentPath = this;
         p2.anchor = b;
         p2.handleInOffset = Vector3.zero;
@@ -49,39 +51,7 @@ public class Path : MonoBehaviour
         DrawPath();
     }
 
-    void DrawPath()
-    {
-        if (line == null || points == null || points.Count < 2) return;
-
-        int totalPoints = (points.Count - 1) * (resolutionPerSegment + 1);
-        line.positionCount = totalPoints;
-
-        int index = 0;
-
-        for (int i = 0; i < points.Count - 1; i++)
-        {
-            PathPoint p0 = points[i];
-            PathPoint p1 = points[i + 1];
-
-            Vector3 a = p0.anchor.GetPosition();
-            Vector3 d = p1.anchor.GetPosition();
-
-            for (int j = 0; j <= resolutionPerSegment; j++)
-            {
-                float t = j / (float)resolutionPerSegment;
-
-                Vector3 position;
-
-                Vector3 b = p0.HandleOutPos;
-                Vector3 c = p1.HandleInPos;
-
-                position = BezierCurve.CubicCurve(a, b, c, d, t);
-                line.SetPosition(index++, position);
-            }
-        }
-    }
-
-    public void DeletePoint(PathPoint point)
+    public void DeletePoint(PathPointSelectable point)
     {
         if (points.Count <= 2)
             return;
@@ -95,7 +65,7 @@ public class Path : MonoBehaviour
     }
 
 
-    public PathPoint TryAddPoint(Vector3 position, bool smooth)
+    public PathPointSelectable TryAddPoint(Vector3 position, bool smooth)
     {
         if (points.Count < 2) return null;
 
@@ -110,7 +80,7 @@ public class Path : MonoBehaviour
         {
             NodeSelectable node = Instantiate(nodePrefab, closestPoint, Quaternion.identity)
                         .GetComponent<NodeSelectable>();
-            PathPoint p1 = new PathPoint();
+            PathPointSelectable p1 = new PathPointSelectable();
             p1.parentPath = this;
             p1.anchor = node;
             p1.smooth = smooth;
@@ -181,7 +151,41 @@ public class Path : MonoBehaviour
             anchors.Add(p.anchor);
         }
         return anchors;
-    } 
+    }
+
+
+    public bool HasEdge(Vector2 a, Vector2 b)
+    {
+        for(int i = 0; i < points.Count; i++)
+        {
+            var p1 = points[i];
+            var p2 = points[(i + 1) % points.Count];
+            if ((p1.Position == a && p2.Position == b) || (p1.Position == b && p2.Position == a))
+                return true;
+        }
+        return false;
+    }
+
+    public PathPointSelectable GetPoint(int index)
+    {
+        return points[index];
+    }
+
+    public Vector2 GetCurveAtT(PathPointSelectable p0, PathPointSelectable p1, float t)
+    {
+        Vector2 a = p0.Position;
+        Vector2 b = p0.HandleOutPos;
+        Vector2 c = p1.HandleInPos;
+        Vector2 d = p1.Position;
+
+        return BezierCurve.CubicCurve(a, b, c, d, t);
+    }
+
+    /*
+     * -------------------------------------------------------------------------------------------
+     * Rendering
+     * -------------------------------------------------------------------------------------------
+     */
 
     void OnDrawGizmos()
     {
@@ -189,5 +193,35 @@ public class Path : MonoBehaviour
         foreach (var p in points)
             Gizmos.DrawSphere(p.anchor.GetPosition(), 0.05f);
     }
+    void DrawPath()
+    {
+        if (line == null || points == null || points.Count < 2) return;
 
+        int totalPoints = (points.Count - 1) * (resolutionPerSegment + 1);
+        line.positionCount = totalPoints;
+
+        int index = 0;
+
+        for (int i = 0; i < points.Count - 1; i++)
+        {
+            PathPointSelectable p0 = points[i];
+            PathPointSelectable p1 = points[i + 1];
+
+            Vector3 a = p0.anchor.GetPosition();
+            Vector3 d = p1.anchor.GetPosition();
+
+            for (int j = 0; j <= resolutionPerSegment; j++)
+            {
+                float t = j / (float)resolutionPerSegment;
+
+                Vector3 position;
+
+                Vector3 b = p0.HandleOutPos;
+                Vector3 c = p1.HandleInPos;
+
+                position = BezierCurve.CubicCurve(a, b, c, d, t);
+                line.SetPosition(index++, position);
+            }
+        }
+    }
 }

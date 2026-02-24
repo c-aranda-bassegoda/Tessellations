@@ -52,9 +52,9 @@ public class LineSelectable : MonoBehaviour, ISelectable
 
     public void Remove()
     {
-        Destroy(line);
-
         if (SelectionManager.Instance != null)
             SelectionManager.Instance.Deregister(this);
+
+        Destroy(gameObject);
     }
 }

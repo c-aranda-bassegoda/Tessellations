@@ -3,11 +3,14 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
-public class PathPoint : ISelectable, IDraggable
+// A node or vertex with handles that define the curvature of an anchor point of a cubic bezier curve
+public class PathPointSelectable : ISelectable, IDraggable
 {
     public Path parentPath;
 
     public NodeSelectable anchor;
+    public Vector2 Position => anchor.GetPosition();
+
     public Vector3 handleInOffset;
     public Vector3 handleOutOffset;
     public HandleSelectable handleInSelectable;

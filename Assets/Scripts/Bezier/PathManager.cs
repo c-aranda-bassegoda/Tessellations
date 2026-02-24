@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class PathManager : MonoBehaviour
 {
-    public Polygon polygon;
+    public PiecewisePolygon polygon;
     public GameObject handlePrefab;
     bool isEditing;
 
-    private PathPoint currentNode;
+    private PathPointSelectable currentNode;
     private GameObject handleInVisual;
     private GameObject handleOutVisual;
 

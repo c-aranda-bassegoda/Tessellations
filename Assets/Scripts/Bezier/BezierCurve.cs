@@ -1,7 +1,9 @@
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class BezierCurve : MonoBehaviour
+
+// Bezier curve mathematics, serves as utilities library
+public static class BezierCurve
 {
 
     public static Vector2 QuadraticCurve(Vector2 a, Vector2 b, Vector2 c, float t)
