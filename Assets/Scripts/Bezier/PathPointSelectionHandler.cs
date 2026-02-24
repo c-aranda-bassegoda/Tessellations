@@ -1,52 +1,36 @@
 using UnityEngine;
 
+/// <summary>
+/// Handles selection of a PathPointController and shows global handles.
+/// </summary>
 public class PathPointSelectionHandler : ISelectionHandler
 {
-    private PathPointSelectable point;
+    private PathPointController controller;
 
-    private GameObject handleInVisual;
-    private GameObject handleOutVisual;
-
-    public PathPointSelectionHandler(PathPointSelectable point, GameObject handleIn, GameObject handleOut)
+    public PathPointSelectionHandler(PathPointController controller)
     {
-        this.point = point;
-        this.handleInVisual = handleIn;
-        this.handleOutVisual = handleOut;
+        this.controller = controller;
     }
 
     public void OnSelected()
     {
-        UpdateHandlePositions();
-        handleInVisual.SetActive(true);
-        handleOutVisual.SetActive(true);
+        if (controller == null) return;
 
-        var handleIn = handleInVisual.GetComponent<HandleSelectable>();
-        var handleOut = handleOutVisual.GetComponent<HandleSelectable>();
-        point.handleInSelectable = handleIn;
-        point.handleOutSelectable = handleOut;
+        // Select this controller in the global handle system
+        GlobalHandleController.Instance.Select(controller);
 
-        // Assign parent
-        handleIn.parentPoint = point;
-        handleOut.parentPoint = point;
-
-        // Make handles aware of each other for mirroring
-        handleIn.oppositeHandle = handleOut;
-        handleOut.oppositeHandle = handleIn;
+        // Also visually select the anchor
+        controller.anchorView.SetSelected(true);
     }
 
     public void OnDeselected()
     {
+        if (controller == null) return;
 
-        handleInVisual.SetActive(false);
-        handleOutVisual.SetActive(false);
+        // Hide global handles
+        GlobalHandleController.Instance.Deselect();
 
-        // Deselect the anchor
-        point.anchor.SetSelected(false);
-    }
-
-    private void UpdateHandlePositions()
-    {
-        handleInVisual.transform.position = (Vector3)point.anchor.GetPosition() + point.handleInOffset;
-        handleOutVisual.transform.position = (Vector3)point.anchor.GetPosition() + point.handleOutOffset;
+        // Deselect the anchor visually
+        controller.anchorView.SetSelected(false);
     }
 }

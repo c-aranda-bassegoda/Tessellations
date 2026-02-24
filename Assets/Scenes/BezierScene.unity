@@ -281,8 +281,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 354fa5a770f4e284fb7e874c77112e46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  polygon: {fileID: 0}
-  handlePrefab: {fileID: 4631279889517319181, guid: 9c7fe6c06a281c64e8cedec3bba78f89, type: 3}
+  polygon: {fileID: 1206904075}
 --- !u!4 &135097867
 Transform:
   m_ObjectHideFlags: 0
@@ -571,7 +570,7 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
---- !u!1 &458120639
+--- !u!1 &508924886
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -579,22 +578,35 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 458120640}
-  - component: {fileID: 458120641}
+  - component: {fileID: 508924888}
+  - component: {fileID: 508924887}
   m_Layer: 0
-  m_Name: Spline Editor
+  m_Name: handle controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &458120640
+--- !u!114 &508924887
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 508924886}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61de1b78832d93245844867d3c7d8878, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handlePrefab: {fileID: 6282726336191103694, guid: c9b0d00b3024b9a4b9dc1bb18dd01ad5, type: 3}
+--- !u!4 &508924888
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 458120639}
+  m_GameObject: {fileID: 508924886}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -73.35507, y: 861.4296, z: -4.318773}
@@ -603,19 +615,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &458120641
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 458120639}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9af83d5cedc71fc45a3d0657809b2b1f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handlePrefab: {fileID: 6282726336191103694, guid: c9b0d00b3024b9a4b9dc1bb18dd01ad5, type: 3}
 --- !u!1 &516835665
 GameObject:
   m_ObjectHideFlags: 0
@@ -2314,4 +2313,4 @@ SceneRoots:
   - {fileID: 516835667}
   - {fileID: 1215493402}
   - {fileID: 1128681751}
-  - {fileID: 458120640}
+  - {fileID: 508924888}

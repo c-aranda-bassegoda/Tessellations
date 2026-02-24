@@ -22,7 +22,7 @@ public class NodeSelectable : MonoBehaviour, ISelectable
         return transform.position;
     }
  
-    public bool HitTest(Vector2 worldPoint)
+    public virtual bool HitTest(Vector2 worldPoint)
     {
         Vector2 nodePos = new Vector2(transform.position.x, transform.position.y);
         Debug.Log(nodePos + " " + worldPoint + " " + Vector2.Distance(worldPoint, nodePos) + " " + hitRadius);

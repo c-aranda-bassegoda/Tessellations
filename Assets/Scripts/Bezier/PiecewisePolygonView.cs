@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PiecewisePolygonView : MonoBehaviour
@@ -61,9 +63,47 @@ public class PiecewisePolygonView : MonoBehaviour
         {
             GameObject nodeObj = Instantiate(nodePrefab, point.Position, Quaternion.identity, transform);
             var controller = nodeObj.AddComponent<PathPointController>();
-            controller.Initialize(path, point);
+            controller.Initialize(path, point, view);
         }
     }
 
     public PiecewisePolygonData PolygonData => polygon;
+
+    public PathPointController TryAddPoint(Vector2 worldPos, bool smooth)
+    {
+        // Find closest segment and add the point to the existing path
+        BezierPath targetPath = null;
+        PathPoint newPoint = null;
+
+        foreach (var path in polygon.Edges)
+        {
+            newPoint = path.AddPointIfClose(worldPos, smooth); 
+            if (newPoint != null)
+            {
+                targetPath = path;
+                break;
+            }
+        }
+
+        if (newPoint == null || targetPath == null)
+            return null;
+
+        // Find the corresponding PathView
+        PathView parentView = pathViews.FirstOrDefault(v => v.PathData == targetPath);
+        if (parentView == null)
+        {
+            Debug.LogError("No PathView found for this path!");
+            return null;
+        }
+
+        // Create anchor/controller
+        GameObject nodeObj = Instantiate(nodePrefab, newPoint.Position, Quaternion.identity, transform);
+        var controller = nodeObj.AddComponent<PathPointController>();
+        controller.Initialize(targetPath, newPoint, parentView);
+
+        // Refresh the line immediately
+        parentView.UpdateView();
+
+        return controller;
+    }
 }

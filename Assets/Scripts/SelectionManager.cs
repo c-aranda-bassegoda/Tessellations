@@ -12,7 +12,7 @@ public class SelectionManager : MonoBehaviour
     IDraggable currentDraggable;
     bool isDragging;
 
-    private void Start()
+    private void Awake()
     {
         Instance = this;
     }

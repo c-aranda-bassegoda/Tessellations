@@ -2,64 +2,49 @@ using UnityEngine;
 
 public class PathManager : MonoBehaviour
 {
-    public PiecewisePolygon polygon;
-    public GameObject handlePrefab;
-    bool isEditing;
+    public PiecewisePolygonView  polygon;
 
-    private PathPointSelectable currentNode;
-    private GameObject handleInVisual;
-    private GameObject handleOutVisual;
-
-
-    void Awake()
-    {
-        // Instantiate shared handle visuals
-        handleInVisual = Instantiate(handlePrefab);
-        HandleSelectable handleInSelectable = handleInVisual.GetComponent<HandleSelectable>();
-        handleInSelectable.isHandleIn = true;
-        handleOutVisual = Instantiate(handlePrefab);
-        HandleSelectable handleOutSelectable = handleOutVisual.GetComponent<HandleSelectable>();
-        handleOutSelectable.isHandleIn = false;
-
-        handleInSelectable.oppositeHandle = handleOutSelectable;
-        handleOutSelectable.oppositeHandle = handleInSelectable;
-
-        handleInVisual.SetActive(false);
-        handleOutVisual.SetActive(false);
-    }
+    private PathPointController currentController;
+    private bool isEditing;
 
     void Update()
     {
-        if (ToolManager.Instance.CurrentTool != ToolType.Node && ToolManager.Instance.CurrentTool != ToolType.SharpNode)
+        // Only run if we are in node editing mode
+        if (ToolManager.Instance.CurrentTool != ToolType.Node &&
+            ToolManager.Instance.CurrentTool != ToolType.SharpNode)
             return;
 
         if (InputManager.Instance.PointerOverUI)
             return;
 
+        Vector2 pointerPos = InputManager.Instance.PointerWorldPos;
+
+        // Try adding a new point
         if (InputManager.Instance.PointerDown)
         {
-            currentNode = polygon.TryAddPoint(InputManager.Instance.PointerWorldPos, (ToolManager.Instance.CurrentTool == ToolType.Node));
-            if (currentNode != null)
+            currentController = polygon.TryAddPoint(pointerPos,
+                ToolManager.Instance.CurrentTool == ToolType.Node);
+
+            if (currentController != null)
             {
-                var handler = new PathPointSelectionHandler(currentNode, handleInVisual, handleOutVisual);
-                currentNode.SetSelectionHandler(handler);
+                // Tell SplineEditorTool to select this point
+                currentController.SetSelected(true);
                 isEditing = true;
             }
         }
 
-        if (InputManager.Instance.PointerHeld && isEditing)
+        // Drag the point
+        if (InputManager.Instance.PointerHeld && isEditing && currentController != null)
         {
-            currentNode.MoveAnchor(InputManager.Instance.PointerWorldPos);
+            currentController.OnDrag(pointerPos);
         }
 
-        if (InputManager.Instance.PointerUp && isEditing)
+        // Finish editing
+        if (InputManager.Instance.PointerUp && isEditing && currentController != null)
         {
-            //NodeSelectable nodeSelectable = currentNode?.anchor.GetComponent<NodeSelectable>();
-            if (currentNode != null)
-            {
-                SelectionManager.Instance.Register(currentNode);   
-            }
+            SelectionManager.Instance.Register(currentController);
             isEditing = false;
+            currentController = null;
         }
     }
 }

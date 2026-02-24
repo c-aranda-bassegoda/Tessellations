@@ -26,8 +26,8 @@ public class PiecewisePolygon : Polygon
             var nodes = edge.GetNodes();
             for (int i = 0; i < nodes.Count - 1; i++)
             {
-                PathPointSelectable p0 = edge.GetPoint(i);
-                PathPointSelectable p1 = edge.GetPoint(i + 1);
+                PathPoint p0 = edge.GetPoint(i);
+                PathPoint p1 = edge.GetPoint(i + 1);
                 
                 Vector2 v1 = p0.Position;
 
@@ -89,10 +89,10 @@ public class PiecewisePolygon : Polygon
         return false;
     }
 
-    internal PathPointSelectable TryAddPoint(Vector2 pointerWorldPos, bool smooth)
+    internal PathPoint TryAddPoint(Vector2 pointerWorldPos, bool smooth)
     {
 
-        PathPointSelectable node = null;
+        PathPoint node = null;
         foreach (var edge in edges)
         {
             node = edge.TryAddPoint(pointerWorldPos, smooth);

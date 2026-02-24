@@ -5,6 +5,7 @@ public class BezierPath
 {
     private List<PathPoint> points;
     private int resolutionPerSegment;
+    private float clickThreshold = 0.2f;
 
     public BezierPath(Vector2 start, Vector2 end, int resolution)
     {
@@ -17,23 +18,43 @@ public class BezierPath
 
     public IReadOnlyList<PathPoint> Points => points;
 
-    public void AddPoint(int segmentIndex, Vector2 position, bool smooth)
+    /// <summary>
+    /// Adds a point if the world position is near a segment. Returns the new PathPoint or null.
+    /// </summary>
+    public PathPoint AddPointIfClose(Vector2 worldPos, bool smooth)
     {
-        var p = new PathPoint(position);
-        p.Smooth = smooth;
-
-        if (smooth)
+        for (int i = 0; i < points.Count - 1; i++)
         {
-            Vector2 a = points[segmentIndex].Position;
-            Vector2 b = points[segmentIndex + 1].Position;
-            Vector2 dir = (b - a).normalized;
-            float len = Vector2.Distance(a, b) * 0.25f;
+            Vector2 a = points[i].Position;
+            Vector2 b = points[i + 1].Position;
 
-            p.HandleInOffset = -dir * len;
-            p.HandleOutOffset = dir * len;
+            Vector2 closest = ClosestPointOnSegment(a, b, worldPos);
+            if (Vector2.Distance(worldPos, closest) <= clickThreshold)
+            {
+                var p = new PathPoint(closest) { Smooth = smooth };
+
+                if (smooth)
+                {
+                    Vector2 dir = (b - a).normalized;
+                    float len = Vector2.Distance(a, b) * 0.25f;
+                    p.HandleInOffset = -dir * len;
+                    p.HandleOutOffset = dir * len;
+                }
+
+                points.Insert(i + 1, p);
+                return p;
+            }
         }
 
-        points.Insert(segmentIndex + 1, p);
+        return null;
+    }
+
+    private Vector2 ClosestPointOnSegment(Vector2 a, Vector2 b, Vector2 p)
+    {
+        Vector2 ab = b - a;
+        float t = Vector2.Dot(p - a, ab) / ab.sqrMagnitude;
+        t = Mathf.Clamp01(t);
+        return a + ab * t;
     }
 
     public Vector2 GetCurveAtT(int i, float t)

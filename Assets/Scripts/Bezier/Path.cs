@@ -4,7 +4,7 @@ using static UnityEditor.PlayerSettings;
 
 public class Path : MonoBehaviour
 {
-    private List<PathPointSelectable> points;
+    private List<PathPoint> points;
     private int resolutionPerSegment = 20;
     private LineRenderer line;
     private GameObject nodePrefab;
@@ -12,7 +12,7 @@ public class Path : MonoBehaviour
 
     void Awake()
     {
-        points = new List<PathPointSelectable>();
+        points = new List<PathPoint>();
 
         line = GetComponent<LineRenderer>();
         if (line == null)
@@ -30,22 +30,18 @@ public class Path : MonoBehaviour
         NodeSelectable a = Instantiate(nodePrefab, start, Quaternion.identity)
                         .GetComponent<NodeSelectable>();
         a.transform.SetParent(transform, true);
-        PathPointSelectable p1 = new PathPointSelectable();
-        p1.parentPath = this;
-        p1.anchor = a;
-        p1.handleInOffset = Vector3.zero;
-        p1.handleOutOffset = Vector3.zero;
-        p1.smooth = false;
+        PathPoint p1 = new PathPoint(start);
+        p1.HandleInOffset = Vector3.zero;
+        p1.HandleOutOffset = Vector3.zero;
+        p1.Smooth = false;
 
         NodeSelectable b = Instantiate(nodePrefab, end, Quaternion.identity)
                             .GetComponent<NodeSelectable>();
         b.transform.SetParent(transform, true);
-        PathPointSelectable p2 = new PathPointSelectable();
-        p2.parentPath = this;
-        p2.anchor = b;
-        p2.handleInOffset = Vector3.zero;
-        p2.handleOutOffset = Vector3.zero;
-        p2.smooth = false;
+        PathPoint p2 = new PathPoint(end);
+        p2.HandleInOffset = Vector3.zero;
+        p2.HandleOutOffset = Vector3.zero;
+        p2.Smooth = false;
 
         points.Add(p1);
         points.Add(p2);
@@ -56,7 +52,7 @@ public class Path : MonoBehaviour
         DrawPath();
     }
 
-    public void DeletePoint(PathPointSelectable point)
+    public void DeletePoint(PathPoint point)
     {
         if (points.Count <= 2)
             return;
@@ -66,11 +62,10 @@ public class Path : MonoBehaviour
             return;
 
         points.RemoveAt(index);
-        point.DestroyVisuals();
     }
 
 
-    public PathPointSelectable TryAddPoint(Vector3 position, bool smooth)
+    public PathPoint TryAddPoint(Vector3 position, bool smooth)
     {
         if (points.Count < 2) return null;
 
@@ -81,26 +76,22 @@ public class Path : MonoBehaviour
 
         if (segmentIndex != -1 && Vector3.Distance(closestPoint, clickPos) < clickThreshold)
         {
-            NodeSelectable node = Instantiate(nodePrefab, closestPoint, Quaternion.identity)
-                        .GetComponent<NodeSelectable>();
-            PathPointSelectable p1 = new PathPointSelectable();
-            p1.parentPath = this;
-            p1.anchor = node;
-            p1.smooth = smooth;
+            PathPoint p1 = new PathPoint(clickPos);
+            p1.Smooth = smooth;
             if (smooth)
             {
-                Vector3 a = points[segmentIndex].anchor.GetPosition();
-                Vector3 b = points[segmentIndex + 1].anchor.GetPosition();
+                Vector3 a = points[segmentIndex].Position;
+                Vector3 b = points[segmentIndex + 1].Position;
                 Vector3 dir = (b - a).normalized;
                 float handleLength = Vector3.Distance(a, b) * 0.25f;
 
-                p1.handleInOffset = -dir * handleLength;
-                p1.handleOutOffset = dir * handleLength;
+                p1.HandleInOffset = -dir * handleLength;
+                p1.HandleOutOffset = dir * handleLength;
             } else
             {
 
-                p1.handleInOffset = Vector3.zero;
-                p1.handleOutOffset = Vector3.zero;
+                p1.HandleInOffset = Vector3.zero;
+                p1.HandleOutOffset = Vector3.zero;
             }
 
             points.Insert(segmentIndex + 1, p1);
@@ -118,10 +109,10 @@ public class Path : MonoBehaviour
 
         for (int i = 0; i < points.Count - 1; i++)
         {
-            Vector3 a = points[i].anchor.GetPosition();
+            Vector3 a = points[i].Position;
             Vector3 b = points[i].HandleOutPos;
             Vector3 c = points[i + 1].HandleInPos;
-            Vector3 d = points[i + 1].anchor.GetPosition();
+            Vector3 d = points[i + 1].Position;
 
             Vector3 projected = BezierCurve.GetClosestPointOnCubic(a, b, c, d, clickPos, resolutionPerSegment);
             float dist = Vector3.Distance(projected, clickPos);
@@ -146,12 +137,12 @@ public class Path : MonoBehaviour
         return a + ab * t;
     }
 
-    public List<NodeSelectable> GetNodes()
+    public List<Vector2> GetNodes()
     {
-        List<NodeSelectable> anchors = new List<NodeSelectable> ();
+        List<Vector2> anchors = new List<Vector2> ();
         foreach (var p  in points)
         {
-            anchors.Add(p.anchor);
+            anchors.Add(p.Position);
         }
         return anchors;
     }
@@ -169,12 +160,12 @@ public class Path : MonoBehaviour
         return false;
     }
 
-    public PathPointSelectable GetPoint(int index)
+    public PathPoint GetPoint(int index)
     {
         return points[index];
     }
 
-    public Vector2 GetCurveAtT(PathPointSelectable p0, PathPointSelectable p1, float t)
+    public Vector2 GetCurveAtT(PathPoint p0, PathPoint p1, float t)
     {
         Vector2 a = p0.Position;
         Vector2 b = p0.HandleOutPos;
@@ -194,7 +185,7 @@ public class Path : MonoBehaviour
     {
         Gizmos.color = Color.red;
         foreach (var p in points)
-            Gizmos.DrawSphere(p.anchor.GetPosition(), 0.05f);
+            Gizmos.DrawSphere(p.Position, 0.05f);
     }
     void DrawPath()
     {
@@ -207,11 +198,11 @@ public class Path : MonoBehaviour
 
         for (int i = 0; i < points.Count - 1; i++)
         {
-            PathPointSelectable p0 = points[i];
-            PathPointSelectable p1 = points[i + 1];
+            PathPoint p0 = points[i];
+            PathPoint p1 = points[i + 1];
 
-            Vector3 a = p0.anchor.GetPosition();
-            Vector3 d = p1.anchor.GetPosition();
+            Vector3 a = p0.Position;
+            Vector3 d = p1.Position;
 
             for (int j = 0; j <= resolutionPerSegment; j++)
             {

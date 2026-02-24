@@ -1,54 +1,28 @@
 using UnityEngine;
 
-public class HandleView : NodeSelectable
+/// <summary>
+/// Visual for a global handle. Implements ISelectable and IDraggable.
+/// </summary>
+public class HandleView : NodeSelectable, ISelectable, IDraggable
 {
     public bool isHandleIn;
+    public PathPointController parentController;
 
-    private SplineEditorTool editor;
-
-    public void Initialize(SplineEditorTool editor, bool isIn)
+    public void Initialize(bool isIn)
     {
-        this.editor = editor;
-        this.isHandleIn = isIn;
+        isHandleIn = isIn;
     }
 
-    public override void Move(Vector2 position)
+    public void OnDrag(Vector2 worldPos)
     {
-        if (!editor.HasSelection)
-            return;
+        if (parentController == null) return;
 
-        MoveInternal(position, true);
+        GlobalHandleController.Instance.MoveHandle(this, worldPos);
     }
 
-    public void MoveWithoutMirror(Vector2 position)
+    public override bool HitTest(Vector2 worldPoint)
     {
-        MoveInternal(position, false);
-    }
-
-    private void MoveInternal(Vector2 position, bool mirror)
-    {
-        var point = editor.SelectedPoint;
-        if (point == null) return;
-
-        Vector2 anchorPos = point.Position;
-        Vector2 offset = position - anchorPos;
-
-        if (isHandleIn)
-            point.HandleInOffset = offset;
-        else
-            point.HandleOutOffset = offset;
-
-        if (mirror && point.Smooth)
-        {
-            Vector2 mirrored = -offset;
-
-            if (isHandleIn)
-                point.HandleOutOffset = mirrored;
-            else
-                point.HandleInOffset = mirrored;
-        }
-
-        editor.NotifyPointMoved();
+        return base.HitTest(worldPoint);
     }
 
     public override void SetSelected(bool selected)

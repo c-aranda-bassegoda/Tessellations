@@ -1,24 +1,25 @@
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
-using UnityEngine;
-
+/// <summary>
+/// Controls a single point in a BezierPath.
+/// </summary>
 public class PathPointController : MonoBehaviour, ISelectable, IDraggable
 {
     public BezierPath parentPath;
     public PathPoint point;
+    public PathView parentPathView;
 
     public NodeSelectable anchorView;
 
     private ISelectionHandler selectionHandler;
     private bool isSelected;
 
-    public void Initialize(BezierPath path, PathPoint modelPoint)
+    public void Initialize(BezierPath path, PathPoint modelPoint, PathView pathView)
     {
         parentPath = path;
         point = modelPoint;
+        parentPathView = pathView;
 
-        // Assign anchorView automatically if not assigned
         if (anchorView == null)
             anchorView = GetComponent<NodeSelectable>();
 
@@ -26,7 +27,6 @@ public class PathPointController : MonoBehaviour, ISelectable, IDraggable
             anchorView.transform.position = point.Position;
         else
             Debug.LogError("PathPointController requires a NodeSelectable on the same GameObject.");
-
     }
 
     void Update()
@@ -45,12 +45,13 @@ public class PathPointController : MonoBehaviour, ISelectable, IDraggable
         return anchorView.HitTest(worldPoint);
     }
 
-    public void OnDrag(Vector2 worldPosition)
+    public void OnDrag(Vector2 worldPos)
     {
-        point.Position = worldPosition;
+        // Only moves the anchor
+        point.Position = worldPos;
 
-        // Notify editor so handles move
-        SplineEditorTool.Instance.NotifyPointMoved();
+        GlobalHandleController.Instance.UpdateHandlePositions();
+        parentPathView?.UpdateView();
     }
 
     public void SetSelected(bool selected)
@@ -58,17 +59,11 @@ public class PathPointController : MonoBehaviour, ISelectable, IDraggable
         isSelected = selected;
 
         anchorView.SetSelected(selected);
-
-        if (selectionHandler != null)
-        {
-            if (selected)
-                selectionHandler.OnSelected();
-            else
-                selectionHandler.OnDeselected();
-        }
+        selectionHandler?.OnSelected();
+        if (!selected) selectionHandler?.OnDeselected();
 
         if (selected)
-            SplineEditorTool.Instance.Select(point);
+            GlobalHandleController.Instance.Select(this);
     }
 
     public void Remove()
@@ -76,8 +71,9 @@ public class PathPointController : MonoBehaviour, ISelectable, IDraggable
         parentPath.RemovePoint(point);
         SelectionManager.Instance?.Deregister(this);
 
-        Destroy(anchorView.gameObject);
+        if (anchorView != null)
+            Destroy(anchorView.gameObject);
 
-        SplineEditorTool.Instance.DeselectIf(point);
+        parentPathView?.UpdateView();
     }
 }

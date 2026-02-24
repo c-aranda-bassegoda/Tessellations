@@ -12,6 +12,20 @@ public class PiecewisePolygonData : Polygon
         edges.Add(path);
     }
 
+    /// <summary>
+    /// Tries to add a point to any edge in the polygon. Returns the PathPoint if added.
+    /// </summary>
+    public PathPoint AddPointIfClose(Vector2 worldPos, bool smooth)
+    {
+        foreach (var path in edges)
+        {
+            var p = path.AddPointIfClose(worldPos, smooth);
+            if (p != null)
+                return p;
+        }
+        return null;
+    }
+
     public override bool ContainsPoint(Vector2 point)
     {
         int windingNumber = 0;
@@ -85,5 +99,11 @@ public class PiecewisePolygonData : Polygon
         }
 
         return false;
+    }
+
+    public int IndexOf(BezierPath path)
+    {
+        if (path == null) return -1;
+        return edges.IndexOf(path);
     }
 }
