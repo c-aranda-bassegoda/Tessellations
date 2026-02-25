@@ -4,7 +4,7 @@ using NUnit.Framework;
 using UnityEngine;
 
 // polygon with special vertices which are game objects rather than just data
-public class PiecewisePolygon : Polygon
+public class PiecewisePolygon : BezierPolygon
 {
     [SerializeField] List<Vector2> vertices;
     protected List<Path> edges;
@@ -88,7 +88,7 @@ public class PiecewisePolygon : Polygon
         return false;
     }
 
-    internal virtual PathPointSelectable TryAddPoint(Vector2 pointerWorldPos, bool smooth)
+    public override IPointSelectable TryAddPoint(Vector2 pointerWorldPos, bool smooth)
     {
 
         PathPointSelectable node = null;

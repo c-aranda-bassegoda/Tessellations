@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
 // A node or vertex with handles that define the curvature of an anchor point of a cubic bezier curve
-public class PathPointSelectable : ISelectable, IDraggable
+public class PathPointSelectable : IPointSelectable
 {
     public Path parentPath;
 
@@ -36,9 +36,11 @@ public class PathPointSelectable : ISelectable, IDraggable
     public Vector3 HandleInPos => (Vector3)anchor.GetPosition() + handleInOffset;
     public Vector3 HandleOutPos => (Vector3)anchor.GetPosition() + handleOutOffset;
 
-    public void MoveAnchor(Vector3 newPosition)
+    public PathPointSelectable SelectedNode => this;
+
+    public void Move(Vector2 newPosition)
     {
-        Vector3 delta = newPosition - (Vector3)anchor.GetPosition();
+        Vector2 delta = newPosition - anchor.GetPosition();
 
         anchor.Move(newPosition);
     }
@@ -103,7 +105,7 @@ public class PathPointSelectable : ISelectable, IDraggable
     {
         if (activePart == ActivePart.Anchor)
         {
-            MoveAnchor(worldPosition);  
+            Move(worldPosition);  
         }
         else
         {

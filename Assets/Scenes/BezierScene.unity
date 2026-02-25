@@ -1710,7 +1710,11 @@ MonoBehaviour:
   resolutionPerSegment: 10
   enableSymmetry: 1
   symmetricEdgeMap: 02000000030000000000000001000000
-  symmetryCenter: {x: 0, y: 0}
+  edgeTranslationOffsets:
+  - {x: 4, y: 0}
+  - {x: 0, y: 4}
+  - {x: -4, y: 0}
+  - {x: 0, y: -4}
 --- !u!4 &1492404491
 Transform:
   m_ObjectHideFlags: 0

@@ -9,47 +9,57 @@ public class TessellationPolygon : PiecewisePolygon
     // e.g., edges[0] is symmetric to edges[3], etc.
     [SerializeField] private List<int> symmetricEdgeMap = new List<int>();
 
-    // Center point for mirroring (can also be an axis line)
-    [SerializeField] private Vector2 symmetryCenter = Vector2.zero;
+    [SerializeField] private List<Vector2> edgeTranslationOffsets = new List<Vector2>();
 
     /// <summary>
     /// Adds a node, and if symmetry is enabled, automatically adds mirrored node
     /// </summary>
-    internal override PathPointSelectable TryAddPoint(Vector2 pointerWorldPos, bool smooth)
+    public override IPointSelectable TryAddPoint(Vector2 pointerWorldPos, bool smooth)
     {
         Debug.Log("Adding point");
-        // Add the original node
-        PathPointSelectable node = null;
+
+        PathPointSelectable pointA = null;
         Path edge = null;
+
         foreach (var e in edges)
         {
-            node = e.TryAddPoint(pointerWorldPos, smooth);
-            if (node != null)
+            var newPoint = e.TryAddPoint(pointerWorldPos, smooth) as PathPointSelectable;
+            if (newPoint != null)
             {
+                pointA = newPoint;
                 edge = e;
                 break;
             }
         }
 
-        if (enableSymmetry && node != null)
+        if (pointA == null)
+            return null;
+
+        PathPointSelectable pointB = null;
+
+        if (enableSymmetry)
         {
-            int symmetricIndex = GetSymmetricEdgeIndex(edges.IndexOf(edge));
-            Debug.Log("Sym idx: " +  symmetricIndex);
+            int edgeIndex = edges.IndexOf(edge);
+            int symmetricIndex = GetSymmetricEdgeIndex(edgeIndex);
+
             if (symmetricIndex >= 0 && symmetricIndex < edges.Count)
             {
                 Path symmetricEdge = edges[symmetricIndex];
 
-                // Mirror the position across the symmetry center
-                Vector2 mirroredPos = MirrorAcrossCenter(node.Position);
+                Vector2 translation = GetEdgeTranslation(edgeIndex);
+                Vector2 translatedPos = pointA.Position + translation;
 
-                // Add mirrored node to symmetric edge
-                var symPnt = symmetricEdge.TryAddPoint(mirroredPos, smooth);
-                Debug.Log(symPnt);
+                pointB = symmetricEdge.TryAddPoint(translatedPos, smooth) as PathPointSelectable;
             }
-                
         }
 
-        return node;
+        // Create composite selectable
+        TessPointSelectable composite = new TessPointSelectable(pointA, pointB);
+
+        // IMPORTANT: register it
+        SelectionManager.Instance?.Register(composite);
+
+        return composite;
     }
 
     /// <summary>
@@ -63,24 +73,31 @@ public class TessellationPolygon : PiecewisePolygon
     }
 
     /// <summary>
-    /// Mirrors a point across the symmetry center
+    /// Ttanslates the point into symmetric edge
     /// </summary>
-    private Vector2 MirrorAcrossCenter(Vector2 point)
+    private Vector2 GetEdgeTranslation(int edgeIndex)
     {
-        Vector2 offset = point - symmetryCenter;
-        return symmetryCenter - offset;
+        if (edgeTranslationOffsets != null && edgeIndex < edgeTranslationOffsets.Count)
+            return edgeTranslationOffsets[edgeIndex];
+
+        return Vector2.zero;
     }
 
     /// <summary>
-    /// Optionally, automatically generate symmetric map if polygon is regular
+    /// Automatically generate symmetric map if polygon is regular
     /// </summary>
     public void AutoGenerateSymmetryMap()
     {
         symmetricEdgeMap.Clear();
         int n = edges.Count;
+
         for (int i = 0; i < n; i++)
         {
-            symmetricEdgeMap.Add((n - i) % n); // Simple rotational symmetry
+            int opposite = (i + n / 2) % n;
+            symmetricEdgeMap.Add(opposite);
         }
     }
+
+    // TODO?: automatically generate edge symmetries
+
 }
