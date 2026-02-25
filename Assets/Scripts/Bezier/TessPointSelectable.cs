@@ -4,18 +4,19 @@ using UnityEngine;
 // </summary>
 public class TessPointSelectable : IPointSelectable
 {
-    public PathPointSelectable pointA;
-    public PathPointSelectable pointB;
+    public PathPointSelectable mainPoint;
+    public PathPointSelectable symPoint;
+    public PathPointSelectable activePoint;
 
     private bool isSelected;
     private ISelectionHandler selectionHandler;
 
-    public PathPointSelectable SelectedNode => pointA;
+    public PathPointSelectable SelectedNode => mainPoint;
 
     public TessPointSelectable(PathPointSelectable a, PathPointSelectable b)
     {
-        pointA = a;
-        pointB = b;
+        mainPoint = a;
+        symPoint = b;
     }
 
     public bool IsSelected() => isSelected;
@@ -24,26 +25,43 @@ public class TessPointSelectable : IPointSelectable
     {
         isSelected = selected;
 
-        pointA?.SetSelected(selected);
-        pointB?.SetSelected(selected);
+        mainPoint?.SetSelected(selected);
+        symPoint?.SetSelected(selected);
     }
 
     public bool HitTest(Vector2 worldPoint)
     {
         // Delegate hit test to either point
-        return (pointA != null && pointA.HitTest(worldPoint)) ||
-               (pointB != null && pointB.HitTest(worldPoint));
+        return (mainPoint != null && mainPoint.HitTest(worldPoint)) ||
+               (symPoint != null && symPoint.HitTest(worldPoint));
     }
 
     public void OnDrag(Vector2 worldPosition)
     {
-        Move(worldPosition);
+        if (mainPoint == null || symPoint == null)
+            return;
+        if (activePoint == null)
+            activePoint = mainPoint;
+
+        PathPointSelectable other =
+        activePoint == mainPoint ? symPoint : mainPoint;
+
+        // Compute delta from selected point
+        Vector2 oldPos = activePoint.Position;
+        Vector2 delta = worldPosition - oldPos;
+
+        // Move first point normally
+        activePoint.OnDrag(worldPosition);
+
+        // Apply same delta to symmetric point
+        Vector2 mirroredTarget = other.Position + delta;
+        other.Move(mirroredTarget);
     }
 
     public void Remove()
     {
-        pointA?.Remove();
-        pointB?.Remove();
+        mainPoint?.Remove();
+        symPoint?.Remove();
 
         if (SelectionManager.Instance != null)
             SelectionManager.Instance.Deregister(this);
@@ -51,29 +69,35 @@ public class TessPointSelectable : IPointSelectable
 
     public void DestroyVisuals()
     {
-        pointA?.DestroyVisuals();
-        pointB?.DestroyVisuals();
+        mainPoint?.DestroyVisuals();
+        symPoint?.DestroyVisuals();
     }
 
     public void SetSelectionHandler(ISelectionHandler handler)
     {
-        selectionHandler = handler;
+        mainPoint?.SetSelectionHandler(handler);
+        symPoint?.SetSelectionHandler(handler);
     }
 
     public void Move(Vector2 worldPosition)
     {
-        if (pointA == null || pointB == null)
+        if (mainPoint == null || symPoint == null)
             return;
+        if (activePoint == null)
+            activePoint = mainPoint;
 
-        // Compute delta from A
-        Vector2 oldPos = pointA.Position;
+        PathPointSelectable other =
+        activePoint == mainPoint ? symPoint : mainPoint;
+
+        // Compute delta from selected point
+        Vector2 oldPos = activePoint.Position;
         Vector2 delta = worldPosition - oldPos;
 
         // Move first point normally
-        pointA.Move(worldPosition);
+        activePoint.Move(worldPosition);
 
         // Apply same delta to symmetric point
-        Vector2 mirroredTarget = pointB.Position + delta;
-        pointB.Move(mirroredTarget);
+        Vector2 mirroredTarget = other.Position + delta;
+        other.Move(mirroredTarget);
     }
 }
