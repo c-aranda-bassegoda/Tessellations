@@ -6,7 +6,7 @@ public class SelectionManager : MonoBehaviour
 {
     public static SelectionManager Instance { get; private set; }
 
-    List<ISelectable> selectables = new List<ISelectable>();
+    [SerializeField] List<ISelectable> selectables = new List<ISelectable>();
     ISelectable selected;
 
     IDraggable currentDraggable;
@@ -65,6 +65,7 @@ public class SelectionManager : MonoBehaviour
         ISelectable toRemove = selected;
         Deselect();
         toRemove.Remove();
+        //Deregister(toRemove);
     }
 
     private void TrySelect(Vector2 pointerWorldPos)
@@ -79,8 +80,7 @@ public class SelectionManager : MonoBehaviour
             {
                 selectables.RemoveAt(i);
                 continue;
-            }
-
+            } 
             if (s.HitTest(pointerWorldPos))
             {
                 if (s == selected) return; // already selected, do nothing

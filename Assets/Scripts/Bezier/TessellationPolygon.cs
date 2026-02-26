@@ -16,8 +16,6 @@ public class TessellationPolygon : PiecewisePolygon
     /// </summary>
     public override IPointSelectable TryAddPoint(Vector2 pointerWorldPos, bool smooth)
     {
-        Debug.Log("Adding point");
-
         PathPointSelectable pointA = null;
         Path edge = null;
 
@@ -56,8 +54,7 @@ public class TessellationPolygon : PiecewisePolygon
         // Create composite selectable
         TessPointSelectable composite = new TessPointSelectable(pointA, pointB);
 
-        // IMPORTANT: register it
-        SelectionManager.Instance?.Register(composite);
+        Debug.Log("Adding point");
 
         return composite;
     }

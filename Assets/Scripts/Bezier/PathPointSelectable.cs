@@ -23,7 +23,7 @@ public class PathPointSelectable : IPointSelectable
     private bool isSelected;
     public bool IsSelected() => isSelected;
 
-    private enum ActivePart
+    public enum ActivePart
     {
         None,
         Anchor,
@@ -31,7 +31,8 @@ public class PathPointSelectable : IPointSelectable
         HandleOut
     }
 
-    private ActivePart activePart = ActivePart.None;
+    protected ActivePart activePart = ActivePart.None;
+    public ActivePart SelectedPart => activePart;
 
     public Vector3 HandleInPos => (Vector3)anchor.GetPosition() + handleInOffset;
     public Vector3 HandleOutPos => (Vector3)anchor.GetPosition() + handleOutOffset;
@@ -73,6 +74,8 @@ public class PathPointSelectable : IPointSelectable
 
     public bool HitTest(Vector2 worldPoint)
     {
+        if (anchor == null) return false;
+
         // Always check the anchor
         if (anchor.HitTest(worldPoint))
         {
@@ -114,7 +117,7 @@ public class PathPointSelectable : IPointSelectable
         selectionHandler.OnSelected();
     }
 
-    private void MoveHandle(Vector2 worldPosition)
+    public void MoveHandle(Vector2 worldPosition)
     {
         if (activePart == ActivePart.HandleIn)
             handleInSelectable.Move(worldPosition);
@@ -128,6 +131,7 @@ public class PathPointSelectable : IPointSelectable
         parentPath?.DeletePoint(this);
         if (SelectionManager.Instance != null)
             SelectionManager.Instance.Deregister(this);
+        DestroyVisuals();
     }
 
     public void DestroyVisuals()

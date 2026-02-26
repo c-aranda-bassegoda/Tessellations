@@ -61,7 +61,6 @@ public class Path : MonoBehaviour
             return;
 
         points.RemoveAt(index);
-        point.DestroyVisuals();
     }
 
 

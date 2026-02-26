@@ -31,9 +31,17 @@ public class TessPointSelectable : IPointSelectable
 
     public bool HitTest(Vector2 worldPoint)
     {
-        // Delegate hit test to either point
-        return (mainPoint != null && mainPoint.HitTest(worldPoint)) ||
-               (symPoint != null && symPoint.HitTest(worldPoint));
+        if (mainPoint != null && mainPoint.HitTest(worldPoint))
+        {
+            activePoint = mainPoint;
+            return true;
+        }
+        if (symPoint != null && symPoint.HitTest(worldPoint))
+        {
+            activePoint = symPoint;
+            return true;
+        }
+        return false;
     }
 
     public void OnDrag(Vector2 worldPosition)
@@ -55,7 +63,15 @@ public class TessPointSelectable : IPointSelectable
 
         // Apply same delta to symmetric point
         Vector2 mirroredTarget = other.Position + delta;
-        other.Move(mirroredTarget);
+        if (activePoint.SelectedPart == PathPointSelectable.ActivePart.Anchor)
+        {
+            other.Move(mirroredTarget);
+        }
+        else
+        {
+            other.MoveHandle(mirroredTarget);
+        }
+        //selectionHandler.OnSelected();
     }
 
     public void Remove()
@@ -63,15 +79,10 @@ public class TessPointSelectable : IPointSelectable
         mainPoint?.Remove();
         symPoint?.Remove();
 
-        if (SelectionManager.Instance != null)
-            SelectionManager.Instance.Deregister(this);
+        SelectionManager.Instance?.Deregister(this);
     }
 
-    public void DestroyVisuals()
-    {
-        mainPoint?.DestroyVisuals();
-        symPoint?.DestroyVisuals();
-    }
+    
 
     public void SetSelectionHandler(ISelectionHandler handler)
     {
