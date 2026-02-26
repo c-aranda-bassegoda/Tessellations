@@ -51,8 +51,7 @@ public class TessPointSelectable : IPointSelectable
         if (activePoint == null)
             activePoint = mainPoint;
 
-        PathPointSelectable other =
-        activePoint == mainPoint ? symPoint : mainPoint;
+        PathPointSelectable other = (activePoint == mainPoint ? symPoint : mainPoint);
 
         // Compute delta from selected point
         Vector2 oldPos = activePoint.Position;
@@ -69,7 +68,17 @@ public class TessPointSelectable : IPointSelectable
         }
         else
         {
-            other.MoveHandle(mirroredTarget);
+            Vector2 otherAnchor = other.Position;
+            Vector2 mirroredOffset = mirroredTarget - otherAnchor;
+
+            if (activePoint.SelectedPart == PathPointSelectable.ActivePart.HandleOut)
+            {
+                other.handleInOffset = mirroredOffset;
+            }
+            else if (activePoint.SelectedPart == PathPointSelectable.ActivePart.HandleIn)
+            {
+                other.handleOutOffset = mirroredOffset;
+            }
         }
         //selectionHandler.OnSelected();
     }

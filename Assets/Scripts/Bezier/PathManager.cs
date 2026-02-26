@@ -54,7 +54,6 @@ public class PathManager : MonoBehaviour
 
         if (InputManager.Instance.PointerUp && isEditing)
         {
-            //NodeSelectable nodeSelectable = currentNode?.anchor.GetComponent<NodeSelectable>();
             if (currentNode != null)
             {
                 SelectionManager.Instance.Register(currentNode);   

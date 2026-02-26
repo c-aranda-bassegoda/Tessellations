@@ -1,6 +1,8 @@
 using System;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
 // A node or vertex with handles that define the curvature of an anchor point of a cubic bezier curve
@@ -120,11 +122,16 @@ public class PathPointSelectable : IPointSelectable
     public void MoveHandle(Vector2 worldPosition)
     {
         if (activePart == ActivePart.HandleIn)
+        {
             handleInSelectable.Move(worldPosition);
-        else 
+        }
+        else
+        {
             handleOutSelectable.Move(worldPosition);
+        }
     }
 
+    
 
     public void Remove()
     {
