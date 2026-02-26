@@ -48,26 +48,55 @@ public class TessPointSelectable : IPointSelectable
     {
         if (mainPoint == null || symPoint == null)
             return;
+
         if (activePoint == null)
             activePoint = mainPoint;
 
         PathPointSelectable other =
             activePoint == mainPoint ? symPoint : mainPoint;
 
-        Vector2 oldPos = activePoint.Position;
-        Vector2 delta = worldPosition - oldPos;
-        Vector2 deltaHandleIn = worldPosition - (Vector2)activePoint.HandleInPos;
-        Vector2 deltaHandleOut = worldPosition - (Vector2)activePoint.HandleOutPos;
+        Vector2 oldAnchorPos = activePoint.Position;
 
-        // Drag active normally
+        // Let active point process normally
         activePoint.OnDrag(worldPosition);
 
+        switch (activePoint.SelectedPart)
+        {
+            case PathPointSelectable.ActivePart.Anchor:
+                {
+                    Vector2 anchorDelta = activePoint.Position - oldAnchorPos;
+                    other.Move(other.Position + anchorDelta);
+                    break;
+                }
 
-        // Apply symmetric behavior
-        other.ApplySymmetricDrag(activePoint.SelectedPart, delta,
-            deltaHandleOut, deltaHandleIn
-        );
-        //selectionHandler.OnSelected();
+            case PathPointSelectable.ActivePart.HandleIn:
+                {
+                    Vector2 offset =
+                        activePoint.HandleInPos - activePoint.Position;
+
+                    Vector2 mirroredOffset = -offset;
+
+                    other.UpdateHandlePosition(
+                        other.handleOutSelectable,
+                        other.Position + mirroredOffset
+                    );
+                    break;
+                }
+
+            case PathPointSelectable.ActivePart.HandleOut:
+                {
+                    Vector2 offset =
+                        activePoint.HandleOutPos - activePoint.Position;
+
+                    Vector2 mirroredOffset = offset;
+
+                    other.UpdateHandlePosition(
+                        other.handleInSelectable,
+                        other.Position + mirroredOffset
+                    );
+                    break;
+                }
+        }
     }
 
     public void Remove()
