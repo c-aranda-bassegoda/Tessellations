@@ -13,8 +13,8 @@ public class PathPointSelectable : IPointSelectable
     public NodeSelectable anchor;
     public Vector2 Position => anchor.GetPosition();
 
-    public Vector3 handleInOffset;
-    public Vector3 handleOutOffset;
+    public Vector2 handleInOffset;
+    public Vector2 handleOutOffset;
     public HandleSelectable handleInSelectable;
     public HandleSelectable handleOutSelectable;
 
@@ -36,8 +36,8 @@ public class PathPointSelectable : IPointSelectable
     protected ActivePart activePart = ActivePart.None;
     public ActivePart SelectedPart => activePart;
 
-    public Vector3 HandleInPos => (Vector3)anchor.GetPosition() + handleInOffset;
-    public Vector3 HandleOutPos => (Vector3)anchor.GetPosition() + handleOutOffset;
+    public Vector2 HandleInPos => anchor.GetPosition() + handleInOffset;
+    public Vector2 HandleOutPos => anchor.GetPosition() + handleOutOffset;
 
     public PathPointSelectable SelectedNode => this;
 
@@ -74,6 +74,55 @@ public class PathPointSelectable : IPointSelectable
             activePart = ActivePart.None;
     }
 
+    public void UpdateHandlePosition(HandleSelectable handle, Vector2 worldPosition)
+    {
+        Vector2 anchorPos = anchor.GetPosition();
+        Vector2 offset = worldPosition - anchorPos;
+
+        bool isInHandle = (handle == handleInSelectable);
+
+        if (isInHandle)
+            handleInOffset = offset;
+        else
+            handleOutOffset = offset;
+
+        // Smooth logic (mirror opposite handle)
+        if (smooth)
+        {
+            Vector2 mirroredOffset = -offset;
+
+            if (isInHandle)
+                handleOutOffset = mirroredOffset;
+            else
+                handleInOffset = mirroredOffset;
+
+            // Move opposite visual without recursion
+            HandleSelectable opposite =
+                isInHandle ? handleOutSelectable : handleInSelectable;
+
+            if (opposite != null)
+                opposite.MoveWithoutNotify(anchorPos + mirroredOffset);
+        }
+    }
+
+    public void ApplySymmetricDrag(ActivePart part, Vector2 anchorDelta, Vector2 handleInDelta, Vector2 handleOutDelta)
+    {
+        switch (part)
+        {
+            case ActivePart.Anchor:
+                Move(Position + anchorDelta);
+                break;
+
+            case ActivePart.HandleIn:
+                UpdateHandlePosition(handleOutSelectable, HandleOutPos + handleOutDelta);
+                break;
+
+            case ActivePart.HandleOut:
+                UpdateHandlePosition(handleInSelectable, HandleInPos + handleInDelta);
+                break;
+        }
+    }
+
     public bool HitTest(Vector2 worldPoint)
     {
         if (anchor == null) return false;
@@ -89,13 +138,13 @@ public class PathPointSelectable : IPointSelectable
         if (IsSelected() && selectionHandler != null)
         {
             float handleRadius = 0.2f; // tweak for your scale
-            if ((HandleInPos - (Vector3)worldPoint).sqrMagnitude <= handleRadius * handleRadius)
+            if ((HandleInPos - worldPoint).sqrMagnitude <= handleRadius * handleRadius)
             {
                 activePart = ActivePart.HandleIn;
                 return true;
             }
 
-            if ((HandleOutPos - (Vector3)worldPoint).sqrMagnitude <= handleRadius * handleRadius)
+            if ((HandleOutPos - worldPoint).sqrMagnitude <= handleRadius * handleRadius)
             {
                 activePart = ActivePart.HandleOut;
                 return true;
@@ -114,7 +163,10 @@ public class PathPointSelectable : IPointSelectable
         }
         else
         {
-            MoveHandle(worldPosition);
+            if (activePart == ActivePart.HandleIn)
+                UpdateHandlePosition(handleInSelectable, worldPosition);
+            if (activePart == ActivePart.HandleOut)
+                UpdateHandlePosition(handleOutSelectable, worldPosition);
         }
         selectionHandler.OnSelected();
     }

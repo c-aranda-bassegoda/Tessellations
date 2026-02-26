@@ -51,35 +51,22 @@ public class TessPointSelectable : IPointSelectable
         if (activePoint == null)
             activePoint = mainPoint;
 
-        PathPointSelectable other = (activePoint == mainPoint ? symPoint : mainPoint);
+        PathPointSelectable other =
+            activePoint == mainPoint ? symPoint : mainPoint;
 
-        // Compute delta from selected point
         Vector2 oldPos = activePoint.Position;
         Vector2 delta = worldPosition - oldPos;
+        Vector2 deltaHandleIn = worldPosition - (Vector2)activePoint.HandleInPos;
+        Vector2 deltaHandleOut = worldPosition - (Vector2)activePoint.HandleOutPos;
 
-        // Move first point normally
+        // Drag active normally
         activePoint.OnDrag(worldPosition);
 
-        // Apply same delta to symmetric point
-        Vector2 mirroredTarget = other.Position + delta;
-        if (activePoint.SelectedPart == PathPointSelectable.ActivePart.Anchor)
-        {
-            other.Move(mirroredTarget);
-        }
-        else
-        {
-            Vector2 otherAnchor = other.Position;
-            Vector2 mirroredOffset = mirroredTarget - otherAnchor;
 
-            if (activePoint.SelectedPart == PathPointSelectable.ActivePart.HandleOut)
-            {
-                other.handleInOffset = mirroredOffset;
-            }
-            else if (activePoint.SelectedPart == PathPointSelectable.ActivePart.HandleIn)
-            {
-                other.handleOutOffset = mirroredOffset;
-            }
-        }
+        // Apply symmetric behavior
+        other.ApplySymmetricDrag(activePoint.SelectedPart, delta,
+            deltaHandleOut, deltaHandleIn
+        );
         //selectionHandler.OnSelected();
     }
 

@@ -29,9 +29,6 @@ public class PathPointSelectionHandler : ISelectionHandler
         handleIn.parentPoint = point;
         handleOut.parentPoint = point;
 
-        // Make handles aware of each other for mirroring
-        handleIn.oppositeHandle = handleOut;
-        handleOut.oppositeHandle = handleIn;
     }
 
     public void OnDeselected()
@@ -46,7 +43,7 @@ public class PathPointSelectionHandler : ISelectionHandler
 
     private void UpdateHandlePositions()
     {
-        handleInVisual.transform.position = (Vector3)point.anchor.GetPosition() + point.handleInOffset;
-        handleOutVisual.transform.position = (Vector3)point.anchor.GetPosition() + point.handleOutOffset;
+        handleInVisual.transform.position = point.anchor.GetPosition() + point.handleInOffset;
+        handleOutVisual.transform.position = point.anchor.GetPosition() + point.handleOutOffset;
     }
 }
