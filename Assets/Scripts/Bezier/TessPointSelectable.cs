@@ -24,9 +24,13 @@ public class TessPointSelectable : IPointSelectable
     public void SetSelected(bool selected)
     {
         isSelected = selected;
-
         mainPoint?.SetSelected(selected);
         symPoint?.SetSelected(selected);
+        //activePoint?.SetSelected(selected); 
+
+        //PathPointSelectable other =
+        //    activePoint == mainPoint ? symPoint : mainPoint;
+        //other.SetSelected(selected);
     }
 
     public bool HitTest(Vector2 worldPoint)

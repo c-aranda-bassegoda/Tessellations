@@ -63,9 +63,9 @@ public class PathPointSelectable : IPointSelectable
             else selectionHandler.OnDeselected();
         }
 
+        anchor.SetSelected(selected);
         switch (activePart)
         {
-            case ActivePart.Anchor: anchor.SetSelected(selected); break;
             case ActivePart.HandleIn: handleInSelectable.SetSelected(selected); break;
             case ActivePart.HandleOut: handleOutSelectable.SetSelected(selected); break;
         }
@@ -102,24 +102,6 @@ public class PathPointSelectable : IPointSelectable
 
             if (opposite != null)
                 opposite.MoveWithoutNotify(anchorPos + mirroredOffset);
-        }
-    }
-
-    public void ApplySymmetricDrag(ActivePart part, Vector2 anchorDelta, Vector2 handleInDelta, Vector2 handleOutDelta)
-    {
-        switch (part)
-        {
-            case ActivePart.Anchor:
-                Move(Position + anchorDelta);
-                break;
-
-            case ActivePart.HandleIn:
-                UpdateHandlePosition(handleOutSelectable, HandleOutPos + handleOutDelta);
-                break;
-
-            case ActivePart.HandleOut:
-                UpdateHandlePosition(handleInSelectable, HandleInPos + handleInDelta);
-                break;
         }
     }
 
