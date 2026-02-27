@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEditor.PlayerSettings;
@@ -8,6 +9,7 @@ public class Path : MonoBehaviour
     public int resolutionPerSegment = 20;
     private LineRenderer line;
     public GameObject nodePrefab;
+    public float clickThreshold = 0.4f; 
 
     void Awake()
     {
@@ -72,8 +74,6 @@ public class Path : MonoBehaviour
 
         Vector3 closestPoint;
         int segmentIndex = FindClosestSegment(clickPos, out closestPoint);
-
-        float clickThreshold = 0.2f; // tweak for scale
 
         if (segmentIndex != -1 && Vector3.Distance(closestPoint, clickPos) < clickThreshold)
         {
@@ -222,5 +222,19 @@ public class Path : MonoBehaviour
                 line.SetPosition(index++, position);
             }
         }
+    }
+
+
+    /// <summary>
+    /// Returns true if there is a node close to postion
+    /// </summary>
+    internal bool isNodeAt(Vector2 position)
+    {
+        foreach (var p in points)
+        {
+            if (Vector2.Distance(p.Position, position) < clickThreshold)
+                return true;
+        }
+        return false;
     }
 }

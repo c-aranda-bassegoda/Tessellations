@@ -21,6 +21,7 @@ public class TessellationPolygon : PiecewisePolygon
 
         foreach (var e in edges)
         {
+            if (e.isNodeAt(pointerWorldPos)) break; // avoid making points too close together (causes floating point error upon transformation)
             var newPoint = e.TryAddPoint(pointerWorldPos, smooth) as PathPointSelectable;
             if (newPoint != null)
             {
@@ -39,8 +40,7 @@ public class TessellationPolygon : PiecewisePolygon
         {
             int edgeIndex = edges.IndexOf(edge);
             int symmetricIndex = GetSymmetricEdgeIndex(edgeIndex);
-
-            if (symmetricIndex >= 0 && symmetricIndex < edges.Count)
+            if (symmetricIndex >= 0 && symmetricIndex < edges.Count) 
             {
                 Path symmetricEdge = edges[symmetricIndex];
 
@@ -49,6 +49,7 @@ public class TessellationPolygon : PiecewisePolygon
                 pointB = symmetricEdge.TryAddPoint(transformedPos, smooth) as PathPointSelectable;
             }
         }
+        if (pointB == null) return null;
 
         // Create composite selectable
         TessPointSelectable composite = new TessPointSelectable(pointA, pointB);
