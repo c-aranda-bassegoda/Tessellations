@@ -44,10 +44,9 @@ public class TessellationPolygon : PiecewisePolygon
             {
                 Path symmetricEdge = edges[symmetricIndex];
 
-                Vector2 translation = GetEdgeTranslation(edgeIndex);
-                Vector2 translatedPos = pointA.Position + translation;
+                Vector2 transformedPos = TranslatePointOnSymEdge(edgeIndex, pointA);
 
-                pointB = symmetricEdge.TryAddPoint(translatedPos, smooth) as PathPointSelectable;
+                pointB = symmetricEdge.TryAddPoint(transformedPos, smooth) as PathPointSelectable;
             }
         }
 
@@ -70,12 +69,12 @@ public class TessellationPolygon : PiecewisePolygon
     }
 
     /// <summary>
-    /// Ttanslates the point into symmetric edge
+    /// Translates the point into symmetric edge. Returns the position of pointA when translated onto edge with edgeIndex
     /// </summary>
-    private Vector2 GetEdgeTranslation(int edgeIndex)
+    private Vector2 TranslatePointOnSymEdge(int edgeIndex, PathPointSelectable pointA)
     {
         if (edgeTranslationOffsets != null && edgeIndex < edgeTranslationOffsets.Count)
-            return edgeTranslationOffsets[edgeIndex];
+            return pointA.Position + edgeTranslationOffsets[edgeIndex]; 
 
         return Vector2.zero;
     }

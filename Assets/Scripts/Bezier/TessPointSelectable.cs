@@ -1,4 +1,5 @@
 using UnityEngine;
+
 // <sumary>
 // Composite selectable that controls two symmetric path points
 // </summary>
@@ -26,11 +27,6 @@ public class TessPointSelectable : IPointSelectable
         isSelected = selected;
         mainPoint?.SetSelected(selected);
         symPoint?.SetSelected(selected);
-        //activePoint?.SetSelected(selected); 
-
-        //PathPointSelectable other =
-        //    activePoint == mainPoint ? symPoint : mainPoint;
-        //other.SetSelected(selected);
     }
 
     public bool HitTest(Vector2 worldPoint)
@@ -64,43 +60,7 @@ public class TessPointSelectable : IPointSelectable
         // Let active point process normally
         activePoint.OnDrag(worldPosition);
 
-        switch (activePoint.SelectedPart)
-        {
-            case PathPointSelectable.ActivePart.Anchor:
-                {
-                    Vector2 anchorDelta = activePoint.Position - oldAnchorPos;
-                    other.Move(other.Position + anchorDelta);
-                    break;
-                }
-
-            case PathPointSelectable.ActivePart.HandleIn:
-                {
-                    Vector2 offset =
-                        activePoint.HandleInPos - activePoint.Position;
-
-                    Vector2 mirroredOffset = -offset;
-
-                    other.UpdateHandlePosition(
-                        other.handleOutSelectable,
-                        other.Position + mirroredOffset
-                    );
-                    break;
-                }
-
-            case PathPointSelectable.ActivePart.HandleOut:
-                {
-                    Vector2 offset =
-                        activePoint.HandleOutPos - activePoint.Position;
-
-                    Vector2 mirroredOffset = offset;
-
-                    other.UpdateHandlePosition(
-                        other.handleInSelectable,
-                        other.Position + mirroredOffset
-                    );
-                    break;
-                }
-        }
+        TranslationOnBothAxes(other, oldAnchorPos, activePoint);
     }
 
     public void Remove()
@@ -137,7 +97,55 @@ public class TessPointSelectable : IPointSelectable
         activePoint.Move(worldPosition);
 
         // Apply same delta to symmetric point
-        Vector2 mirroredTarget = other.Position + delta;
-        other.Move(mirroredTarget);
+        TranslationOnBothAxes(other, oldPos, activePoint);
+    }
+
+
+    /// -----------------------------------------------------
+    /// Transformations
+    /// ------------------------------------------------------
+
+    /// <summary>
+    /// Moves other by the same offset in the same direction as active 
+    /// (Resulting in a transformation with translational symmetry)
+    /// </summary>
+    private void TranslationOnBothAxes(PathPointSelectable other, Vector2 oldAnchorPos, PathPointSelectable active)
+    {
+        switch (active.SelectedPart)
+        {
+            case PathPointSelectable.ActivePart.HandleIn:
+                {
+                    Vector2 offset =
+                        active.HandleInPos - active.Position;
+
+                    Vector2 mirroredOffset = -offset;
+
+                    other.UpdateHandlePosition(
+                        other.handleOutSelectable,
+                        other.Position + mirroredOffset
+                    );
+                    break;
+                }
+
+            case PathPointSelectable.ActivePart.HandleOut:
+                {
+                    Vector2 offset =
+                        active.HandleOutPos - active.Position;
+
+                    Vector2 mirroredOffset = offset;
+
+                    other.UpdateHandlePosition(
+                        other.handleInSelectable,
+                        other.Position + mirroredOffset
+                    );
+                    break;
+                }
+            default:
+                {
+                    Vector2 anchorDelta = active.Position - oldAnchorPos;
+                    other.Move(other.Position + anchorDelta);
+                    break;
+                }
+        }
     }
 }

@@ -165,7 +165,6 @@ public class PathPointSelectable : IPointSelectable
         }
     }
 
-    
 
     public void Remove()
     {

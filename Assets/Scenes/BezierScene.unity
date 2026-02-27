@@ -1052,7 +1052,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7db29129ec07aa94ca9b4135c6aba70d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseShape: {fileID: 1206904073}
+  baseShape: {fileID: 1492404489}
   linePrefab: {fileID: 4737950803987888381, guid: 59cbbdf3e8ecd8e4d91c8cc2d85ed050, type: 3}
 --- !u!4 &1128681751
 Transform:
