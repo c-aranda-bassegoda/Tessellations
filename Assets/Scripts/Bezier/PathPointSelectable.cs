@@ -66,8 +66,8 @@ public class PathPointSelectable : IPointSelectable
         anchor.SetSelected(selected);
         switch (activePart)
         {
-            case ActivePart.HandleIn: handleInSelectable.SetSelected(selected); break;
-            case ActivePart.HandleOut: handleOutSelectable.SetSelected(selected); break;
+            case ActivePart.HandleIn: handleInSelectable?.SetSelected(selected); break;
+            case ActivePart.HandleOut: handleOutSelectable?.SetSelected(selected); break;
         }
 
         if (!selected)

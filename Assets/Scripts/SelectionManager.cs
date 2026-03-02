@@ -102,11 +102,11 @@ public class SelectionManager : MonoBehaviour
         selected.SetSelected(true);
     }
 
-    void Deselect()
+    public void Deselect()
     {
-            if (selected != null)
-                selected.SetSelected(false); // if sth is selected deselect it
-            selected = null;
+        if (selected != null)
+            selected.SetSelected(false); // if sth is selected deselect it
+        selected = null;
     }
 
     internal void Deregister(ISelectable selectable)

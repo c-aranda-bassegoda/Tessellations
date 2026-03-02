@@ -1,4 +1,5 @@
 using UnityEngine;
+using static PathPointSelectable;
 
 // <sumary>
 // Composite selectable that controls two symmetric path points
@@ -57,11 +58,16 @@ public class TessPointSelectable : IPointSelectable
 
         Vector2 oldAnchorPos = activePoint.Position;
 
-        if (other == mainPoint)
+        if (other == mainPoint) // symPoint has no handles
         {
-            Vector2 anchorDelta = activePoint.Position - oldAnchorPos;
-            other.Move(other.Position + anchorDelta);
-            return;
+            if (activePoint.SelectedPart == ActivePart.Anchor)
+            {
+                activePoint.OnDrag(worldPosition);
+                TranslationOnBothAxes(other, oldAnchorPos, activePoint);
+            } else
+            {
+                SelectionManager.Instance.Deselect();
+            }
         }
         else
         {
