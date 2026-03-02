@@ -9,7 +9,9 @@ public class Path : MonoBehaviour
     public int resolutionPerSegment = 20;
     private LineRenderer line;
     public GameObject nodePrefab;
-    public float clickThreshold = 0.4f; 
+    public float clickThreshold = 0.4f;
+    public Vector2 Start {  get; private set; }
+    public Vector2 End { get; private set; }
 
     void Awake()
     {
@@ -22,6 +24,8 @@ public class Path : MonoBehaviour
 
     public void Initialize(Vector2 start, Vector2 end)
     {
+        this.Start = start;
+        this.End = end;
         points.Clear();
 
         NodeSelectable a = Instantiate(nodePrefab, start, Quaternion.identity)

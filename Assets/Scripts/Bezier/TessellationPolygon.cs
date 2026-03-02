@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Drawing;
+using NUnit.Framework.Internal;
 using UnityEngine;
 using static TessPointSelectable;
 
@@ -10,8 +12,6 @@ public class TessellationPolygon : PiecewisePolygon
     // e.g., edges[0] is symmetric to edges[3], etc.
     [SerializeField] private List<int> symmetricEdgeMap = new List<int>();
     [SerializeField] private List<Symmetry> symmetries = new List<Symmetry>();
-
-    [SerializeField] private List<Vector2> edgeTranslationOffsets = new List<Vector2>();
 
     /// <summary>
     /// Adds a node, and if symmetry is enabled, automatically adds mirrored node
@@ -49,7 +49,14 @@ public class TessellationPolygon : PiecewisePolygon
             {
                 Path symmetricEdge = edges[symmetricIndex];
 
-                Vector2 transformedPos = TranslatePointOnSymEdge(edgeIndex, pointA);
+                Vector2 transformedPos;
+                switch (symmetry)
+                {
+                    case Symmetry.GlideReflection: transformedPos = GlideReflectPointOnSymEdge(edge, symmetricEdge, pointA);
+                        break;
+                    default: transformedPos = TranslatePointOnSymEdge(edge, symmetricEdge, pointA);
+                        break;
+                }
 
                 pointB = symmetricEdge.TryAddPoint(transformedPos, smooth) as PathPointSelectable;
             }
@@ -75,15 +82,37 @@ public class TessellationPolygon : PiecewisePolygon
     }
 
     /// <summary>
-    /// Translates the point into symmetric edge. Returns the position of pointA when translated onto edge with edgeIndex
+    /// Translates the point into symmetric edge. Returns the position of pointA when translated onto symEdge
+    /// Assumes pointA is a point of edge and edge and symEdge are paralel
     /// </summary>
-    private Vector2 TranslatePointOnSymEdge(int edgeIndex, PathPointSelectable pointA)
+    private Vector2 TranslatePointOnSymEdge(Path edge, Path symEdge, PathPointSelectable pointA)
     {
-        if (edgeTranslationOffsets != null && edgeIndex < edgeTranslationOffsets.Count)
-            return pointA.Position + edgeTranslationOffsets[edgeIndex]; 
-
-        return Vector2.zero;
+        Vector2 midPnt = (edge.End + edge.Start)/2;
+        Vector2 midPntSym = (symEdge.End + symEdge.Start) / 2;
+        return pointA.Position + (midPntSym - midPnt);
     }
+
+    /// <summary>
+    /// Glide-reflects the point into symmetric edge. Returns the position of pointA when glide-reflected onto symEdge
+    /// Assumes pointA is a point of edge and edge and symEdge are paralel
+    /// </summary>
+    private Vector2 GlideReflectPointOnSymEdge(Path edge, Path symEdge, PathPointSelectable pointA)
+    {
+        Vector2 midPnt = (edge.End + edge.Start) / 2;
+        Vector2 midPntSym = (symEdge.End + symEdge.Start) / 2;
+        Vector2 midLinePoint = (midPnt + midPntSym)/2;
+
+        Vector2 translatedPnt = pointA.Position + (midPntSym - midPnt);
+
+        Vector2 axisDir = (edge.End + edge.Start).normalized;
+        Vector2 relative = translatedPnt - midLinePoint;
+        Vector2 projection = Vector2.Dot(relative, axisDir) * axisDir;
+        Vector2 reflected = 2 * projection - relative;
+
+        return reflected + midLinePoint;
+    }
+
+
 
     /// <summary>
     /// Automatically generate symmetric map if polygon is regular
@@ -99,7 +128,4 @@ public class TessellationPolygon : PiecewisePolygon
             symmetricEdgeMap.Add(opposite);
         }
     }
-
-    // TODO?: automatically generate edge symmetries
-
 }
