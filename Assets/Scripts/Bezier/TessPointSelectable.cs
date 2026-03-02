@@ -12,11 +12,19 @@ public class TessPointSelectable : IPointSelectable
 
     private bool isSelected;
     private ISelectionHandler selectionHandler;
+    public enum Symmetry
+    {
+        Translation,
+        Rotation,
+        GlideReflection
+    }
+    public Symmetry Transformation { get; set; }
 
     public PathPointSelectable SelectedNode => mainPoint;
 
-    public TessPointSelectable(PathPointSelectable a, PathPointSelectable b)
+    public TessPointSelectable(PathPointSelectable a, PathPointSelectable b, Symmetry symmetry = Symmetry.Translation)
     {
+        Transformation = symmetry;
         mainPoint = a;
         symPoint = b;
     }
@@ -59,7 +67,7 @@ public class TessPointSelectable : IPointSelectable
         Vector2 oldAnchorPos = activePoint.Position;
 
         if (other == mainPoint) 
-        { // symPoint has no handle visuals (handles should not be draggable)
+        { // symPoint has no handle visuals (handles should not be draggable/selectable)
             if (activePoint.SelectedPart != ActivePart.Anchor)
             {
                 SelectionManager.Instance.Deselect();
@@ -69,7 +77,16 @@ public class TessPointSelectable : IPointSelectable
         // Let active point process normally
         activePoint.OnDrag(worldPosition);
 
-        TranslationOnBothAxes(other, oldAnchorPos, activePoint);
+        switch (Transformation)
+        {
+            case Symmetry.Translation:
+                TranslationOntoSymAxis(other, oldAnchorPos, activePoint);
+                break;
+            case Symmetry.Rotation:
+                break;
+            case Symmetry.GlideReflection:
+                break;
+        }
     }
 
     public void Remove()
@@ -106,7 +123,7 @@ public class TessPointSelectable : IPointSelectable
         activePoint.Move(worldPosition);
 
         // Apply same delta to symmetric point
-        TranslationOnBothAxes(other, oldPos, activePoint);
+        TranslationOntoSymAxis(other, oldPos, activePoint);
     }
 
 
@@ -118,7 +135,7 @@ public class TessPointSelectable : IPointSelectable
     /// Moves other by the same offset in the same direction as active 
     /// (Resulting in a transformation with translational symmetry)
     /// </summary>
-    private void TranslationOnBothAxes(PathPointSelectable other, Vector2 oldAnchorPos, PathPointSelectable active)
+    private void TranslationOntoSymAxis(PathPointSelectable other, Vector2 oldAnchorPos, PathPointSelectable active)
     {
         switch (active.SelectedPart)
         {

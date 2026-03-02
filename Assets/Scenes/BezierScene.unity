@@ -1712,6 +1712,7 @@ MonoBehaviour:
   clickThreshold: 0.3
   enableSymmetry: 1
   symmetricEdgeMap: 02000000030000000000000001000000
+  symmetries: 00000000000000000000000000000000
   edgeTranslationOffsets:
   - {x: 4, y: 0}
   - {x: 0, y: 4}

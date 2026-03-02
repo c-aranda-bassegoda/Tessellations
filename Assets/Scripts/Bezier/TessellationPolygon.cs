@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using static TessPointSelectable;
 
 public class TessellationPolygon : PiecewisePolygon
 {
@@ -8,6 +9,7 @@ public class TessellationPolygon : PiecewisePolygon
     // Map each edge index to its symmetric edge index
     // e.g., edges[0] is symmetric to edges[3], etc.
     [SerializeField] private List<int> symmetricEdgeMap = new List<int>();
+    [SerializeField] private List<Symmetry> symmetries = new List<Symmetry>();
 
     [SerializeField] private List<Vector2> edgeTranslationOffsets = new List<Vector2>();
 
@@ -36,10 +38,12 @@ public class TessellationPolygon : PiecewisePolygon
             return null;
 
         PathPointSelectable pointB = null;
+        Symmetry symmetry = Symmetry.Translation;
 
         if (enableSymmetry)
         {
             int edgeIndex = edges.IndexOf(edge);
+            symmetry = symmetries[edgeIndex];
             int symmetricIndex = GetSymmetricEdgeIndex(edgeIndex);
             if (symmetricIndex >= 0 && symmetricIndex < edges.Count) 
             {
@@ -53,7 +57,7 @@ public class TessellationPolygon : PiecewisePolygon
         if (pointB == null) return null;
 
         // Create composite selectable
-        TessPointSelectable composite = new TessPointSelectable(pointA, pointB);
+        TessPointSelectable composite = new TessPointSelectable(pointA, pointB, symmetry);
 
         Debug.Log("Adding point");
 
