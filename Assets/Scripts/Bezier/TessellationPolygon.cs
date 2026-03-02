@@ -39,6 +39,7 @@ public class TessellationPolygon : PiecewisePolygon
 
         PathPointSelectable pointB = null;
         Symmetry symmetry = Symmetry.Translation;
+        Path symmetricEdge = null;
 
         if (enableSymmetry)
         {
@@ -47,7 +48,7 @@ public class TessellationPolygon : PiecewisePolygon
             int symmetricIndex = GetSymmetricEdgeIndex(edgeIndex);
             if (symmetricIndex >= 0 && symmetricIndex < edges.Count) 
             {
-                Path symmetricEdge = edges[symmetricIndex];
+                symmetricEdge = edges[symmetricIndex];
 
                 Vector2 transformedPos;
                 switch (symmetry)
@@ -62,9 +63,20 @@ public class TessellationPolygon : PiecewisePolygon
             }
         }
         if (pointB == null) return null;
+        if (symmetricEdge == null) return null;
 
         // Create composite selectable
-        TessPointSelectable composite = new TessPointSelectable(pointA, pointB, symmetry);
+        TessPointSelectable composite;
+        switch (symmetry)
+        {
+            case Symmetry.GlideReflection:
+                var axis = GetReflectionAxis(edge, symmetricEdge);
+                composite = new TessPointSelectable(pointA, pointB, symmetry, axis.Item2, axis.Item1);
+                break;
+            default:
+                composite = new TessPointSelectable(pointA, pointB, symmetry);
+                break;
+        }
 
         Debug.Log("Adding point");
 
@@ -98,18 +110,30 @@ public class TessellationPolygon : PiecewisePolygon
     /// </summary>
     private Vector2 GlideReflectPointOnSymEdge(Path edge, Path symEdge, PathPointSelectable pointA)
     {
+
+        Vector2 translatedPnt = TranslatePointOnSymEdge(edge, symEdge, pointA);
+
+        (Vector2, Vector2) reflectionAxis = GetReflectionAxis(edge, symEdge);
+        Vector2 midLinePoint = reflectionAxis.Item1;
+        Vector2 axisDir = reflectionAxis.Item2;
+
+        return SymmetryUtils.ReflectAcrossAxis(translatedPnt, midLinePoint, axisDir);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="edge"></param>
+    /// <param name="symEdge"></param>
+    /// <returns>(axisPoint, axisDir)</returns>
+    private (Vector2, Vector2) GetReflectionAxis(Path edge, Path symEdge)
+    {
         Vector2 midPnt = (edge.End + edge.Start) / 2;
         Vector2 midPntSym = (symEdge.End + symEdge.Start) / 2;
-        Vector2 midLinePoint = (midPnt + midPntSym)/2;
-
-        Vector2 translatedPnt = pointA.Position + (midPntSym - midPnt);
+        Vector2 axisPoint = (midPnt + midPntSym) / 2;
 
         Vector2 axisDir = (edge.End + edge.Start).normalized;
-        Vector2 relative = translatedPnt - midLinePoint;
-        Vector2 projection = Vector2.Dot(relative, axisDir) * axisDir;
-        Vector2 reflected = 2 * projection - relative;
-
-        return reflected + midLinePoint;
+        return (axisPoint, axisDir);
     }
 
 

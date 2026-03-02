@@ -9,6 +9,8 @@ public class TessPointSelectable : IPointSelectable
     public PathPointSelectable mainPoint;
     public PathPointSelectable symPoint;
     public PathPointSelectable activePoint;
+    public Vector2 axisDir;
+    public Vector2 axisPoint;
 
     private bool isSelected;
     private ISelectionHandler selectionHandler;
@@ -22,11 +24,13 @@ public class TessPointSelectable : IPointSelectable
 
     public PathPointSelectable SelectedNode => mainPoint;
 
-    public TessPointSelectable(PathPointSelectable a, PathPointSelectable b, Symmetry symmetry = Symmetry.Translation)
+    public TessPointSelectable(PathPointSelectable a, PathPointSelectable b, Symmetry symmetry = Symmetry.Translation, Vector2 axisDir = default, Vector2 axisPoint = default)
     {
         Transformation = symmetry;
         mainPoint = a;
         symPoint = b;
+        this.axisDir = axisDir;
+        this.axisPoint = axisPoint;
     }
 
     public bool IsSelected() => isSelected;
@@ -85,6 +89,7 @@ public class TessPointSelectable : IPointSelectable
             case Symmetry.Rotation:
                 break;
             case Symmetry.GlideReflection:
+                GlideReflectionOntoSymAxis(other, oldAnchorPos, activePoint);
                 break;
         }
     }
@@ -123,7 +128,17 @@ public class TessPointSelectable : IPointSelectable
         activePoint.Move(worldPosition);
 
         // Apply same delta to symmetric point
-        TranslationOntoSymAxis(other, oldPos, activePoint);
+        switch (Transformation)
+        {
+            case Symmetry.Translation:
+                TranslationOntoSymAxis(other, oldPos, activePoint);
+                break;
+            case Symmetry.Rotation:
+                break;
+            case Symmetry.GlideReflection:
+                GlideReflectionOntoSymAxis(other, oldPos, activePoint);
+                break;
+        }
     }
 
 
@@ -173,5 +188,68 @@ public class TessPointSelectable : IPointSelectable
                     break;
                 }
         }
+    }
+
+    /// <summary>
+    /// Moves other by the same offset in the same direction as active 
+    /// (Resulting in a transformation with glide-reflection symmetry)
+    /// </summary>
+    private void GlideReflectionOntoSymAxis(PathPointSelectable other, Vector2 oldAnchorPos, PathPointSelectable active)
+    {
+        switch (active.SelectedPart)
+        {
+            case PathPointSelectable.ActivePart.HandleIn:
+                {
+                    Vector2 offset =
+                        active.HandleInPos - active.Position;
+
+                    Vector2 mirroredOffset = -offset;
+
+                    other.UpdateHandlePosition(
+                        other.handleOutSelectable,
+                        other.Position + mirroredOffset
+                    );
+                    break;
+                }
+
+            case PathPointSelectable.ActivePart.HandleOut:
+                {
+                    Vector2 offset =
+                        active.HandleOutPos - active.Position;
+
+                    Vector2 mirroredOffset = offset;
+
+                    other.UpdateHandlePosition(
+                        other.handleInSelectable,
+                        other.Position + mirroredOffset
+                    );
+                    break;
+                }
+            default:
+                {
+                    Vector2 anchorDelta = active.Position - oldAnchorPos;
+                    other.Move(other.Position + anchorDelta);
+                    break;
+                }
+        }
+    }
+
+    
+}
+
+public static class SymmetryUtils
+{
+    public static Vector2 ReflectAcrossAxis(Vector2 point, Vector2 axisPoint, Vector2 axisDir)
+    {
+        axisDir.Normalize();
+
+        Vector2 relative = point - axisPoint;
+
+        // perpendicular normal
+        Vector2 normal = new Vector2(-axisDir.y, axisDir.x);
+
+        Vector2 reflected = Vector2.Reflect(relative, normal);
+
+        return reflected + axisPoint;
     }
 }
