@@ -22,6 +22,7 @@ public class TessellationPolygon : PiecewisePolygon
         foreach (var e in edges)
         {
             if (e.isNodeAt(pointerWorldPos)) break; // avoid making points too close together (causes floating point error upon transformation)
+
             var newPoint = e.TryAddPoint(pointerWorldPos, smooth) as PathPointSelectable;
             if (newPoint != null)
             {

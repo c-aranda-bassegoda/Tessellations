@@ -57,10 +57,19 @@ public class TessPointSelectable : IPointSelectable
 
         Vector2 oldAnchorPos = activePoint.Position;
 
-        // Let active point process normally
-        activePoint.OnDrag(worldPosition);
+        if (other == mainPoint)
+        {
+            Vector2 anchorDelta = activePoint.Position - oldAnchorPos;
+            other.Move(other.Position + anchorDelta);
+            return;
+        }
+        else
+        {
+            // Let active point process normally
+            activePoint.OnDrag(worldPosition);
 
-        TranslationOnBothAxes(other, oldAnchorPos, activePoint);
+            TranslationOnBothAxes(other, oldAnchorPos, activePoint);
+        }
     }
 
     public void Remove()
