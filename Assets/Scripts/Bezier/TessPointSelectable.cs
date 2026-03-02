@@ -227,8 +227,24 @@ public class TessPointSelectable : IPointSelectable
                 }
             default:
                 {
-                    Vector2 anchorDelta = active.Position - oldAnchorPos;
-                    other.Move(other.Position + anchorDelta);
+                    // Reflect old and new anchor positions
+                    Vector2 oldReflected = SymmetryUtils.ReflectAcrossAxis(
+                        oldAnchorPos,
+                        axisPoint,
+                        axisDir
+                    );
+
+                    Vector2 newReflected = SymmetryUtils.ReflectAcrossAxis(
+                        active.Position,
+                        axisPoint,
+                        axisDir
+                    );
+
+                    // Compute delta in reflected space
+                    Vector2 reflectedDelta = newReflected - oldReflected;
+
+                    // Apply that delta to the other point
+                    other.Move(other.Position + reflectedDelta);
                     break;
                 }
         }
