@@ -58,24 +58,18 @@ public class TessPointSelectable : IPointSelectable
 
         Vector2 oldAnchorPos = activePoint.Position;
 
-        if (other == mainPoint) // symPoint has no handles
-        {
-            if (activePoint.SelectedPart == ActivePart.Anchor)
-            {
-                activePoint.OnDrag(worldPosition);
-                TranslationOnBothAxes(other, oldAnchorPos, activePoint);
-            } else
+        if (other == mainPoint) 
+        { // symPoint has no handle visuals (handles should not be draggable)
+            if (activePoint.SelectedPart != ActivePart.Anchor)
             {
                 SelectionManager.Instance.Deselect();
+                return;
             }
         }
-        else
-        {
-            // Let active point process normally
-            activePoint.OnDrag(worldPosition);
+        // Let active point process normally
+        activePoint.OnDrag(worldPosition);
 
-            TranslationOnBothAxes(other, oldAnchorPos, activePoint);
-        }
+        TranslationOnBothAxes(other, oldAnchorPos, activePoint);
     }
 
     public void Remove()
