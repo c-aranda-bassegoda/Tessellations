@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using NUnit.Framework.Internal;
@@ -54,6 +55,10 @@ public class TessellationPolygon : PiecewisePolygon
                 switch (symmetry)
                 {
                     case Symmetry.GlideReflection: transformedPos = GlideReflectPointOnSymEdge(edge, symmetricEdge, pointA);
+                        Debug.Log("Glide Refl");
+                        break;
+                    case Symmetry.Rotation: transformedPos = RotatePointOnSymEdge(edge, symmetricEdge, pointA);
+                        Debug.Log("Rotation");
                         break;
                     default: transformedPos = TranslatePointOnSymEdge(edge, symmetricEdge, pointA);
                         break;
@@ -106,18 +111,77 @@ public class TessellationPolygon : PiecewisePolygon
 
     /// <summary>
     /// Glide-reflects the point into symmetric edge. Returns the position of pointA when glide-reflected onto symEdge
-    /// Assumes pointA is a point of edge and edge and symEdge are paralel
+    /// 
     /// </summary>
     private Vector2 GlideReflectPointOnSymEdge(Path edge, Path symEdge, PathPointSelectable pointA)
     {
-
-        Vector2 translatedPnt = TranslatePointOnSymEdge(edge, symEdge, pointA);
+        Vector2 transformedPnt;
+        if (AreParallel(edge, symEdge))
+            transformedPnt = TranslatePointOnSymEdge(edge, symEdge, pointA);
+        else
+            transformedPnt = RotatePointOnSymEdge(edge, symEdge, pointA);
 
         (Vector2, Vector2) reflectionAxis = GetReflectionAxis(edge, symEdge);
         Vector2 midLinePoint = reflectionAxis.Item1;
         Vector2 axisDir = reflectionAxis.Item2;
 
-        return SymmetryUtils.ReflectAcrossAxis(translatedPnt, midLinePoint, axisDir);
+        return SymmetryUtils.ReflectAcrossAxis(transformedPnt, midLinePoint, axisDir);
+    }
+
+    /// <summary>
+    /// Rotates the point into symmetric edge. Returns the position of pointA when glide-reflected onto symEdge
+    /// </summary>
+    private Vector2 RotatePointOnSymEdge(Path edge, Path symEdge, PathPointSelectable pointA)
+    {
+        Vector2 pivot = edge.End; //FindIntersection(edge, symEdge);
+
+        Matrix2x2 rotMtx = GetRotationMatrix(edge, symEdge);
+
+        // Translate point into edge local space
+        Vector2 local = pointA.Position - pivot;
+
+        // Rotate
+        Vector2 rotatedLocal = rotMtx.Multiply(pointA.Position);
+
+        // Translate back to symEdge
+        Vector2 rotatedPoint = rotatedLocal;// + pivot;
+
+        return rotatedPoint;
+    }
+
+    private Vector2 FindIntersection(Path edge, Path symEdge)
+    {
+        Vector2 p = edge.Start;
+        Vector2 r = edge.End - edge.Start;
+        Vector2 q = symEdge.Start;
+        Vector2 s = symEdge.End - symEdge.Start;
+
+        float rxs = r.x * s.y - r.y * s.x; // 2D cross product
+        Vector2 q_p = q - p;
+        float qpxr = q_p.x * r.y - q_p.y * r.x;
+
+        // Check if lines are parallel
+        if (Mathf.Abs(rxs) < 1e-6f)
+        {
+            if (Mathf.Abs(qpxr) < 1e-6f)
+            {
+                if (edge.Start == symEdge.Start || edge.Start == symEdge.End)
+                    return edge.Start;
+                if (edge.End == symEdge.End || edge.End == symEdge.Start)
+                    return edge.End;
+                throw new System.Exception("Paths are colinear (overlapping)");
+            }
+            else
+            {
+                throw new System.Exception("Paths are parallel but do not intersect");
+            }
+        }
+
+        float t = (q_p.x * s.y - q_p.y * s.x) / rxs;
+        float u = qpxr / rxs;
+
+        
+        return p + t * r;
     }
 
     /// <summary>
@@ -135,8 +199,34 @@ public class TessellationPolygon : PiecewisePolygon
         Vector2 axisDir = (edge.End + edge.Start).normalized;
         return (axisPoint, axisDir);
     }
+    /// <summary>
+    /// R = | cos(), -sin() |
+    ///     | sin(),  cos() |
+    /// </summary>
+    /// <param name="edge"></param>
+    /// <param name="symEdge"></param>
+    private Matrix2x2 GetRotationMatrix(Path edge, Path symEdge)
+    {
+        Vector2 dirA = (edge.End - edge.Start).normalized;
+        Vector2 dirB = (symEdge.End - symEdge.Start).normalized;
+        float cos = Vector2.Dot(dirA, dirB);
+        float sin = dirA.x * dirB.y - dirA.y * dirB.x; // 2D cross product 
 
+        return new Matrix2x2(cos, sin);
+    }
 
+    /// <summary>
+    /// Returns true if pathA and pathB are parallel
+    /// </summary>
+    public static bool AreParallel(Path pathA, Path pathB, float epsilon = 0.0001f)
+    {
+        Vector2 dirA = pathA.End - pathA.Start;
+        Vector2 dirB = pathB.End - pathB.Start;
+
+        float cross = dirA.x * dirB.y - dirA.y * dirB.x;
+
+        return Mathf.Abs(cross) < epsilon;
+    }
 
     /// <summary>
     /// Automatically generate symmetric map if polygon is regular
@@ -151,5 +241,38 @@ public class TessellationPolygon : PiecewisePolygon
             int opposite = (i + n / 2) % n;
             symmetricEdgeMap.Add(opposite);
         }
+    }
+}
+
+public struct Matrix2x2
+{
+    public float m00, m01;
+    public float m10, m11;
+
+    public Matrix2x2(float angleRad)
+    {
+        float cos = Mathf.Cos(angleRad);
+        float sin = Mathf.Sin(angleRad);
+
+        m00 = cos; m01 = -sin;
+        m10 = sin; m11 = cos;
+    }
+    public Matrix2x2(float cos, float sin)
+    {
+        m00 = cos; m01 = -sin;
+        m10 = sin; m11 = cos;
+    }
+    public Matrix2x2(Vector2 x, Vector2 y)
+    {
+        m00 = x.x; m01 = y.x;
+        m10 = x.y; m11 = y.y;
+    }
+
+    public Vector2 Multiply(Vector2 v)
+    {
+        return new Vector2(
+            m00 * v.x + m01 * v.y,
+            m10 * v.x + m11 * v.y
+        );
     }
 }

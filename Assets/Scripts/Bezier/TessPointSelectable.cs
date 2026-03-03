@@ -87,6 +87,7 @@ public class TessPointSelectable : IPointSelectable
                 TranslationOntoSymAxis(other, oldActiveAnchorPos, activePoint);
                 break;
             case Symmetry.Rotation:
+
                 break;
             case Symmetry.GlideReflection:
                 GlideReflectionOntoSymAxis(other, oldActiveAnchorPos, activePoint);
@@ -134,6 +135,7 @@ public class TessPointSelectable : IPointSelectable
                 TranslationOntoSymAxis(other, oldPos, activePoint);
                 break;
             case Symmetry.Rotation:
+                
                 break;
             case Symmetry.GlideReflection:
                 GlideReflectionOntoSymAxis(other, oldPos, activePoint);
@@ -192,7 +194,7 @@ public class TessPointSelectable : IPointSelectable
     }
 
     /// <summary>
-    /// Moves other by the same offset in the same direction as active 
+    /// Moves other by the same offset in the same direction as active and reflects it.
     /// (Resulting in a transformation with glide-reflection symmetry)
     /// </summary>
     private void GlideReflectionOntoSymAxis(PathPointSelectable other, Vector2 oldActiveAnchorPos, PathPointSelectable active)
