@@ -184,6 +184,24 @@ public class Path : MonoBehaviour
         return BezierCurve.CubicCurve(a, b, c, d, t);
     }
 
+    public void InvertPath()
+    {
+        Vector2 temp = Start;
+        Start = End;
+        End = temp;
+        List<PathPointSelectable> list = new List<PathPointSelectable>();
+        for (int i = points.Count-1; i>=0; i--)
+        {
+            list.Add(points[i]);
+        }
+        points.Clear();
+
+        foreach (var p in list)
+        {
+            points.Add(p);
+        }
+    }
+
     /*
      * -------------------------------------------------------------------------------------------
      * Rendering
