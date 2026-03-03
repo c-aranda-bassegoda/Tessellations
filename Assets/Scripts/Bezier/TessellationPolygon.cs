@@ -55,13 +55,13 @@ public class TessellationPolygon : PiecewisePolygon
                 Vector2 transformedPos;
                 switch (symmetry)
                 {
-                    case Symmetry.GlideReflection: transformedPos = GlideReflectPointOnSymEdge(edge, symmetricEdge, pointA);
+                    case Symmetry.GlideReflection: transformedPos = GlideReflectPointOnSymEdge(edge, symmetricEdge, pointA.Position);
                         Debug.Log("Glide Refl");
                         break;
-                    case Symmetry.Rotation: transformedPos = RotatePointOnSymEdge(edge, symmetricEdge, pointA);
+                    case Symmetry.Rotation: transformedPos = RotatePointOnSymEdge(edge, symmetricEdge, pointA.Position);
                         Debug.Log("Rotation");
                         break;
-                    default: transformedPos = TranslatePointOnSymEdge(edge, symmetricEdge, pointA);
+                    default: transformedPos = TranslatePointOnSymEdge(edge, symmetricEdge, pointA.Position);
                         break;
                 }
 
@@ -78,6 +78,9 @@ public class TessellationPolygon : PiecewisePolygon
             case Symmetry.GlideReflection:
                 var axis = GetReflectionAxis(edge, symmetricEdge);
                 composite = new TessPointSelectable(pointA, pointB, symmetry, axis.Item2, axis.Item1);
+                break;
+            case Symmetry.Rotation:
+                composite = new TessPointSelectable(pointA, pointB, symmetry);
                 break;
             default:
                 composite = new TessPointSelectable(pointA, pointB, symmetry);
@@ -103,44 +106,39 @@ public class TessellationPolygon : PiecewisePolygon
     /// Translates the point into symmetric edge. Returns the position of pointA when translated onto symEdge
     /// Assumes pointA is a point of edge and edge and symEdge are paralel
     /// </summary>
-    private Vector2 TranslatePointOnSymEdge(Path edge, Path symEdge, PathPointSelectable pointA)
+    private Vector2 TranslatePointOnSymEdge(Path edge, Path symEdge, Vector2 pointA)
     {
         Vector2 midPnt = (edge.End + edge.Start)/2;
         Vector2 midPntSym = (symEdge.End + symEdge.Start) / 2;
-        return pointA.Position + (midPntSym - midPnt);
+        return pointA + (midPntSym - midPnt);
     }
 
     /// <summary>
     /// Glide-reflects the point into symmetric edge. Returns the position of pointA when glide-reflected onto symEdge
     /// 
     /// </summary>
-    private Vector2 GlideReflectPointOnSymEdge(Path edge, Path symEdge, PathPointSelectable pointA)
+    private Vector2 GlideReflectPointOnSymEdge(Path edge, Path symEdge, Vector2 pointA)
     {
         Vector2 transformedPnt;
         if (AreParallel(edge, symEdge))
-        {
-            //(Vector2 axisPoint, Vector2 axisDir) = GetReflectionAxis(edge, symEdge);
-            //Vector2 mirrored = SymmetryUtils.ReflectAcrossAxis(
-            //    pointA.Position,
-            //    axisPoint,
-            //    axisDir
-            //);
-
-            //return TranslatePointOnSymEdge(edge, symEdge, mirrored);
-
-            transformedPnt = TranslatePointOnSymEdge(edge, symEdge, pointA);
-
-            (Vector2, Vector2) reflectionAxis = GetReflectionAxis(edge, symEdge);
-            Vector2 midLinePoint = reflectionAxis.Item1;
-            Vector2 axisDir = reflectionAxis.Item2;
-
-            return SymmetryUtils.ReflectAcrossAxis(transformedPnt, midLinePoint, axisDir);
-
+        { 
+            (Vector2 axisPoint, Vector2 axisDir) = GetMidpointReflectionAxis(edge);
+            Vector2 mirrored = SymmetryUtils.ReflectAcrossAxis(
+                pointA,
+                axisPoint,
+                axisDir
+            );
+            return TranslatePointOnSymEdge(edge, symEdge, mirrored);
         }
         else
         {
-            transformedPnt = RotatePointOnSymEdge(edge, symEdge, pointA);
-
+            (Vector2 axisPoint, Vector2 axisDir) = GetMidpointReflectionAxis(edge);
+            Vector2 mirrored = SymmetryUtils.ReflectAcrossAxis(
+                pointA,
+                axisPoint,
+                axisDir
+            );
+            transformedPnt = RotatePointOnSymEdge(edge, symEdge, mirrored);
             return transformedPnt;
         }
 
@@ -149,7 +147,7 @@ public class TessellationPolygon : PiecewisePolygon
     /// <summary>
     /// Rotates the point into symmetric edge. Returns the position of pointA when glide-reflected onto symEdge
     /// </summary>
-    private Vector2 RotatePointOnSymEdge(Path edge, Path symEdge, PathPointSelectable pointA)
+    private Vector2 RotatePointOnSymEdge(Path edge, Path symEdge, Vector2 pointA)
     {
         // Get shared pivot
         Vector2 pivot = GetSharedVertex(edge, symEdge);
@@ -158,7 +156,7 @@ public class TessellationPolygon : PiecewisePolygon
         Matrix2x2 rotMtx = GetRotationMatrix(edge, symEdge);
 
         // Translate point into edge local space
-        Vector2 local = pointA.Position - pivot;
+        Vector2 local = pointA - pivot;
 
         // Rotate
         Vector2 rotatedLocal = rotMtx.Multiply(local);
@@ -233,6 +231,10 @@ public class TessellationPolygon : PiecewisePolygon
     /// <returns>(axisPoint, axisDir)</returns>
     private (Vector2, Vector2) GetReflectionAxis(Path edge, Path symEdge)
     {
+        //if(!AreParallel(edge, symEdge))
+        //{
+        //    return GetAngleBisector(edge, symEdge);
+        //}
         Vector2 midPnt = (edge.End + edge.Start) / 2;
         Vector2 midPntSym = (symEdge.End + symEdge.Start) / 2;
         Vector2 axisPoint = (midPnt + midPntSym) / 2;
@@ -240,6 +242,39 @@ public class TessellationPolygon : PiecewisePolygon
         Vector2 axisDir = (edge.End + edge.Start).normalized;
         return (axisPoint, axisDir);
     }
+
+    private (Vector2 pivot, Vector2 axisDir) GetMidpointReflectionAxis(Path path)
+    {
+        // Pivot = midpoint of endpoints
+        Vector2 pivot = (path.Start + path.End) / 2f;
+
+        // Reflection perpendicular to the path
+        Vector2 axisDir = new Vector2(
+            -(path.End - path.Start).y,
+             (path.End - path.Start).x
+        ).normalized;
+
+        return (pivot, axisDir);
+    }
+
+    /// <summary>
+    /// Reflection axis for non paralel lines
+    /// </summary>
+    /// <param name="edge"></param>
+    /// <param name="symEdge"></param>
+    /// <returns>(pivot, bisector)</returns>
+    private (Vector2, Vector2) GetAngleBisector(Path edge, Path symEdge)
+    {
+        Vector2 pivot = GetSharedVertex(edge, symEdge);
+
+        Vector2 dirA = GetDirectionFromPivot(edge, pivot);
+        Vector2 dirB = GetDirectionFromPivot(symEdge, pivot);
+
+        Vector2 bisector = (dirA + dirB).normalized;
+
+        return (pivot, bisector);
+    }
+
     /// <summary>
     /// R = | cos(), -sin() |
     ///     | sin(),  cos() |
@@ -261,6 +296,13 @@ public class TessellationPolygon : PiecewisePolygon
         float sin = dirA.x * dirB.y - dirA.y * dirB.x; // 2D cross product 
 
         return new Matrix2x2(cos, sin);
+    }
+
+    private Vector2 MirrorPointAroundPathMidpoint(Path path, Vector2 point)
+    {
+        Vector2 midpoint = (path.Start + path.End) / 2;
+
+        return 2 * midpoint - point;
     }
 
     /// <summary>

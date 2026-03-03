@@ -1711,8 +1711,8 @@ MonoBehaviour:
   resolutionPerSegment: 10
   clickThreshold: 0.3
   enableSymmetry: 1
-  symmetricEdgeMap: 01000000000000000300000002000000
-  symmetries: 02000000020000000100000001000000
+  symmetricEdgeMap: 02000000030000000000000001000000
+  symmetries: 02000000000000000200000000000000
 --- !u!4 &1492404491
 Transform:
   m_ObjectHideFlags: 0
