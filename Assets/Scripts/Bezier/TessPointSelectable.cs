@@ -162,7 +162,7 @@ public class TessPointSelectable : IPointSelectable
                 Vector2 mirroredOffset = -offset;
 
                 other.UpdateHandlePosition(
-                    other.handleOutSelectable,
+                    other.handleInSelectable,
                     other.Position + mirroredOffset
                 );
                 break;
@@ -176,7 +176,7 @@ public class TessPointSelectable : IPointSelectable
                 Vector2 mirroredOffset = offset;
 
                 other.UpdateHandlePosition(
-                    other.handleInSelectable,
+                    other.handleOutSelectable,
                     other.Position + mirroredOffset
                 );
                 break;
