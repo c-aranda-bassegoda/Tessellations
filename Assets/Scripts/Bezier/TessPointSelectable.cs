@@ -68,7 +68,7 @@ public class TessPointSelectable : IPointSelectable
         PathPointSelectable other =
             activePoint == mainPoint ? symPoint : mainPoint;
 
-        Vector2 oldAnchorPos = activePoint.Position;
+        Vector2 oldActiveAnchorPos = activePoint.Position;
 
         if (other == mainPoint) 
         { // symPoint has no handle visuals (handles should not be draggable/selectable)
@@ -84,12 +84,12 @@ public class TessPointSelectable : IPointSelectable
         switch (Transformation)
         {
             case Symmetry.Translation:
-                TranslationOntoSymAxis(other, oldAnchorPos, activePoint);
+                TranslationOntoSymAxis(other, oldActiveAnchorPos, activePoint);
                 break;
             case Symmetry.Rotation:
                 break;
             case Symmetry.GlideReflection:
-                GlideReflectionOntoSymAxis(other, oldAnchorPos, activePoint);
+                GlideReflectionOntoSymAxis(other, oldActiveAnchorPos, activePoint);
                 break;
         }
     }
@@ -150,43 +150,44 @@ public class TessPointSelectable : IPointSelectable
     /// Moves other by the same offset in the same direction as active 
     /// (Resulting in a transformation with translational symmetry)
     /// </summary>
-    private void TranslationOntoSymAxis(PathPointSelectable other, Vector2 oldAnchorPos, PathPointSelectable active)
+    private void TranslationOntoSymAxis(PathPointSelectable other, Vector2 oldActiveAnchorPos, PathPointSelectable active)
     {
         switch (active.SelectedPart)
         {
             case PathPointSelectable.ActivePart.HandleIn:
-                {
-                    Vector2 offset =
-                        active.HandleInPos - active.Position;
+            {
+                Vector2 offset =
+                    active.HandleInPos - active.Position;
 
-                    Vector2 mirroredOffset = -offset;
+                Vector2 mirroredOffset = -offset;
 
-                    other.UpdateHandlePosition(
-                        other.handleOutSelectable,
-                        other.Position + mirroredOffset
-                    );
-                    break;
-                }
+                other.UpdateHandlePosition(
+                    other.handleOutSelectable,
+                    other.Position + mirroredOffset
+                );
+                break;
+            }
 
             case PathPointSelectable.ActivePart.HandleOut:
-                {
-                    Vector2 offset =
-                        active.HandleOutPos - active.Position;
+            {
+                Vector2 offset =
+                    active.HandleOutPos - active.Position;
 
-                    Vector2 mirroredOffset = offset;
+                Vector2 mirroredOffset = offset;
 
-                    other.UpdateHandlePosition(
-                        other.handleInSelectable,
-                        other.Position + mirroredOffset
-                    );
-                    break;
-                }
+                other.UpdateHandlePosition(
+                    other.handleInSelectable,
+                    other.Position + mirroredOffset
+                );
+                break;
+
+            }
             default:
-                {
-                    Vector2 anchorDelta = active.Position - oldAnchorPos;
-                    other.Move(other.Position + anchorDelta);
-                    break;
-                }
+            {
+                Vector2 anchorDelta = active.Position - oldActiveAnchorPos;
+                other.Move(other.Position + anchorDelta);
+                break;
+            }
         }
     }
 
@@ -194,28 +195,27 @@ public class TessPointSelectable : IPointSelectable
     /// Moves other by the same offset in the same direction as active 
     /// (Resulting in a transformation with glide-reflection symmetry)
     /// </summary>
-    private void GlideReflectionOntoSymAxis(PathPointSelectable other, Vector2 oldAnchorPos, PathPointSelectable active)
+    private void GlideReflectionOntoSymAxis(PathPointSelectable other, Vector2 oldActiveAnchorPos, PathPointSelectable active)
     {
+        // Reflect anchor position
+        Vector2 activeAnchorReflected = SymmetryUtils.ReflectAcrossAxis(
+            active.Position,
+            axisPoint,
+            axisDir
+        );
+
         switch (active.SelectedPart)
         {
             case PathPointSelectable.ActivePart.HandleIn:
                 {
-                    Vector2 offset =
-                        active.HandleInPos - active.Position;
-
-                    Vector2 mirroredOffset = -offset;
-
-                    other.UpdateHandlePosition(
-                        other.handleOutSelectable,
-                        other.Position + mirroredOffset
+                    Vector2 reflectedHandle = SymmetryUtils.ReflectAcrossAxis(
+                        active.HandleInPos,
+                        axisPoint,
+                        axisDir
                     );
-                    break;
-                }
 
-            case PathPointSelectable.ActivePart.HandleOut:
-                {
                     Vector2 offset =
-                        active.HandleOutPos - active.Position;
+                        reflectedHandle - activeAnchorReflected;
 
                     Vector2 mirroredOffset = offset;
 
@@ -225,23 +225,37 @@ public class TessPointSelectable : IPointSelectable
                     );
                     break;
                 }
-            default:
+
+            case PathPointSelectable.ActivePart.HandleOut:
                 {
-                    // Reflect old and new anchor positions
-                    Vector2 oldReflected = SymmetryUtils.ReflectAcrossAxis(
-                        oldAnchorPos,
+                    Vector2 reflectedHandle = SymmetryUtils.ReflectAcrossAxis(
+                        active.HandleOutPos,
                         axisPoint,
                         axisDir
                     );
 
-                    Vector2 newReflected = SymmetryUtils.ReflectAcrossAxis(
-                        active.Position,
+                    Vector2 offset =
+                        reflectedHandle - activeAnchorReflected;
+
+                    Vector2 mirroredOffset = -offset;
+
+                    other.UpdateHandlePosition(
+                        other.handleOutSelectable,
+                        other.Position + mirroredOffset
+                    );
+                    break;
+                }
+            default:
+                {
+                    // Reflect old anchor positions of active point
+                    Vector2 oldReflected = SymmetryUtils.ReflectAcrossAxis(
+                        oldActiveAnchorPos,
                         axisPoint,
                         axisDir
                     );
 
                     // Compute delta in reflected space
-                    Vector2 reflectedDelta = newReflected - oldReflected;
+                    Vector2 reflectedDelta = activeAnchorReflected - oldReflected;
 
                     // Apply that delta to the other point
                     other.Move(other.Position + reflectedDelta);
