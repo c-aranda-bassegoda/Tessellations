@@ -76,11 +76,13 @@ public class TessellationPolygon : PiecewisePolygon
         switch (symmetry)
         {
             case Symmetry.GlideReflection:
-                var axis = GetReflectionAxis(edge, symmetricEdge);
-                composite = new TessPointSelectable(pointA, pointB, symmetry, axis.Item2, axis.Item1);
+                var axis = GetMidpointReflectionAxis(edge);
+                var mtx = GetRotationMatrix(edge, symmetricEdge);
+                composite = new TessPointSelectable(pointA, pointB, symmetry, mtx, axis.Item2, axis.Item1);
                 break;
             case Symmetry.Rotation:
-                composite = new TessPointSelectable(pointA, pointB, symmetry);
+                mtx = GetRotationMatrix(edge, symmetricEdge);
+                composite = new TessPointSelectable(pointA, pointB, symmetry, mtx);
                 break;
             default:
                 composite = new TessPointSelectable(pointA, pointB, symmetry);
@@ -119,27 +121,19 @@ public class TessellationPolygon : PiecewisePolygon
     /// </summary>
     private Vector2 GlideReflectPointOnSymEdge(Path edge, Path symEdge, Vector2 pointA)
     {
-        Vector2 transformedPnt;
+        (Vector2 axisPoint, Vector2 axisDir) = GetMidpointReflectionAxis(edge);
+        Vector2 mirrored = SymmetryUtils.ReflectAcrossAxis(
+            pointA,
+            axisPoint,
+            axisDir
+        );
         if (AreParallel(edge, symEdge))
         { 
-            (Vector2 axisPoint, Vector2 axisDir) = GetMidpointReflectionAxis(edge);
-            Vector2 mirrored = SymmetryUtils.ReflectAcrossAxis(
-                pointA,
-                axisPoint,
-                axisDir
-            );
             return TranslatePointOnSymEdge(edge, symEdge, mirrored);
         }
         else
         {
-            (Vector2 axisPoint, Vector2 axisDir) = GetMidpointReflectionAxis(edge);
-            Vector2 mirrored = SymmetryUtils.ReflectAcrossAxis(
-                pointA,
-                axisPoint,
-                axisDir
-            );
-            transformedPnt = RotatePointOnSymEdge(edge, symEdge, mirrored);
-            return transformedPnt;
+            return RotatePointOnSymEdge(edge, symEdge, mirrored);
         }
 
     }
@@ -147,10 +141,11 @@ public class TessellationPolygon : PiecewisePolygon
     /// <summary>
     /// Rotates the point into symmetric edge. Returns the position of pointA when glide-reflected onto symEdge
     /// </summary>
-    private Vector2 RotatePointOnSymEdge(Path edge, Path symEdge, Vector2 pointA)
+    public Vector2 RotatePointOnSymEdge(Path edge, Path symEdge, Vector2 pointA)
     {
         // Get shared pivot
-        Vector2 pivot = GetSharedVertex(edge, symEdge);
+        Vector2 pivot;
+        bool success = GetSharedVertex(edge, symEdge, out pivot);
         Debug.Log("Pivot: " + pivot);
 
         Matrix2x2 rotMtx = GetRotationMatrix(edge, symEdge);
@@ -167,15 +162,22 @@ public class TessellationPolygon : PiecewisePolygon
         return rotatedPoint;
     }
 
-    private Vector2 GetSharedVertex(Path edge, Path symEdge)
+    private bool GetSharedVertex(Path edge, Path symEdge, out Vector2 vertex)
     {
-        if (edge.Start == symEdge.End || edge.Start == symEdge.Start)
-            return edge.Start;
+        if (edge.Start == symEdge.End || edge.Start == symEdge.Start) 
+        { 
+            vertex = edge.Start;
+            return true;
+        }
 
         if (edge.End == symEdge.Start || edge.End == symEdge.End)
-            return edge.End;
+        {
+            vertex = edge.End;
+            return true;
+        }
 
-        throw new Exception("Edges are not connected at a vertex.");
+        vertex = Vector2.zero;
+        return false;
     }
     private Vector2 GetDirectionFromPivot(Path path, Vector2 pivot)
     {
@@ -265,7 +267,7 @@ public class TessellationPolygon : PiecewisePolygon
     /// <returns>(pivot, bisector)</returns>
     private (Vector2, Vector2) GetAngleBisector(Path edge, Path symEdge)
     {
-        Vector2 pivot = GetSharedVertex(edge, symEdge);
+        bool success = GetSharedVertex(edge, symEdge, out Vector2 pivot);
 
         Vector2 dirA = GetDirectionFromPivot(edge, pivot);
         Vector2 dirB = GetDirectionFromPivot(symEdge, pivot);
@@ -283,8 +285,10 @@ public class TessellationPolygon : PiecewisePolygon
     /// <param name="symEdge"></param>
     private Matrix2x2 GetRotationMatrix(Path edge, Path symEdge)
     {
-        // Get pivot 
-        Vector2 pivot = GetSharedVertex(edge, symEdge);
+        if (!GetSharedVertex(edge, symEdge, out Vector2 pivot))
+        {
+            return Matrix2x2.Identity;
+        }
 
         // Get directions from pivot
         Vector2 dirA = GetDirectionFromPivot(edge, pivot);
@@ -339,6 +343,18 @@ public struct Matrix2x2
     public float m00, m01;
     public float m10, m11;
 
+    public static Matrix2x2 Identity = new Matrix2x2
+    {
+        m00 = 1f,
+        m01 = 0f,
+        m10 = 0f,
+        m11 = 1f
+    };
+    public Matrix2x2(bool identity)
+    {
+        m00 = 1f; m01 = 0f;
+        m10 = 0f; m11 = 1f;
+    }
     public Matrix2x2(float angleRad)
     {
         float cos = Mathf.Cos(angleRad);

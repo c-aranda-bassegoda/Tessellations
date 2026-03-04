@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 using static PathPointSelectable;
 
 // <sumary>
@@ -10,7 +11,8 @@ public class TessPointSelectable : IPointSelectable
     public PathPointSelectable symPoint;
     public PathPointSelectable activePoint;
     public Vector2 axisDir;
-    public Vector2 axisPoint;
+    public Vector2 axisPivot;
+    public Matrix2x2 rotMtx;
 
     private bool isSelected;
     private ISelectionHandler selectionHandler;
@@ -24,13 +26,28 @@ public class TessPointSelectable : IPointSelectable
 
     public PathPointSelectable SelectedNode => mainPoint;
 
-    public TessPointSelectable(PathPointSelectable a, PathPointSelectable b, Symmetry symmetry = Symmetry.Translation, Vector2 axisDir = default, Vector2 axisPoint = default)
+    public TessPointSelectable(
+    PathPointSelectable a,
+    PathPointSelectable b,
+    Symmetry symmetry = Symmetry.Translation)
+    : this(a, b, symmetry, Matrix2x2.Identity, default, default)
+    {
+    }
+    public TessPointSelectable(
+    PathPointSelectable a,
+    PathPointSelectable b, Symmetry symmetry, Matrix2x2 rot)
+    : this(a, b, symmetry, rot, default, default)
+    {
+    }
+
+    public TessPointSelectable(PathPointSelectable a, PathPointSelectable b, Symmetry symmetry, Matrix2x2 rot, Vector2 axisDir, Vector2 axisPoint)
     {
         Transformation = symmetry;
         mainPoint = a;
         symPoint = b;
         this.axisDir = axisDir;
-        this.axisPoint = axisPoint;
+        this.axisPivot = axisPoint;
+        this.rotMtx = rot;
     }
 
     public bool IsSelected() => isSelected;
@@ -202,9 +219,10 @@ public class TessPointSelectable : IPointSelectable
         // Reflect anchor position
         Vector2 activeAnchorReflected = SymmetryUtils.ReflectAcrossAxis(
             active.Position,
-            axisPoint,
+            axisPivot,
             axisDir
         );
+        Vector2 activeAnchorTransformed = rotMtx.Multiply(activeAnchorReflected - axisPivot) + axisPivot;
 
         switch (active.SelectedPart)
         {
@@ -212,12 +230,12 @@ public class TessPointSelectable : IPointSelectable
                 {
                     Vector2 reflectedHandle = SymmetryUtils.ReflectAcrossAxis(
                         active.HandleInPos,
-                        axisPoint,
+                        axisPivot,
                         axisDir
                     );
+                    Vector2 transformedHandle = rotMtx.Multiply(reflectedHandle - axisPivot) + axisPivot;
 
-                    Vector2 offset =
-                        reflectedHandle - activeAnchorReflected;
+                    Vector2 offset = transformedHandle - activeAnchorTransformed;
 
                     Vector2 mirroredOffset = offset;
 
@@ -232,12 +250,13 @@ public class TessPointSelectable : IPointSelectable
                 {
                     Vector2 reflectedHandle = SymmetryUtils.ReflectAcrossAxis(
                         active.HandleOutPos,
-                        axisPoint,
+                        axisPivot,
                         axisDir
                     );
 
-                    Vector2 offset =
-                        reflectedHandle - activeAnchorReflected;
+                    Vector2 transformedHandle = rotMtx.Multiply(reflectedHandle - axisPivot) + axisPivot;
+
+                    Vector2 offset = transformedHandle - activeAnchorTransformed;
 
                     Vector2 mirroredOffset = -offset;
 
@@ -252,12 +271,14 @@ public class TessPointSelectable : IPointSelectable
                     // Reflect old anchor positions of active point
                     Vector2 oldReflected = SymmetryUtils.ReflectAcrossAxis(
                         oldActiveAnchorPos,
-                        axisPoint,
+                        axisPivot,
                         axisDir
                     );
+                    Vector2 oldTransformed = rotMtx.Multiply(oldReflected - axisPivot) + axisPivot;
+
 
                     // Compute delta in reflected space
-                    Vector2 reflectedDelta = activeAnchorReflected - oldReflected;
+                    Vector2 reflectedDelta = activeAnchorTransformed - oldTransformed;
 
                     // Apply that delta to the other point
                     other.Move(other.Position + reflectedDelta);
