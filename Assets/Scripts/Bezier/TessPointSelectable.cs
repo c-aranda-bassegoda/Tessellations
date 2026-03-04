@@ -1,3 +1,5 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using static PathPointSelectable;
@@ -101,16 +103,17 @@ public class TessPointSelectable : IPointSelectable
         switch (Transformation)
         {
             case Symmetry.Translation:
-                TranslationOntoSymAxis(other, oldActiveAnchorPos, activePoint);
+                TranslateOntoSymAxis(other, oldActiveAnchorPos, activePoint);
                 break;
             case Symmetry.Rotation:
-
+                RotateOntoSymAxis(other, oldActiveAnchorPos, activePoint);
                 break;
             case Symmetry.GlideReflection:
-                GlideReflectionOntoSymAxis(other, oldActiveAnchorPos, activePoint);
+                GlideReflectOntoSymAxis(other, oldActiveAnchorPos, activePoint);
                 break;
         }
     }
+
 
     public void Remove()
     {
@@ -149,13 +152,13 @@ public class TessPointSelectable : IPointSelectable
         switch (Transformation)
         {
             case Symmetry.Translation:
-                TranslationOntoSymAxis(other, oldPos, activePoint);
+                TranslateOntoSymAxis(other, oldPos, activePoint);
                 break;
             case Symmetry.Rotation:
-                
+                RotateOntoSymAxis(other, oldPos, activePoint);
                 break;
             case Symmetry.GlideReflection:
-                GlideReflectionOntoSymAxis(other, oldPos, activePoint);
+                GlideReflectOntoSymAxis(other, oldPos, activePoint);
                 break;
         }
     }
@@ -169,7 +172,7 @@ public class TessPointSelectable : IPointSelectable
     /// Moves other by the same offset in the same direction as active 
     /// (Resulting in a transformation with translational symmetry)
     /// </summary>
-    private void TranslationOntoSymAxis(PathPointSelectable other, Vector2 oldActiveAnchorPos, PathPointSelectable active)
+    private void TranslateOntoSymAxis(PathPointSelectable other, Vector2 oldActiveAnchorPos, PathPointSelectable active)
     {
         switch (active.SelectedPart)
         {
@@ -214,7 +217,7 @@ public class TessPointSelectable : IPointSelectable
     /// Moves other by the same offset in the same direction as active and reflects it.
     /// (Resulting in a transformation with glide-reflection symmetry)
     /// </summary>
-    private void GlideReflectionOntoSymAxis(PathPointSelectable other, Vector2 oldActiveAnchorPos, PathPointSelectable active)
+    private void GlideReflectOntoSymAxis(PathPointSelectable other, Vector2 oldActiveAnchorPos, PathPointSelectable active)
     {
         // Reflect anchor position
         Vector2 activeAnchorReflected = SymmetryUtils.ReflectAcrossAxis(
@@ -222,12 +225,14 @@ public class TessPointSelectable : IPointSelectable
             axisPivot,
             axisDir
         );
+        // Rotate anchor position
         Vector2 activeAnchorTransformed = rotMtx.Multiply(activeAnchorReflected - axisPivot) + axisPivot;
 
         switch (active.SelectedPart)
         {
             case PathPointSelectable.ActivePart.HandleIn:
                 {
+                    // Reflect and rotate handle position
                     Vector2 reflectedHandle = SymmetryUtils.ReflectAcrossAxis(
                         active.HandleInPos,
                         axisPivot,
@@ -237,17 +242,18 @@ public class TessPointSelectable : IPointSelectable
 
                     Vector2 offset = transformedHandle - activeAnchorTransformed;
 
-                    Vector2 mirroredOffset = offset;
+                    Vector2 transformedOffset = offset;
 
                     other.UpdateHandlePosition(
                         other.handleInSelectable,
-                        other.Position + mirroredOffset
+                        other.Position + transformedOffset
                     );
                     break;
                 }
 
             case PathPointSelectable.ActivePart.HandleOut:
                 {
+                    // Reflect and rotate handle position
                     Vector2 reflectedHandle = SymmetryUtils.ReflectAcrossAxis(
                         active.HandleOutPos,
                         axisPivot,
@@ -258,17 +264,17 @@ public class TessPointSelectable : IPointSelectable
 
                     Vector2 offset = transformedHandle - activeAnchorTransformed;
 
-                    Vector2 mirroredOffset = -offset;
+                    Vector2 transformedOffset = -offset;
 
                     other.UpdateHandlePosition(
                         other.handleOutSelectable,
-                        other.Position + mirroredOffset
+                        other.Position + transformedOffset
                     );
                     break;
                 }
             default:
                 {
-                    // Reflect old anchor positions of active point
+                    // Reflect and rotate old anchor positions of active point
                     Vector2 oldReflected = SymmetryUtils.ReflectAcrossAxis(
                         oldActiveAnchorPos,
                         axisPivot,
@@ -278,16 +284,68 @@ public class TessPointSelectable : IPointSelectable
 
 
                     // Compute delta in reflected space
-                    Vector2 reflectedDelta = activeAnchorTransformed - oldTransformed;
+                    Vector2 transformedDelta = activeAnchorTransformed - oldTransformed;
 
                     // Apply that delta to the other point
-                    other.Move(other.Position + reflectedDelta);
+                    other.Move(other.Position + transformedDelta);
                     break;
                 }
         }
     }
 
-    
+    private void RotateOntoSymAxis(PathPointSelectable other, Vector2 oldActiveAnchorPos, PathPointSelectable active)
+    {
+        // Rotate anchor position
+        Vector2 activeAnchorTransformed = rotMtx.Multiply(active.Position - axisPivot) + axisPivot;
+
+        switch (active.SelectedPart)
+        {
+            case PathPointSelectable.ActivePart.HandleIn:
+                {
+                    Vector2 transformedHandle = rotMtx.Multiply(active.HandleInPos - axisPivot) + axisPivot;
+
+                    Vector2 offset = transformedHandle - activeAnchorTransformed;
+
+                    Vector2 transformedOffset = - offset;
+
+                    other.UpdateHandlePosition(
+                        other.handleInSelectable,
+                        other.Position + transformedOffset
+                    );
+                    break;
+                }
+
+            case PathPointSelectable.ActivePart.HandleOut:
+                {
+                    Vector2 transformedHandle = rotMtx.Multiply(active.HandleOutPos - axisPivot) + axisPivot;
+
+                    Vector2 offset = transformedHandle - activeAnchorTransformed;
+
+                    Vector2 transformedOffset = offset;
+
+                    other.UpdateHandlePosition(
+                        other.handleOutSelectable,
+                        other.Position + transformedOffset
+                    );
+                    break;
+                }
+            default:
+                {
+                    // Rotate old anchor positions of active point
+                    Vector2 oldTransformed = rotMtx.Multiply(oldActiveAnchorPos - axisPivot) + axisPivot;
+
+
+                    // Compute delta in reflected space
+                    Vector2 anchorDelta = activeAnchorTransformed - oldTransformed;
+
+                    // Apply that delta to the other point
+                    other.Move(other.Position + anchorDelta);
+                    break;
+                }
+        }
+    }
+
+
 }
 
 public static class SymmetryUtils
