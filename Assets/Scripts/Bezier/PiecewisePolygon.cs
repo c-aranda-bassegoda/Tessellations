@@ -130,4 +130,9 @@ public class PiecewisePolygon : BezierPolygon
         }
 
     }
+
+    public override void ReplaceEdge(GameObject line)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -44,6 +44,10 @@ public class DrawingManager : MonoBehaviour
         {
             if (activeDrawer.EndDrawing(pointerPos) && currentLine != null)
             {
+                if (ToolType.SnappingPencil == lastTool)
+                {
+                    baseShape.ReplaceEdge(currentLine);
+                }
                 LineSelectable lineSelectable = currentLine?.GetComponent<LineSelectable>();
                 if (lineSelectable != null)
                     SelectionManager.Instance.Register(lineSelectable);

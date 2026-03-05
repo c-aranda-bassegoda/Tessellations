@@ -3,16 +3,14 @@ using UnityEngine;
 
 public class NonConvexPolygon : Polygon
 {
-    private List<Edge> edges;
     [SerializeField] List<Vertex> vertices = new List<Vertex>();
 
-    public IReadOnlyList<Edge> Edges => edges;
 
     private void Start()
     {
         if (vertices == null)
             vertices = new List<Vertex>();
-        base.Vertices = vertices;
+        base._vertices = vertices;
 
         if (vertices.Count < 3)
         {
@@ -31,19 +29,19 @@ public class NonConvexPolygon : Polygon
 
     private void BuildEdges()
     {
-        edges = new List<Edge>();
+        _edges = new List<Edge>();
 
         for (int i = 0; i < vertices.Count; i++)
         {
             var a = vertices[i];
             var b = vertices[(i + 1) % vertices.Count];
-            edges.Add(new Edge(a, b));
+            _edges.Add(new Edge(a, b));
         }
     }
 
     public override bool HasEdge(Vertex a, Vertex b)
     {
-        foreach (var e in edges)
+        foreach (var e in _edges)
         {
             if ((e.A == a && e.B == b) || (e.A == b && e.B == a))
                 return true;
@@ -124,9 +122,9 @@ public class NonConvexPolygon : Polygon
 
     private void DrawEdges()
     {
-        if (edges == null) return;
+        if (_edges == null) return;
 
-        for (int i = 0; i < edges.Count; i++)
+        for (int i = 0; i < _edges.Count; i++)
         {
             GameObject edgeObj = Instantiate(edgePrefab, Vector2.zero, Quaternion.identity);
             edgeObj.transform.parent = transform;
@@ -135,8 +133,8 @@ public class NonConvexPolygon : Polygon
             if (lr == null) return;
             lr.positionCount = resolutionPerSegment + 1;
 
-            Vector2 a = edges[i].A.Position;
-            Vector2 b = edges[i].B.Position;
+            Vector2 a = _edges[i].A.Position;
+            Vector2 b = _edges[i].B.Position;
 
             for (int j = 0; j <= resolutionPerSegment; j++)
             {
@@ -146,5 +144,10 @@ public class NonConvexPolygon : Polygon
 
             edgeRenderers.Add(lr);
         }
+    }
+
+    public override void ReplaceEdge(GameObject line)
+    {
+        throw new System.NotImplementedException();
     }
 }

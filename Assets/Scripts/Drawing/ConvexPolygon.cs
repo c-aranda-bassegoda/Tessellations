@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class ConvexPolygon : Polygon
 {
-    private List<Edge> edges;
-    public IReadOnlyList<Edge> Edges => edges;
-
     [SerializeField] List<Vertex> vertices = new List<Vertex>();
 
     private void Start()
@@ -14,9 +11,9 @@ public class ConvexPolygon : Polygon
         if (vertices == null)
             vertices = new List<Vertex>();
 
-        base.Vertices = vertices;
+        base._vertices = vertices;
 
-        edges = new List<Edge>();
+        _edges = new List<Edge>();
 
         if (vertices.Count < 3)
         {
@@ -30,7 +27,7 @@ public class ConvexPolygon : Polygon
         int prev = vertices.Count - 1;
         for (int i = 0; i < vertices.Count; i++)
         {
-            edges.Add(new Edge(vertices[i], vertices[prev]));
+            _edges.Add(new Edge(vertices[i], vertices[prev]));
             prev = i;
         }
 
@@ -61,7 +58,7 @@ public class ConvexPolygon : Polygon
 
     public override bool HasEdge(Vertex a, Vertex b)
     {
-        foreach (var e in edges)
+        foreach (var e in _edges)
         {
             if ((e.A == a && e.B == b) || (e.B == a && e.A == b))
                 return true;
@@ -90,9 +87,9 @@ public class ConvexPolygon : Polygon
 
     private void DrawEdges()
     {
-        if (edges == null) return;
+        if (_edges == null) return;
 
-        for (int i = 0; i < edges.Count; i++)
+        for (int i = 0; i < _edges.Count; i++)
         {
             GameObject edgeObj = Instantiate(edgePrefab, Vector2.zero, Quaternion.identity);
             edgeObj.transform.parent = transform;
@@ -101,8 +98,8 @@ public class ConvexPolygon : Polygon
             if (lr == null) return;
             lr.positionCount = resolutionPerSegment + 1;
 
-            Vector2 a = edges[i].A.Position;
-            Vector2 b = edges[i].B.Position;
+            Vector2 a = _edges[i].A.Position;
+            Vector2 b = _edges[i].B.Position;
 
             for (int j = 0; j <= resolutionPerSegment; j++)
             {
@@ -112,6 +109,11 @@ public class ConvexPolygon : Polygon
 
             edgeRenderers.Add(lr);
         }
+    }
+
+    public override void ReplaceEdge(GameObject line)
+    {
+        throw new NotImplementedException();
     }
 }
 
