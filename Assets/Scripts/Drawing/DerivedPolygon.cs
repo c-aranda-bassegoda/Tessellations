@@ -6,24 +6,31 @@ public class DerivedPolygon : NonConvexPolygon
 {
     [SerializeField] public Polygon BasePolygon; 
 
-    private readonly Dictionary<Vertex, Vertex> _baseToDerivedVertex = new();
-    private readonly Dictionary<Edge, List<Edge>> _baseToDerivedEdges = new();
+    private readonly Dictionary<(Vertex, Vertex), List<Vertex> > _baseToDerivedVertex = new Dictionary<(Vertex, Vertex), List<Vertex>>();
 
     private void Awake()
     {
-        if (!BasePolygon.Initialized)
-        {
-            Debug.LogError("BasePolygon not initialized yet.");
-        }
         _vertices = new List<Vertex>(BasePolygon.Vertices);
         BuildEdges();
+        for (int i = 0; i < BasePolygon.Vertices.Count; i++)
+        {
+            List<Vertex> listvtx = new List<Vertex>();
+
+            _baseToDerivedVertex[(BasePolygon.Vertices[i], BasePolygon.Vertices[(i + 1) % _vertices.Count])] = listvtx;
+        }
     }
 
     public override void ReplaceEdge(GameObject line)
     {
-        
 
-        List<Vertex> newVertices = ToVertices(line);
+        LineRenderer lineRenderer = line.GetComponent<LineRenderer>();
+        if (lineRenderer == null)
+        {
+            Debug.LogError("GameObject does not have a LineRenderer component.");
+            return;
+        }
+
+        List<Vertex> newVertices = ToVertices(lineRenderer);
         Vertex vtx0 = FindClosestVertex(newVertices[0].Position);
         Vertex vtxEnd = FindClosestVertex(newVertices[newVertices.Count - 1].Position);
         Debug.Log(vtx0.Position);
@@ -40,16 +47,25 @@ public class DerivedPolygon : NonConvexPolygon
         ReplaceVerticesBetween(newVertices, idx0, idxEnd);
     }
 
-    private List<Vertex> ToVertices(GameObject currentLine)
+    public void ResetEdge(LineRenderer lineRenderer)
     {
-        var vertices = new List<Vertex>();
-
-        LineRenderer lineRenderer = currentLine.GetComponent<LineRenderer>();
-        if (lineRenderer == null)
+        List<Vertex> newVertices = ToVertices(lineRenderer);
+        Vertex vtx0 = FindClosestVertex(newVertices[0].Position);
+        Vertex vtxEnd = FindClosestVertex(newVertices[newVertices.Count - 1].Position);
+        if (vtx0 == null || vtxEnd == null)
         {
-            Debug.LogError("GameObject does not have a LineRenderer component.");
-            return vertices;
+            Debug.LogError("Failed to snap to base vertices.");
+            return;
         }
+        int idx0 = _vertices.IndexOf(vtx0);
+        int idxEnd = _vertices.IndexOf(vtxEnd);
+        ResetVerticesBetween(idx0, idxEnd);
+    }
+
+    private List<Vertex> ToVertices(LineRenderer lineRenderer)
+    {
+
+        var vertices = new List<Vertex>();
 
         int count = lineRenderer.positionCount;
         Vector3[] positions = new Vector3[count];
@@ -85,7 +101,36 @@ public class DerivedPolygon : NonConvexPolygon
         if (removeCount > 0)
             _vertices.RemoveRange(removeStart, removeCount);
 
+        _baseToDerivedVertex[(BasePolygon.Vertices[index1], BasePolygon.Vertices[index2])] = newVertices;
         _vertices.InsertRange(removeStart, newVertices);
+    }
+
+    private void ResetVerticesBetween(int index1, int index2)
+    {
+
+        if (index1 < 0 || index2 < 0 || index1 >= _vertices.Count || index2 >= _vertices.Count)
+        {
+            Debug.LogError("Invalid vertex indices.");
+            return;
+        }
+
+        // If traversal is reversed, swap indices and invert inserted vertices
+        if ((index2 < index1 && !(index2 == 0 && index1 == _vertices.Count - 1)) || (index1 == 0 && index2 == _vertices.Count - 1))
+        {
+            (index1, index2) = (index2, index1);
+        }
+
+        List<Vertex> oldVertices = _baseToDerivedVertex[(BasePolygon.Vertices[index1], BasePolygon.Vertices[index2])];
+
+        int removeCount = oldVertices.Count;
+
+        if (removeCount > 0)
+        {
+            int removeStart = _vertices.IndexOf(oldVertices[0]);
+            _vertices.RemoveRange(removeStart, removeCount);
+        }
+
+        _baseToDerivedVertex[(BasePolygon.Vertices[index1], BasePolygon.Vertices[index2])] = new List<Vertex>();
     }
 
     private float snapDistance = 0.2f;

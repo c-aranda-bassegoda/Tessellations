@@ -4,7 +4,7 @@ using UnityEngine;
 public class LineSelectable : MonoBehaviour, ISelectable
 {
 
-    [SerializeField] LineRenderer line;
+    [SerializeField] protected LineRenderer line;
     List<Vector3> points = new List<Vector3>();
 
     public float hitRadius = 0.1f;
@@ -50,7 +50,7 @@ public class LineSelectable : MonoBehaviour, ISelectable
         return Vector2.Distance(p, closest);
     }
 
-    public void Remove()
+    public virtual void Remove()
     {
         if (SelectionManager.Instance != null)
             SelectionManager.Instance.Deregister(this);

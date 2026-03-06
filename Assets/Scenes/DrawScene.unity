@@ -1814,6 +1814,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseShape: {fileID: 1580338540}
   linePrefab: {fileID: 4737950803987888381, guid: 59cbbdf3e8ecd8e4d91c8cc2d85ed050, type: 3}
+  edgePrefab: {fileID: 8679868766461693331, guid: 346b2f277d5b24043860ddfe820a51de, type: 3}
 --- !u!4 &1498919271
 Transform:
   m_ObjectHideFlags: 0
