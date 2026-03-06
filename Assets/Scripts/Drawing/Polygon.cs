@@ -19,6 +19,23 @@ public abstract class Polygon : MonoBehaviour
     public abstract bool HasEdge(Vertex a, Vertex b);
 
     public abstract void ReplaceEdge(GameObject line);
+
+    protected float snapDistance = 0.2f;
+    public Vertex FindClosestVertex(Vector3 pos)
+    {
+        Vertex closest = null;
+        float minDist = snapDistance;
+        foreach (Vertex v in Vertices)
+        {
+            float dist = Vector3.Distance(pos, v.Position);
+            if (dist < minDist)
+            {
+                closest = v;
+                minDist = dist;
+            }
+        }
+        return closest;
+    }
 }
 
 

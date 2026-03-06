@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEditor.Searcher.SearcherWindow.Alignment;
@@ -31,8 +32,8 @@ public class DerivedPolygon : NonConvexPolygon
         }
 
         List<Vertex> newVertices = ToVertices(lineRenderer);
-        Vertex vtx0 = FindClosestVertex(newVertices[0].Position);
-        Vertex vtxEnd = FindClosestVertex(newVertices[newVertices.Count - 1].Position);
+        Vertex vtx0 = this.FindClosestVertex(newVertices[0].Position);
+        Vertex vtxEnd = this.FindClosestVertex(newVertices[newVertices.Count - 1].Position);
         Debug.Log(vtx0.Position);
         Debug.Log(BasePolygon.Vertices.Count);
         if (vtx0 == null || vtxEnd == null)
@@ -50,17 +51,16 @@ public class DerivedPolygon : NonConvexPolygon
     public void ResetEdge(LineRenderer lineRenderer)
     {
         List<Vertex> newVertices = ToVertices(lineRenderer);
-        Vertex vtx0 = FindClosestVertex(newVertices[0].Position);
-        Vertex vtxEnd = FindClosestVertex(newVertices[newVertices.Count - 1].Position);
+        Vertex vtx0 = BasePolygon.FindClosestVertex(newVertices[0].Position);
+        Vertex vtxEnd = BasePolygon.FindClosestVertex(newVertices[newVertices.Count - 1].Position);
         if (vtx0 == null || vtxEnd == null)
         {
             Debug.LogError("Failed to snap to base vertices.");
             return;
         }
-        int idx0 = _vertices.IndexOf(vtx0);
-        int idxEnd = _vertices.IndexOf(vtxEnd);
-        ResetVerticesBetween(idx0, idxEnd);
+        ResetVerticesBetween(vtx0, vtxEnd);
     }
+
 
     private List<Vertex> ToVertices(LineRenderer lineRenderer)
     {
@@ -105,22 +105,9 @@ public class DerivedPolygon : NonConvexPolygon
         _vertices.InsertRange(removeStart, newVertices);
     }
 
-    private void ResetVerticesBetween(int index1, int index2)
+    private void ResetVerticesBetween(Vertex vtx0, Vertex vtxEnd)
     {
-
-        if (index1 < 0 || index2 < 0 || index1 >= _vertices.Count || index2 >= _vertices.Count)
-        {
-            Debug.LogError("Invalid vertex indices.");
-            return;
-        }
-
-        // If traversal is reversed, swap indices and invert inserted vertices
-        if ((index2 < index1 && !(index2 == 0 && index1 == _vertices.Count - 1)) || (index1 == 0 && index2 == _vertices.Count - 1))
-        {
-            (index1, index2) = (index2, index1);
-        }
-
-        List<Vertex> oldVertices = _baseToDerivedVertex[(BasePolygon.Vertices[index1], BasePolygon.Vertices[index2])];
+        List<Vertex> oldVertices = _baseToDerivedVertex[(vtx0, vtxEnd)];
 
         int removeCount = oldVertices.Count;
 
@@ -130,25 +117,7 @@ public class DerivedPolygon : NonConvexPolygon
             _vertices.RemoveRange(removeStart, removeCount);
         }
 
-        _baseToDerivedVertex[(BasePolygon.Vertices[index1], BasePolygon.Vertices[index2])] = new List<Vertex>();
-    }
-
-    private float snapDistance = 0.2f;
-
-    private Vertex FindClosestVertex(Vector3 pos)
-    {
-        Vertex closest = null;
-        float minDist = snapDistance;
-        foreach (Vertex v in Vertices)
-        {
-            float dist = Vector3.Distance(pos, v.Position);
-            if (dist < minDist)
-            {
-                closest = v;
-                minDist = dist;
-            }
-        }
-        return closest;
+        _baseToDerivedVertex[(vtx0, vtxEnd)] = new List<Vertex>();
     }
 
 }
