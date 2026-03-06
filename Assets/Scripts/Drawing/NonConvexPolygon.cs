@@ -3,22 +3,21 @@ using UnityEngine;
 
 public class NonConvexPolygon : Polygon
 {
-    [SerializeField] List<Vertex> vertices = new List<Vertex>();
 
-
-    private void Start()
+    private void Awake()
     {
-        if (vertices == null)
-            vertices = new List<Vertex>();
-        base._vertices = vertices;
+        if (_vertices == null)
+            _vertices = new List<Vertex>();
+        base._vertices = _vertices;
+        Initialized = true;
 
-        if (vertices.Count < 3)
+        if (_vertices.Count < 3)
         {
-            vertices.Clear();
-            vertices.Add(new Vertex(new Vector2(0, 0)));
-            vertices.Add(new Vertex(new Vector2(0, 1)));
-            vertices.Add(new Vertex(new Vector2(1, 1)));
-            vertices.Add(new Vertex(new Vector2(1, 0)));
+            _vertices.Clear();
+            _vertices.Add(new Vertex(new Vector2(0, 0)));
+            _vertices.Add(new Vertex(new Vector2(0, 1)));
+            _vertices.Add(new Vertex(new Vector2(1, 1)));
+            _vertices.Add(new Vertex(new Vector2(1, 0)));
         }
 
         BuildEdges();
@@ -27,14 +26,14 @@ public class NonConvexPolygon : Polygon
         DrawVertices();
     }
 
-    private void BuildEdges()
+    protected void BuildEdges()
     {
         _edges = new List<Edge>();
 
-        for (int i = 0; i < vertices.Count; i++)
+        for (int i = 0; i < _vertices.Count; i++)
         {
-            var a = vertices[i];
-            var b = vertices[(i + 1) % vertices.Count];
+            var a = _vertices[i];
+            var b = _vertices[(i + 1) % _vertices.Count];
             _edges.Add(new Edge(a, b));
         }
     }
@@ -55,10 +54,10 @@ public class NonConvexPolygon : Polygon
     {
         int windingNumber = 0;
 
-        for (int i = 0; i < vertices.Count; i++)
+        for (int i = 0; i < _vertices.Count; i++)
         { 
-            Vector2 v1 = vertices[i].Position;
-            Vector2 v2 = vertices[(i + 1) % vertices.Count].Position;
+            Vector2 v1 = _vertices[i].Position;
+            Vector2 v2 = _vertices[(i + 1) % _vertices.Count].Position;
 
             if (IsPointOnEdge(point, v1, v2))
                 return true; // treats boundary as inside
@@ -107,15 +106,15 @@ public class NonConvexPolygon : Polygon
     [SerializeField] private GameObject edgePrefab;
     [SerializeField] private GameObject vtxPrefab;
     [SerializeField] private int resolutionPerSegment = 3;
-    private List<LineRenderer> edgeRenderers = new List<LineRenderer>();
+    protected List<LineRenderer> edgeRenderers = new List<LineRenderer>();
 
     private void DrawVertices()
     {
-        if (vertices == null) return;
+        if (_vertices == null) return;
 
-        for (int i = 0; i < vertices.Count; i++)
+        for (int i = 0; i < _vertices.Count; i++)
         {
-            GameObject vtxObj = Instantiate(vtxPrefab, (Vector2)vertices[i].Position, Quaternion.identity);
+            GameObject vtxObj = Instantiate(vtxPrefab, (Vector2)_vertices[i].Position, Quaternion.identity);
             Debug.Log("color: " + vtxObj.GetComponent<SpriteRenderer>().color);
         }
     }
@@ -142,7 +141,7 @@ public class NonConvexPolygon : Polygon
                 lr.SetPosition(j, Vector2.Lerp(a, b, t));
             }
 
-            edgeRenderers.Add(lr);
+            edgeRenderers?.Add(lr);
         }
     }
 

@@ -6,10 +6,11 @@ using static UnityEditor.Searcher.SearcherWindow.Alignment;
 // polygon embeded in 2D - Otherwise ContainsPoint is a nonsensical method
 public abstract class Polygon : MonoBehaviour 
 {
-    protected List<Vertex> _vertices = new();
+    [SerializeField] protected List<Vertex> _vertices = new();
     public IReadOnlyList<Vertex> Vertices => _vertices;
     protected List<Edge> _edges = new();
     public IReadOnlyList<Edge> Edges => _edges;
+    public bool Initialized { get; protected set; }
 
     // Should indicate whether point is enclosed by the polygon
     public abstract bool ContainsPoint(Vector2 point);
