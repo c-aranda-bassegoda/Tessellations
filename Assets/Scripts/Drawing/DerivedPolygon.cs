@@ -82,9 +82,25 @@ public class DerivedPolygon : NonConvexPolygon
         return vertices;
     }
 
+    private List<Vector2> VerticesToPositions(List<Vertex> vertices)
+    {
+        if (vertices== null || vertices.Count == 0) return null;
+
+        var list = new List<Vector2>();
+
+        for (int i = 0; i < vertices.Count; i++)
+        {
+            list.Add(vertices[i].Position);
+        }
+        return list;
+    }
+
     private void ReplaceVerticesBetween(List<Vertex> newVertices, Vertex vertex1, Vertex vertex2)
     {
         List <Vertex> oldVertices = _baseToDerivedVertex[(vertex1, vertex2)]; 
+        ISelectable oldEdge = SelectionManager.Instance.FindBestFitSelectable(VerticesToPositions(oldVertices));
+        oldEdge?.Remove();
+        oldVertices = _baseToDerivedVertex[(vertex1, vertex2)];
         Vertex oldVtx1 = oldVertices.Count > 0 ? oldVertices[0] : vertex1;
         Vertex oldVtx2 = oldVertices.Count > 0 ? oldVertices[^1] : vertex2;
         int index1 = _vertices.IndexOf(oldVtx1);
