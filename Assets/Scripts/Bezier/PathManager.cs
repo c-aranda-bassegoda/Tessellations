@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class PathManager : MonoBehaviour
 {
-    public PiecewisePolygon polygon;
+    public BezierPolygon polygon;
     public GameObject handlePrefab;
     bool isEditing;
 
-    private PathPointSelectable currentNode;
+    private IPointSelectable currentNode;
     private GameObject handleInVisual;
     private GameObject handleOutVisual;
 
@@ -16,13 +16,9 @@ public class PathManager : MonoBehaviour
         // Instantiate shared handle visuals
         handleInVisual = Instantiate(handlePrefab);
         HandleSelectable handleInSelectable = handleInVisual.GetComponent<HandleSelectable>();
-        handleInSelectable.isHandleIn = true;
         handleOutVisual = Instantiate(handlePrefab);
         HandleSelectable handleOutSelectable = handleOutVisual.GetComponent<HandleSelectable>();
-        handleOutSelectable.isHandleIn = false;
 
-        handleInSelectable.oppositeHandle = handleOutSelectable;
-        handleOutSelectable.oppositeHandle = handleInSelectable;
 
         handleInVisual.SetActive(false);
         handleOutVisual.SetActive(false);
@@ -41,7 +37,7 @@ public class PathManager : MonoBehaviour
             currentNode = polygon.TryAddPoint(InputManager.Instance.PointerWorldPos, (ToolManager.Instance.CurrentTool == ToolType.Node));
             if (currentNode != null)
             {
-                var handler = new PathPointSelectionHandler(currentNode, handleInVisual, handleOutVisual);
+                var handler = new PathPointSelectionHandler(currentNode.SelectedNode, handleInVisual, handleOutVisual);
                 currentNode.SetSelectionHandler(handler);
                 isEditing = true;
             }
@@ -49,12 +45,11 @@ public class PathManager : MonoBehaviour
 
         if (InputManager.Instance.PointerHeld && isEditing)
         {
-            currentNode.MoveAnchor(InputManager.Instance.PointerWorldPos);
+            currentNode.Move(InputManager.Instance.PointerWorldPos);
         }
 
         if (InputManager.Instance.PointerUp && isEditing)
         {
-            //NodeSelectable nodeSelectable = currentNode?.anchor.GetComponent<NodeSelectable>();
             if (currentNode != null)
             {
                 SelectionManager.Instance.Register(currentNode);   

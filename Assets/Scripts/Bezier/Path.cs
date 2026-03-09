@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEditor.PlayerSettings;
@@ -8,6 +9,9 @@ public class Path : MonoBehaviour
     public int resolutionPerSegment = 20;
     private LineRenderer line;
     public GameObject nodePrefab;
+    public float clickThreshold = 0.4f;
+    public Vector2 Start {  get; private set; }
+    public Vector2 End { get; private set; }
 
     void Awake()
     {
@@ -20,6 +24,8 @@ public class Path : MonoBehaviour
 
     public void Initialize(Vector2 start, Vector2 end)
     {
+        this.Start = start;
+        this.End = end;
         points.Clear();
 
         NodeSelectable a = Instantiate(nodePrefab, start, Quaternion.identity)
@@ -61,7 +67,6 @@ public class Path : MonoBehaviour
             return;
 
         points.RemoveAt(index);
-        point.DestroyVisuals();
     }
 
 
@@ -73,8 +78,6 @@ public class Path : MonoBehaviour
 
         Vector3 closestPoint;
         int segmentIndex = FindClosestSegment(clickPos, out closestPoint);
-
-        float clickThreshold = 0.2f; // tweak for scale
 
         if (segmentIndex != -1 && Vector3.Distance(closestPoint, clickPos) < clickThreshold)
         {
@@ -181,6 +184,24 @@ public class Path : MonoBehaviour
         return BezierCurve.CubicCurve(a, b, c, d, t);
     }
 
+    public void InvertPath()
+    {
+        Vector2 temp = Start;
+        Start = End;
+        End = temp;
+        List<PathPointSelectable> list = new List<PathPointSelectable>();
+        for (int i = points.Count-1; i>=0; i--)
+        {
+            list.Add(points[i]);
+        }
+        points.Clear();
+
+        foreach (var p in list)
+        {
+            points.Add(p);
+        }
+    }
+
     /*
      * -------------------------------------------------------------------------------------------
      * Rendering
@@ -223,5 +244,19 @@ public class Path : MonoBehaviour
                 line.SetPosition(index++, position);
             }
         }
+    }
+
+
+    /// <summary>
+    /// Returns true if there is a node close to postion
+    /// </summary>
+    internal bool isNodeAt(Vector2 position)
+    {
+        foreach (var p in points)
+        {
+            if (Vector2.Distance(p.Position, position) < clickThreshold)
+                return true;
+        }
+        return false;
     }
 }

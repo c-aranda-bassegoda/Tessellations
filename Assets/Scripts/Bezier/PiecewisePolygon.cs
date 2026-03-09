@@ -4,13 +4,14 @@ using NUnit.Framework;
 using UnityEngine;
 
 // polygon with special vertices which are game objects rather than just data
-public class PiecewisePolygon : Polygon
+public class PiecewisePolygon : BezierPolygon
 {
     [SerializeField] List<Vector2> vertices;
-    List<Path> edges;
+    protected List<Path> edges;
     [SerializeField] private GameObject linePrefab; // Prefab with LineRenderer
     [SerializeField] private GameObject nodePrefab;
     [SerializeField] private int resolutionPerSegment = 20;
+    [SerializeField] private float clickThreshold = 0.4f;
 
     SpriteRenderer nodeRenderer;
 
@@ -27,7 +28,7 @@ public class PiecewisePolygon : Polygon
             {
                 PathPointSelectable p0 = edge.GetPoint(i);
                 PathPointSelectable p1 = edge.GetPoint(i + 1);
-                
+
                 Vector2 v1 = p0.Position;
 
                 for (int j = 1; j <= resolutionPerSegment; j++)
@@ -82,13 +83,13 @@ public class PiecewisePolygon : Polygon
     {
         foreach (var edge in edges)
         {
-            if(edge.HasEdge(a.Position,b.Position))
+            if (edge.HasEdge(a.Position, b.Position))
                 return true;
         }
         return false;
     }
 
-    internal PathPointSelectable TryAddPoint(Vector2 pointerWorldPos, bool smooth)
+    public override IPointSelectable TryAddPoint(Vector2 pointerWorldPos, bool smooth)
     {
 
         PathPointSelectable node = null;
@@ -111,8 +112,8 @@ public class PiecewisePolygon : Polygon
         if (vertices == null || vertices.Count < 2) return;
 
         // Makes polygon out of vertex list
-        Vector2 prev = vertices[vertices.Count-1];
-        for(int i=0; i<vertices.Count; i++)
+        Vector2 prev = vertices[vertices.Count - 1];
+        for (int i = 0; i < vertices.Count; i++)
         {
             GameObject edgeObj = Instantiate(linePrefab, Vector2.zero, Quaternion.identity);
             edgeObj.transform.parent = transform;
@@ -120,12 +121,18 @@ public class PiecewisePolygon : Polygon
             Path path = edgeObj.AddComponent<Path>();
             path.resolutionPerSegment = resolutionPerSegment;
             path.nodePrefab = nodePrefab;
+            path.clickThreshold = clickThreshold;
             path.Initialize(prev, vertices[i]);
             edges.Add(path);
-            
+
 
             prev = vertices[i];
         }
-        
+
+    }
+
+    public override void ReplaceEdge(GameObject line)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -4,44 +4,19 @@ using UnityEngine;
 public class HandleSelectable : NodeSelectable
 {
     public PathPointSelectable parentPoint;
-    public bool isHandleIn; 
-    public HandleSelectable oppositeHandle;
 
     public override void Move(Vector2 position)
     {
-        MoveInternal(position, true);
+        base.Move(position);
+        parentPoint.UpdateHandlePosition(this, position);
     }
 
-    public void MoveWithoutMirror(Vector2 position)
-    {
-        MoveInternal(position, false);
-    }
-
-    private void MoveInternal(Vector2 position, bool mirror)
+    // Used internally so we don't re-trigger offset logic
+    public void MoveWithoutNotify(Vector2 position)
     {
         base.Move(position);
-
-        Vector2 anchorPos = parentPoint.anchor.GetPosition();
-        Vector2 offset = position - anchorPos;
-
-        if (isHandleIn)
-            parentPoint.handleInOffset = offset;
-        else
-            parentPoint.handleOutOffset = offset;
-
-        if (mirror && oppositeHandle != null)
-        {
-            Vector2 mirroredOffset = -offset;
-
-            if (isHandleIn)
-                parentPoint.handleOutOffset = mirroredOffset;
-            else
-                parentPoint.handleInOffset = mirroredOffset;
-
-            oppositeHandle.MoveWithoutMirror(anchorPos + mirroredOffset);
-        }
-
     }
+
 
 
     public override void SetSelected(bool selected)

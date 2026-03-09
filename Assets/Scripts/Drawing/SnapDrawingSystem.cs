@@ -4,12 +4,12 @@ using UnityEngine;
 public class SnapDrawingSystem : ILineDrawer
 {
     private FreehandDrawingSystem baseDrawer;
-    private Polygon baseShape;
+    private DerivedPolygon baseShape;
     private Vertex startVertex;
     private GameObject currentLine;
     private float snapDistance;
 
-    public SnapDrawingSystem(FreehandDrawingSystem drawer, Polygon shape, float snapDistance = 0.2f)
+    public SnapDrawingSystem(FreehandDrawingSystem drawer, DerivedPolygon shape, float snapDistance = 0.2f)
     {
         baseDrawer = drawer;
         baseShape = shape;
@@ -22,6 +22,11 @@ public class SnapDrawingSystem : ILineDrawer
         if (startVertex == null) return null;
 
         currentLine = baseDrawer.StartDrawing(startVertex.Position);
+        EdgeSelectable selectable = currentLine.GetComponent<EdgeSelectable>();
+        if (selectable != null)
+        {
+            selectable.Polygon = baseShape;
+        }
         return currentLine;
     }
 

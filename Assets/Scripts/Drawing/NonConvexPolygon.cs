@@ -3,24 +3,21 @@ using UnityEngine;
 
 public class NonConvexPolygon : Polygon
 {
-    private List<Edge> edges;
-    [SerializeField] List<Vertex> vertices = new List<Vertex>();
 
-    public IReadOnlyList<Edge> Edges => edges;
-
-    private void Start()
+    private void Awake()
     {
-        if (vertices == null)
-            vertices = new List<Vertex>();
-        base.Vertices = vertices;
+        if (_vertices == null)
+            _vertices = new List<Vertex>();
+        base._vertices = _vertices;
+        Initialized = true;
 
-        if (vertices.Count < 3)
+        if (_vertices.Count < 3)
         {
-            vertices.Clear();
-            vertices.Add(new Vertex(new Vector2(0, 0)));
-            vertices.Add(new Vertex(new Vector2(0, 1)));
-            vertices.Add(new Vertex(new Vector2(1, 1)));
-            vertices.Add(new Vertex(new Vector2(1, 0)));
+            _vertices.Clear();
+            _vertices.Add(new Vertex(new Vector2(0, 0)));
+            _vertices.Add(new Vertex(new Vector2(0, 1)));
+            _vertices.Add(new Vertex(new Vector2(1, 1)));
+            _vertices.Add(new Vertex(new Vector2(1, 0)));
         }
 
         BuildEdges();
@@ -29,21 +26,21 @@ public class NonConvexPolygon : Polygon
         DrawVertices();
     }
 
-    private void BuildEdges()
+    protected void BuildEdges()
     {
-        edges = new List<Edge>();
+        _edges = new List<Edge>();
 
-        for (int i = 0; i < vertices.Count; i++)
+        for (int i = 0; i < _vertices.Count; i++)
         {
-            var a = vertices[i];
-            var b = vertices[(i + 1) % vertices.Count];
-            edges.Add(new Edge(a, b));
+            var a = _vertices[i];
+            var b = _vertices[(i + 1) % _vertices.Count];
+            _edges.Add(new Edge(a, b));
         }
     }
 
     public override bool HasEdge(Vertex a, Vertex b)
     {
-        foreach (var e in edges)
+        foreach (var e in _edges)
         {
             if ((e.A == a && e.B == b) || (e.A == b && e.B == a))
                 return true;
@@ -57,10 +54,10 @@ public class NonConvexPolygon : Polygon
     {
         int windingNumber = 0;
 
-        for (int i = 0; i < vertices.Count; i++)
+        for (int i = 0; i < _vertices.Count; i++)
         { 
-            Vector2 v1 = vertices[i].Position;
-            Vector2 v2 = vertices[(i + 1) % vertices.Count].Position;
+            Vector2 v1 = _vertices[i].Position;
+            Vector2 v2 = _vertices[(i + 1) % _vertices.Count].Position;
 
             if (IsPointOnEdge(point, v1, v2))
                 return true; // treats boundary as inside
@@ -109,24 +106,24 @@ public class NonConvexPolygon : Polygon
     [SerializeField] private GameObject edgePrefab;
     [SerializeField] private GameObject vtxPrefab;
     [SerializeField] private int resolutionPerSegment = 3;
-    private List<LineRenderer> edgeRenderers = new List<LineRenderer>();
+    protected List<LineRenderer> edgeRenderers = new List<LineRenderer>();
 
     private void DrawVertices()
     {
-        if (vertices == null) return;
+        if (_vertices == null) return;
 
-        for (int i = 0; i < vertices.Count; i++)
+        for (int i = 0; i < _vertices.Count; i++)
         {
-            GameObject vtxObj = Instantiate(vtxPrefab, (Vector2)vertices[i].Position, Quaternion.identity);
+            GameObject vtxObj = Instantiate(vtxPrefab, (Vector2)_vertices[i].Position, Quaternion.identity);
             Debug.Log("color: " + vtxObj.GetComponent<SpriteRenderer>().color);
         }
     }
 
     private void DrawEdges()
     {
-        if (edges == null) return;
+        if (_edges == null) return;
 
-        for (int i = 0; i < edges.Count; i++)
+        for (int i = 0; i < _edges.Count; i++)
         {
             GameObject edgeObj = Instantiate(edgePrefab, Vector2.zero, Quaternion.identity);
             edgeObj.transform.parent = transform;
@@ -135,8 +132,8 @@ public class NonConvexPolygon : Polygon
             if (lr == null) return;
             lr.positionCount = resolutionPerSegment + 1;
 
-            Vector2 a = edges[i].A.Position;
-            Vector2 b = edges[i].B.Position;
+            Vector2 a = _edges[i].A.Position;
+            Vector2 b = _edges[i].B.Position;
 
             for (int j = 0; j <= resolutionPerSegment; j++)
             {
@@ -144,7 +141,12 @@ public class NonConvexPolygon : Polygon
                 lr.SetPosition(j, Vector2.Lerp(a, b, t));
             }
 
-            edgeRenderers.Add(lr);
+            edgeRenderers?.Add(lr);
         }
+    }
+
+    public override void ReplaceEdge(GameObject line)
+    {
+        throw new System.NotImplementedException();
     }
 }

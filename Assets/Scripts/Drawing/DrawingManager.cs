@@ -4,6 +4,7 @@ public class DrawingManager : MonoBehaviour
 {
     [SerializeField] private Polygon baseShape;
     [SerializeField] private GameObject linePrefab;
+    [SerializeField] private GameObject edgePrefab;
 
     private ILineDrawer activeDrawer;
     private bool isDrawing;
@@ -44,9 +45,13 @@ public class DrawingManager : MonoBehaviour
         {
             if (activeDrawer.EndDrawing(pointerPos) && currentLine != null)
             {
-                LineSelectable lineSelectable = currentLine?.GetComponent<LineSelectable>();
-                if (lineSelectable != null)
-                    SelectionManager.Instance.Register(lineSelectable);
+                if (ToolType.SnappingPencil == lastTool)
+                {
+                    baseShape.ReplaceEdge(currentLine);
+                }
+                ISelectable selectable = currentLine?.GetComponent<ISelectable>();
+                if (selectable != null)
+                    SelectionManager.Instance.Register(selectable);
             }
             currentLine = null;
             isDrawing = false;
@@ -55,15 +60,17 @@ public class DrawingManager : MonoBehaviour
 
     private void SetupDrawer(ToolType tool)
     {
-        var freehand = new FreehandDrawingSystem(linePrefab);
+        FreehandDrawingSystem freehand;
         switch (tool)
         {
             case ToolType.Pencil:
+                freehand = new FreehandDrawingSystem(linePrefab);
                 activeDrawer = new InsidePolygonDrawingSystem(freehand, baseShape);
                 break;
 
             case ToolType.SnappingPencil:
-                activeDrawer = new SnapDrawingSystem(freehand, baseShape);
+                freehand = new FreehandDrawingSystem(edgePrefab);
+                activeDrawer = new SnapDrawingSystem(freehand, (DerivedPolygon) baseShape);
                 break;
 
             default:
