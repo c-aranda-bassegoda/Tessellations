@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static UnityEditor.Searcher.SearcherWindow.Alignment;
 using static UnityEngine.Rendering.VolumeComponent;
 
 public class DerivedPolygon : NonConvexPolygon
 {
-    [SerializeField] public Polygon BasePolygon; 
+    [SerializeField] public Polygon BasePolygon;
+    public new IReadOnlyList<Vertex> SnapVertices => BasePolygon.Vertices;
 
     private readonly Dictionary<(Vertex, Vertex), List<Vertex> > _baseToDerivedVertex = new Dictionary<(Vertex, Vertex), List<Vertex>>();
     //[SerializeField] private Dictionary<int, int> derivedToBaseIdx = new Dictionary<int, int>();
@@ -100,6 +102,7 @@ public class DerivedPolygon : NonConvexPolygon
         List <Vertex> oldVertices = _baseToDerivedVertex[(vertex1, vertex2)]; 
         ISelectable oldEdge = SelectionManager.Instance.FindBestFitSelectable(VerticesToPositions(oldVertices));
         oldEdge?.Remove();
+
         oldVertices = _baseToDerivedVertex[(vertex1, vertex2)];
         Vertex oldVtx1 = oldVertices.Count > 0 ? oldVertices[0] : vertex1;
         Vertex oldVtx2 = oldVertices.Count > 0 ? oldVertices[^1] : vertex2;
@@ -125,8 +128,10 @@ public class DerivedPolygon : NonConvexPolygon
         if (removeCount > 0)
             _vertices.RemoveRange(removeStart, removeCount);
 
-        _baseToDerivedVertex[(vertex1, vertex2)] = newVertices;
-        _baseToDerivedVertex[(vertex2, vertex1)] = newVertices;
+        var list = _baseToDerivedVertex[(vertex1, vertex2)];
+        list.Clear();
+        list.AddRange(newVertices);
+
         _vertices.InsertRange(removeStart, newVertices);
     }
 
@@ -143,8 +148,8 @@ public class DerivedPolygon : NonConvexPolygon
             _vertices.RemoveRange(removeStart, removeCount);
         }
 
-        _baseToDerivedVertex[(vtx0, vtxEnd)] = new List<Vertex>();
-        _baseToDerivedVertex[(vtxEnd, vtx0)] = new List<Vertex>();
+        var list = _baseToDerivedVertex[(vtx0, vtxEnd)];
+        list.Clear();
     }
 
 }

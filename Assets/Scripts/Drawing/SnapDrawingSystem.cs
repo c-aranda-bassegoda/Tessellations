@@ -9,7 +9,7 @@ public class SnapDrawingSystem : ILineDrawer
     private GameObject currentLine;
     private float snapDistance;
 
-    public SnapDrawingSystem(FreehandDrawingSystem drawer, DerivedPolygon shape, float snapDistance = 0.2f)
+    public SnapDrawingSystem(FreehandDrawingSystem drawer, DerivedPolygon shape, float snapDistance = 0.4f)
     {
         baseDrawer = drawer;
         baseShape = shape;
@@ -64,7 +64,7 @@ public class SnapDrawingSystem : ILineDrawer
     {
         Vertex closest = null;
         float minDist = snapDistance;
-        foreach (Vertex v in baseShape.Vertices)
+        foreach (Vertex v in baseShape.SnapVertices)
         {
             float dist = Vector3.Distance(pos, v.Position);
             if (dist < minDist)
