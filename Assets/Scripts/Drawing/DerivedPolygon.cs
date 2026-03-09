@@ -11,7 +11,6 @@ public class DerivedPolygon : NonConvexPolygon
     public new IReadOnlyList<Vertex> SnapVertices => BasePolygon.Vertices;
 
     private readonly Dictionary<(Vertex, Vertex), List<Vertex> > _baseToDerivedVertex = new Dictionary<(Vertex, Vertex), List<Vertex>>();
-    //[SerializeField] private Dictionary<int, int> derivedToBaseIdx = new Dictionary<int, int>();
 
     private void Awake()
     {
@@ -23,8 +22,6 @@ public class DerivedPolygon : NonConvexPolygon
 
             _baseToDerivedVertex[(BasePolygon.Vertices[i], BasePolygon.Vertices[(i + 1) % BasePolygon.Vertices.Count])] = listvtx;
             _baseToDerivedVertex[(BasePolygon.Vertices[(i + 1) % BasePolygon.Vertices.Count], BasePolygon.Vertices[i])] = listvtx;
-
-            //derivedToBaseIdx[i] = i;
         }
     }
 
