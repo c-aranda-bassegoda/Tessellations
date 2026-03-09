@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEditor.Searcher.SearcherWindow.Alignment;
+using static UnityEngine.Rendering.VolumeComponent;
 
 public class DerivedPolygon : NonConvexPolygon
 {
@@ -18,6 +19,7 @@ public class DerivedPolygon : NonConvexPolygon
             List<Vertex> listvtx = new List<Vertex>();
 
             _baseToDerivedVertex[(BasePolygon.Vertices[i], BasePolygon.Vertices[(i + 1) % _vertices.Count])] = listvtx;
+            _baseToDerivedVertex[(BasePolygon.Vertices[(i + 1) % _vertices.Count], BasePolygon.Vertices[i])] = listvtx;
         }
     }
 
@@ -102,12 +104,14 @@ public class DerivedPolygon : NonConvexPolygon
             _vertices.RemoveRange(removeStart, removeCount);
 
         _baseToDerivedVertex[(BasePolygon.Vertices[index1], BasePolygon.Vertices[index2])] = newVertices;
+        _baseToDerivedVertex[(BasePolygon.Vertices[index2], BasePolygon.Vertices[index1])] = newVertices;
         _vertices.InsertRange(removeStart, newVertices);
     }
 
     private void ResetVerticesBetween(Vertex vtx0, Vertex vtxEnd)
     {
         List<Vertex> oldVertices = _baseToDerivedVertex[(vtx0, vtxEnd)];
+
 
         int removeCount = oldVertices.Count;
 
@@ -118,6 +122,7 @@ public class DerivedPolygon : NonConvexPolygon
         }
 
         _baseToDerivedVertex[(vtx0, vtxEnd)] = new List<Vertex>();
+        _baseToDerivedVertex[(vtxEnd, vtx0)] = new List<Vertex>();
     }
 
 }
