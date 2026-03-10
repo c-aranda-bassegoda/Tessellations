@@ -58,9 +58,4 @@ public class ToolButton : MonoBehaviour
             ToolManager.Instance.SetTool(toolType);
         }
     }
-
-    public void ToggleInteractable()
-    {
-        button.interactable = !button.interactable;
-    }
 }

@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 67552588}
   - component: {fileID: 67552587}
   - component: {fileID: 67552586}
+  - component: {fileID: 67552589}
   m_Layer: 5
   m_Name: DeleteButton
   m_TagString: Untagged
@@ -252,6 +253,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 67552584}
   m_CullTransparentMesh: 1
+--- !u!114 &67552589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 67552584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea58ad63337ee8e4982699db2f04edd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toolType: 0
+  icon: {fileID: 67552587}
+  selectedColor: {r: 0, g: 0, b: 1, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  requiresSelection: 1
 --- !u!1 &135097865
 GameObject:
   m_ObjectHideFlags: 0
@@ -1054,6 +1072,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseShape: {fileID: 1492404489}
   linePrefab: {fileID: 4737950803987888381, guid: 59cbbdf3e8ecd8e4d91c8cc2d85ed050, type: 3}
+  edgePrefab: {fileID: 0}
 --- !u!4 &1128681751
 Transform:
   m_ObjectHideFlags: 0
@@ -1125,6 +1144,7 @@ MonoBehaviour:
   icon: {fileID: 1147643401}
   selectedColor: {r: 0, g: 1, b: 0.9570346, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
+  requiresSelection: 0
 --- !u!114 &1147643400
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1180,18 +1200,6 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 67552586}
-        m_TargetAssemblyTypeName: UnityEngine.UI.Selectable, UnityEngine.UI
-        m_MethodName: set_interactable
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &1147643401
 MonoBehaviour:
@@ -1260,6 +1268,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 000e6286a752af343b63db094506adb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _vertices: []
   vertices:
   - {x: -2, y: -2}
   - {x: 2, y: -2}
@@ -1384,6 +1393,7 @@ MonoBehaviour:
   icon: {fileID: 1252617379}
   selectedColor: {r: 0, g: 1, b: 0.9570346, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
+  requiresSelection: 0
 --- !u!114 &1252617378
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1432,18 +1442,6 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: ToolButton, Assembly-CSharp
         m_MethodName: OnClick
         m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 67552586}
-        m_TargetAssemblyTypeName: UnityEngine.UI.Selectable, UnityEngine.UI
-        m_MethodName: set_interactable
-        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1701,6 +1699,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2cb1d28c219df149a914da88b12221b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _vertices: []
   vertices:
   - {x: 2, y: -2}
   - {x: 2, y: 2}
@@ -1945,6 +1944,7 @@ MonoBehaviour:
   icon: {fileID: 1775876836}
   selectedColor: {r: 0, g: 1, b: 0.9570346, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
+  requiresSelection: 0
 --- !u!114 &1775876835
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1993,18 +1993,6 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: ToolButton, Assembly-CSharp
         m_MethodName: OnClick
         m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 67552586}
-        m_TargetAssemblyTypeName: UnityEngine.UI.Selectable, UnityEngine.UI
-        m_MethodName: set_interactable
-        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -2107,6 +2095,7 @@ MonoBehaviour:
   icon: {fileID: 1837980416}
   selectedColor: {r: 0, g: 1, b: 0.9570346, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
+  requiresSelection: 0
 --- !u!114 &1837980415
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2155,18 +2144,6 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: ToolButton, Assembly-CSharp
         m_MethodName: OnClick
         m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 67552586}
-        m_TargetAssemblyTypeName: UnityEngine.UI.Selectable, UnityEngine.UI
-        m_MethodName: set_interactable
-        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
