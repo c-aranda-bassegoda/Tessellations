@@ -149,4 +149,10 @@ public class DerivedPolygon : NonConvexPolygon
         list.Clear();
     }
 
+
+    internal LineSelectable TryPaste(GameObject clipboard, Vector3 position)
+    {
+        return null;
+    }
+
 }

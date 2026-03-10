@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LineSelectable : MonoBehaviour, ISelectable
+public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
 {
 
     [SerializeField] protected LineRenderer line;
@@ -12,8 +12,11 @@ public class LineSelectable : MonoBehaviour, ISelectable
     void Awake()
     {
         line = GetComponent<LineRenderer>();
+
         if (line == null)
             Debug.LogError("No line renderer");
+
+        CachePoints();
     }
 
     public void CachePoints()
@@ -57,4 +60,21 @@ public class LineSelectable : MonoBehaviour, ISelectable
 
         Destroy(gameObject);
     }
+
+    public void OnTransform(Vector2 worldPosition)
+    {
+        Vector2 center = (points[0] + points[^1]) / 2f;
+        Vector2 delta = worldPosition - center;
+
+        for (int i = 0; i < points.Count; i++)
+        {
+            points[i] = new Vector3(
+                points[i].x + delta.x,
+                points[i].y + delta.y,
+                points[i].z
+            );
+            line.SetPosition(i, points[i]);
+        }
+    }
+
 }

@@ -345,7 +345,6 @@ public class TessPointSelectable : IPointSelectable
         }
     }
 
-
 }
 
 public static class SymmetryUtils

@@ -6,7 +6,8 @@ public enum ToolType
     SnappingPencil,
     Select,
     Node,
-    SharpNode
+    SharpNode,
+    Copy
 }
 public class ToolManager : MonoBehaviour
 {

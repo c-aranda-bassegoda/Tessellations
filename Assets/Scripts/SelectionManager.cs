@@ -4,15 +4,16 @@ using System;
 
 public class SelectionManager : MonoBehaviour
 {
+    public event Action<ISelectable> OnSelectionChanged;
     public static SelectionManager Instance { get; private set; }
 
     [SerializeField] List<ISelectable> selectables = new List<ISelectable>();
-    ISelectable selected;
+    public ISelectable selected;
 
     IDraggable currentDraggable;
     bool isDragging;
 
-    private void Start()
+    private void Awake()
     {
         Instance = this;
     }
@@ -27,6 +28,7 @@ public class SelectionManager : MonoBehaviour
     {
         if (ToolManager.Instance.CurrentTool != ToolType.Select)
         {
+
             Deselect();
             return;
         }
@@ -65,7 +67,6 @@ public class SelectionManager : MonoBehaviour
         ISelectable toRemove = selected;
         Deselect();
         toRemove.Remove();
-        //Deregister(toRemove);
     }
 
     public ISelectable FindBestFitSelectable(List<Vector2> positions)
@@ -140,12 +141,14 @@ public class SelectionManager : MonoBehaviour
         
     }
 
-    void Select(ISelectable s)
+    public void Select(ISelectable s)
     {
         if (selected != null)
             selected.SetSelected(false); // if sth is selected deselect it
         selected = s;
         selected.SetSelected(true);
+
+        OnSelectionChanged?.Invoke(selected);
     }
 
     public void Deselect()
@@ -153,6 +156,7 @@ public class SelectionManager : MonoBehaviour
         if (selected != null)
             selected.SetSelected(false); // if sth is selected deselect it
         selected = null;
+        OnSelectionChanged?.Invoke(null);
     }
 
     internal void Deregister(ISelectable selectable)
