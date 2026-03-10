@@ -22,11 +22,11 @@ public abstract class Polygon : MonoBehaviour
     public abstract void ReplaceEdge(GameObject line);
 
     protected float snapDistance = 0.2f;
-    public Vertex FindClosestVertex(Vector3 pos)
+    public  Vertex FindClosestVertex(Vector3 pos)
     {
         Vertex closest = null;
         float minDist = snapDistance;
-        foreach (Vertex v in Vertices)
+        foreach (Vertex v in SnapVertices)
         {
             float dist = Vector3.Distance(pos, v.Position);
             if (dist < minDist)

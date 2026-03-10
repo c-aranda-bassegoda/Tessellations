@@ -149,9 +149,36 @@ public class DerivedPolygon : NonConvexPolygon
         list.Clear();
     }
 
-
-    internal LineSelectable TryPaste(GameObject clipboard, Vector3 position)
+    private (Vertex, Vertex) GetEndpntVertices(LineRenderer lineRenderer)
     {
+        List<Vertex> newVertices = ToVertices(lineRenderer);
+        Vertex vtx0 = BasePolygon.FindClosestVertex(newVertices[0].Position);
+        Vertex vtxEnd = BasePolygon.FindClosestVertex(newVertices[newVertices.Count - 1].Position);
+
+        return (vtx0, vtxEnd);
+    }
+
+
+    internal LineSelectable TryPaste(GameObject lineObj, Vector2 position)
+    {
+        LineRenderer lineRenderer = lineObj.GetComponent<LineRenderer>();
+        if (lineRenderer == null)
+        {
+            Debug.LogError("GameObject does not have a LineRenderer component.");
+            return null;
+        }
+
+        for (int i=0; i < BasePolygon.SnapVertices.Count; i++)
+        {
+            Vector2 midpoint = (BasePolygon.Vertices[i].Position + BasePolygon.Vertices[(i + 1) % BasePolygon.Vertices.Count].Position) / 2;
+            if (Vector3.Distance(midpoint, position) <= snapDistance)
+            {
+                GameObject newObj = Instantiate(lineObj);
+                Debug.Log("replacing(pasting) edge");
+                this.ReplaceEdge(newObj);
+                return newObj.GetComponent<LineSelectable>();
+            }
+        }
         return null;
     }
 

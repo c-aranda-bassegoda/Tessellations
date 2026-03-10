@@ -74,7 +74,7 @@ public class CopyPasteManager : MonoBehaviour
         if (clipboard == null)
             return;
 
-        ISelectable selectable = baseShape.TryPaste(clipboard, position);
+        ISelectable selectable = baseShape.TryPaste(previewObject, position);
 
         if (selectable != null)
         {
