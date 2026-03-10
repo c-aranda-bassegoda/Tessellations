@@ -8,6 +8,7 @@ public abstract class Polygon : MonoBehaviour
 {
     [SerializeField] protected List<Vertex> _vertices = new();
     public IReadOnlyList<Vertex> Vertices => _vertices;
+    public IReadOnlyList<Vertex> SnapVertices => _vertices;
     protected List<Edge> _edges = new();
     public IReadOnlyList<Edge> Edges => _edges;
     public bool Initialized { get; protected set; }

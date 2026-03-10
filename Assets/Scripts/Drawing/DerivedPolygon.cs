@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static UnityEditor.Searcher.SearcherWindow.Alignment;
 using static UnityEngine.Rendering.VolumeComponent;
 
 public class DerivedPolygon : NonConvexPolygon
 {
-    [SerializeField] public Polygon BasePolygon; 
+    [SerializeField] public Polygon BasePolygon;
+    public new IReadOnlyList<Vertex> SnapVertices => BasePolygon.Vertices;
 
     private readonly Dictionary<(Vertex, Vertex), List<Vertex> > _baseToDerivedVertex = new Dictionary<(Vertex, Vertex), List<Vertex>>();
 
@@ -18,8 +20,8 @@ public class DerivedPolygon : NonConvexPolygon
         {
             List<Vertex> listvtx = new List<Vertex>();
 
-            _baseToDerivedVertex[(BasePolygon.Vertices[i], BasePolygon.Vertices[(i + 1) % _vertices.Count])] = listvtx;
-            _baseToDerivedVertex[(BasePolygon.Vertices[(i + 1) % _vertices.Count], BasePolygon.Vertices[i])] = listvtx;
+            _baseToDerivedVertex[(BasePolygon.Vertices[i], BasePolygon.Vertices[(i + 1) % BasePolygon.Vertices.Count])] = listvtx;
+            _baseToDerivedVertex[(BasePolygon.Vertices[(i + 1) % BasePolygon.Vertices.Count], BasePolygon.Vertices[i])] = listvtx;
         }
     }
 
@@ -34,10 +36,10 @@ public class DerivedPolygon : NonConvexPolygon
         }
 
         List<Vertex> newVertices = ToVertices(lineRenderer);
-        Vertex vtx0 = this.FindClosestVertex(newVertices[0].Position);
-        Vertex vtxEnd = this.FindClosestVertex(newVertices[newVertices.Count - 1].Position);
+        Vertex vtx0 = BasePolygon.FindClosestVertex(newVertices[0].Position);
+        Vertex vtxEnd = BasePolygon.FindClosestVertex(newVertices[newVertices.Count - 1].Position);
         Debug.Log(vtx0.Position);
-        Debug.Log(BasePolygon.Vertices.Count);
+        Debug.Log(vtxEnd.Position);
         if (vtx0 == null || vtxEnd == null)
         {
             Debug.LogError("Failed to snap to base vertices.");
@@ -45,9 +47,7 @@ public class DerivedPolygon : NonConvexPolygon
         }
         newVertices.RemoveAt(0);
         newVertices.RemoveAt(newVertices.Count - 1);
-        int idx0 = _vertices.IndexOf(vtx0);
-        int idxEnd = _vertices.IndexOf(vtxEnd);
-        ReplaceVerticesBetween(newVertices, idx0, idxEnd);
+        ReplaceVerticesBetween(newVertices, vtx0, vtxEnd);
     }
 
     public void ResetEdge(LineRenderer lineRenderer)
@@ -81,8 +81,30 @@ public class DerivedPolygon : NonConvexPolygon
         return vertices;
     }
 
-    private void ReplaceVerticesBetween(List<Vertex> newVertices, int index1, int index2)
+    private List<Vector2> VerticesToPositions(List<Vertex> vertices)
     {
+        if (vertices== null || vertices.Count == 0) return null;
+
+        var list = new List<Vector2>();
+
+        for (int i = 0; i < vertices.Count; i++)
+        {
+            list.Add(vertices[i].Position);
+        }
+        return list;
+    }
+
+    private void ReplaceVerticesBetween(List<Vertex> newVertices, Vertex vertex1, Vertex vertex2)
+    {
+        List <Vertex> oldVertices = _baseToDerivedVertex[(vertex1, vertex2)]; 
+        ISelectable oldEdge = SelectionManager.Instance.FindBestFitSelectable(VerticesToPositions(oldVertices));
+        oldEdge?.Remove();
+
+        oldVertices = _baseToDerivedVertex[(vertex1, vertex2)];
+        Vertex oldVtx1 = oldVertices.Count > 0 ? oldVertices[0] : vertex1;
+        Vertex oldVtx2 = oldVertices.Count > 0 ? oldVertices[^1] : vertex2;
+        int index1 = _vertices.IndexOf(oldVtx1);
+        int index2 = _vertices.IndexOf(oldVtx2);
 
         if (index1 < 0 || index2 < 0 || index1 >= _vertices.Count || index2 >= _vertices.Count)
         {
@@ -103,8 +125,10 @@ public class DerivedPolygon : NonConvexPolygon
         if (removeCount > 0)
             _vertices.RemoveRange(removeStart, removeCount);
 
-        _baseToDerivedVertex[(BasePolygon.Vertices[index1], BasePolygon.Vertices[index2])] = newVertices;
-        _baseToDerivedVertex[(BasePolygon.Vertices[index2], BasePolygon.Vertices[index1])] = newVertices;
+        var list = _baseToDerivedVertex[(vertex1, vertex2)];
+        list.Clear();
+        list.AddRange(newVertices);
+
         _vertices.InsertRange(removeStart, newVertices);
     }
 
@@ -121,8 +145,8 @@ public class DerivedPolygon : NonConvexPolygon
             _vertices.RemoveRange(removeStart, removeCount);
         }
 
-        _baseToDerivedVertex[(vtx0, vtxEnd)] = new List<Vertex>();
-        _baseToDerivedVertex[(vtxEnd, vtx0)] = new List<Vertex>();
+        var list = _baseToDerivedVertex[(vtx0, vtxEnd)];
+        list.Clear();
     }
 
 }

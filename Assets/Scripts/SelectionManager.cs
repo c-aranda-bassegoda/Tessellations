@@ -68,6 +68,52 @@ public class SelectionManager : MonoBehaviour
         //Deregister(toRemove);
     }
 
+    public ISelectable FindBestFitSelectable(List<Vector2> positions)
+    {
+        if (positions == null || positions.Count == 0)
+            return null;
+
+        ISelectable bestMatch = null;
+        int bestScore = 0;
+
+        float tolerance = 0.05f;
+
+        foreach (ISelectable selectable in selectables)
+        {
+            var mb = selectable as MonoBehaviour;
+            if (mb == null)
+                continue;
+
+            LineRenderer lr = mb.GetComponent<LineRenderer>();
+            if (lr == null)
+                continue;
+
+            int score = 0;
+
+            for (int i = 0; i < lr.positionCount; i++)
+            {
+                Vector2 p = lr.GetPosition(i);
+
+                foreach (var pos in positions)
+                {
+                    if (Vector2.Distance(p, pos) < tolerance)
+                    {
+                        score++;
+                        break;
+                    }
+                }
+            }
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestMatch = selectable;
+            }
+        }
+
+        return bestMatch;
+    }
+
     private void TrySelect(Vector2 pointerWorldPos)
     {
 
