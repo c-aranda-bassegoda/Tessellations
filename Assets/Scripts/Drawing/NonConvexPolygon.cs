@@ -106,7 +106,7 @@ public class NonConvexPolygon : Polygon
     [SerializeField] private GameObject edgePrefab;
     [SerializeField] private GameObject vtxPrefab;
     [SerializeField] private int resolutionPerSegment = 3;
-    protected List<LineRenderer> edgeRenderers = new List<LineRenderer>();
+    public List<LineRenderer> edgeRenderers = new List<LineRenderer>();
 
     private void DrawVertices()
     {

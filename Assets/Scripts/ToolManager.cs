@@ -7,7 +7,8 @@ public enum ToolType
     Select,
     Node,
     SharpNode,
-    Copy
+    Copy,
+    Translate
 }
 public class ToolManager : MonoBehaviour
 {

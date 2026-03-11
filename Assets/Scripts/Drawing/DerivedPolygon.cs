@@ -8,7 +8,7 @@ using static UnityEngine.Rendering.VolumeComponent;
 
 public class DerivedPolygon : NonConvexPolygon
 {
-    [SerializeField] public Polygon BasePolygon;
+    [SerializeField] public NonConvexPolygon BasePolygon;
     public new IReadOnlyList<Vertex> SnapVertices => BasePolygon.Vertices;
 
     private readonly Dictionary<(Vertex, Vertex), List<Vertex> > _baseToDerivedVertex = new Dictionary<(Vertex, Vertex), List<Vertex>>();
