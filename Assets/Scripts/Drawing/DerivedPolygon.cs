@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static UnityEditor.Searcher.SearcherWindow.Alignment;
@@ -25,29 +26,31 @@ public class DerivedPolygon : NonConvexPolygon
         }
     }
 
-    public override void ReplaceEdge(GameObject line)
+    public override bool ReplaceEdge(GameObject line)
     {
 
         LineRenderer lineRenderer = line.GetComponent<LineRenderer>();
         if (lineRenderer == null)
         {
             Debug.LogError("GameObject does not have a LineRenderer component.");
-            return;
+            return false;
         }
 
         List<Vertex> newVertices = ToVertices(lineRenderer);
         Vertex vtx0 = BasePolygon.FindClosestVertex(newVertices[0].Position);
         Vertex vtxEnd = BasePolygon.FindClosestVertex(newVertices[newVertices.Count - 1].Position);
-        Debug.Log(vtx0.Position);
-        Debug.Log(vtxEnd.Position);
         if (vtx0 == null || vtxEnd == null)
         {
-            Debug.LogError("Failed to snap to base vertices.");
-            return;
+            Debug.Log("Failed to snap to base vertices.");
+            return false;
         }
+        Debug.Log(vtx0.Position);
+        Debug.Log(vtxEnd.Position);
+
         newVertices.RemoveAt(0);
         newVertices.RemoveAt(newVertices.Count - 1);
         ReplaceVerticesBetween(newVertices, vtx0, vtxEnd);
+        return true;
     }
 
     public void ResetEdge(LineRenderer lineRenderer)
@@ -174,8 +177,14 @@ public class DerivedPolygon : NonConvexPolygon
             if (Vector3.Distance(midpoint, position) <= snapDistance)
             {
                 GameObject newObj = Instantiate(lineObj);
+                newObj.GetComponent<EdgeSelectable>().Polygon = this;
                 Debug.Log("replacing(pasting) edge");
-                this.ReplaceEdge(newObj);
+                bool success = this.ReplaceEdge(newObj);
+                if (!success)
+                {
+                    Destroy(newObj);
+                    return null;
+                }
                 return newObj.GetComponent<LineSelectable>();
             }
         }

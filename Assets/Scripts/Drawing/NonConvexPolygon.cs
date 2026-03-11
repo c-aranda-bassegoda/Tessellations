@@ -145,7 +145,7 @@ public class NonConvexPolygon : Polygon
         }
     }
 
-    public override void ReplaceEdge(GameObject line)
+    public override bool ReplaceEdge(GameObject line)
     {
         throw new System.NotImplementedException();
     }

@@ -19,7 +19,7 @@ public abstract class Polygon : MonoBehaviour
     // Should indicade whether there is an adge in the Polygon with those vertices
     public abstract bool HasEdge(Vertex a, Vertex b);
 
-    public abstract void ReplaceEdge(GameObject line);
+    public abstract bool ReplaceEdge(GameObject line);
 
     protected float snapDistance = 0.2f;
     public  Vertex FindClosestVertex(Vector3 pos)
