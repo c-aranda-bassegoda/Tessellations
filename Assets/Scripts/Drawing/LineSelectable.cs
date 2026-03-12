@@ -45,7 +45,7 @@ public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
         line.endColor = selected ? Color.blue : Color.black;
     }
 
-    float DistancePointToSegment(Vector2 p, Vector2 a, Vector2 b)
+    public static float DistancePointToSegment(Vector2 p, Vector2 a, Vector2 b)
     {
         Vector2 ab = b - a;
         float t = Vector2.Dot(p - a, ab) / ab.sqrMagnitude;

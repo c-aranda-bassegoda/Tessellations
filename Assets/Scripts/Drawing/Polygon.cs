@@ -40,6 +40,22 @@ public abstract class Polygon : MonoBehaviour
         }
         return closest;
     }
+
+    public Edge FindClosestMidpoint(Vector3 pos)
+    {
+        Edge closest = null;
+        float minDist = snapDistance;
+        foreach (Edge e in Edges)
+        {
+            float dist = Vector3.Distance(pos, e.MidPoint);
+            if (dist < minDist)
+            {
+                closest = e;
+                minDist = dist;
+            }
+        }
+        return closest;
+    }
 }
 
 

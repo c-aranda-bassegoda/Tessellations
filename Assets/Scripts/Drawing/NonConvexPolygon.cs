@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -152,5 +153,15 @@ public class NonConvexPolygon : Polygon
     public override bool ReplaceEdge(GameObject line)
     {
         throw new System.NotImplementedException();
+    }
+
+    internal Edge GetEdge(Vertex a, Vertex b)
+    {
+        foreach (var e in _edges)
+        {
+            if ((e.A == a && e.B == b) || (e.A == b && e.B == a))
+                return e;
+        }
+        return null;
     }
 }

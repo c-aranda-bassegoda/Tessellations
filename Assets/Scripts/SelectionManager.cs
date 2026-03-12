@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using static UnityEditor.PlayerSettings;
 
 public class SelectionManager : MonoBehaviour
 {
@@ -67,6 +68,33 @@ public class SelectionManager : MonoBehaviour
         ISelectable toRemove = selected;
         Deselect();
         toRemove.Remove();
+    }
+
+    public ISelectable FindSelectableWithEndpnts(Vector2 a, Vector2 b)
+    {
+
+        ISelectable match = null;
+
+        float tolerance = 0.05f;
+
+        foreach (ISelectable selectable in selectables)
+        {
+            var mb = selectable as MonoBehaviour;
+            if (mb == null)
+                continue;
+
+            LineRenderer lr = mb.GetComponent<LineRenderer>();
+            if (lr == null)
+                continue;
+
+            Vector2 p = lr.GetPosition(0);
+            Vector2 q = lr.GetPosition(lr.positionCount-1);
+            if ((Vector2.Distance(p, a) < tolerance && Vector2.Distance(q, b) < tolerance)
+                || (Vector2.Distance(q, a) < tolerance && Vector2.Distance(p, b) < tolerance))
+                match = selectable;
+        }
+
+        return match;
     }
 
     public ISelectable FindBestFitSelectable(List<Vector2> positions)

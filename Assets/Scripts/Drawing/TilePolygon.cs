@@ -52,18 +52,9 @@ public class TilePolygon : DerivedPolygon
         Vector2 a = edge.A.Position;
         Vector2 b = edge.B.Position;
 
-        float distance = DistancePointToSegment(pos, a, b);
+        float distance = LineSelectable.DistancePointToSegment(pos, a, b);
 
         return distance <= snapDistance;
-    }
-    float DistancePointToSegment(Vector2 p, Vector2 a, Vector2 b)
-    {
-        Vector2 ab = b - a;
-        float t = Vector2.Dot(p - a, ab) / ab.sqrMagnitude;
-        t = Mathf.Clamp01(t);
-
-        Vector2 closest = a + t * ab;
-        return Vector2.Distance(p, closest);
     }
 
     Vector2 GetEdgeDirection(LineSelectable line)
