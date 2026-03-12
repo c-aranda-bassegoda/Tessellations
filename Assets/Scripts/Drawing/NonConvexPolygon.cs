@@ -36,7 +36,7 @@ public class NonConvexPolygon : Polygon
             var a = _vertices[i];
             var b = _vertices[(i + 1) % _vertices.Count];
             _edges.Add(new Edge(a, b));
-            _midpnts.Add(new Vertex(_edges[i].MidPoint));
+            _midpnts.Add(_edges[i].MidPoint);
         }
     }
 

@@ -21,10 +21,14 @@ public class DerivedPolygon : NonConvexPolygon
         for (int i = 0; i < BasePolygon.Vertices.Count; i++)
         {
             List<Vertex> listvtx = new List<Vertex>();
-            //listvtx.Add(new Vertex(BasePolygon.Edges[i].MidPoint));
+            Vertex v1 = BasePolygon.Vertices[i];
+            Vertex v2 = BasePolygon.Vertices[(i + 1) % BasePolygon.Vertices.Count];
+            listvtx.Add(v1);
+            listvtx.Add(BasePolygon.Midpoints[i]);
+            listvtx.Add(v2);
 
-            _baseToDerivedVertex[(BasePolygon.Vertices[i], BasePolygon.Vertices[(i + 1) % BasePolygon.Vertices.Count])] = listvtx;
-            _baseToDerivedVertex[(BasePolygon.Vertices[(i + 1) % BasePolygon.Vertices.Count], BasePolygon.Vertices[i])] = listvtx;
+            _baseToDerivedVertex[(v1, v2)] = listvtx;
+            _baseToDerivedVertex[(v1, v2)] = listvtx;
         }
     }
 
@@ -39,13 +43,23 @@ public class DerivedPolygon : NonConvexPolygon
         }
 
         List<Vertex> newVertices = ToVertices(lineRenderer);
+        (Vertex vtx0, Vertex vtxEnd) = GetEndpntVerticesWhereLine(newVertices);
+
+        newVertices.RemoveAt(0);
+        newVertices.RemoveAt(newVertices.Count - 1);
+        ReplaceVerticesBetween(newVertices, vtx0, vtxEnd);
+        return true;
+    }
+
+    private (Vertex vtx0, Vertex vtxEnd) GetEndpntVerticesWhereLine(List<Vertex> newVertices)
+    {
         Vertex vtx0 = BasePolygon.FindClosestVertex(newVertices[0].Position);
         Vertex vtxEnd = BasePolygon.FindClosestVertex(newVertices[newVertices.Count - 1].Position);
         if (vtx0 == null && vtxEnd == null)
         {
 
             Debug.Log("Failed to snap to base vertices." + newVertices[0].Position + " " + newVertices[newVertices.Count - 1].Position);
-            return false;
+            return (null, null); ;
         }
         if (vtx0 == null)
         {
@@ -61,25 +75,16 @@ public class DerivedPolygon : NonConvexPolygon
         if (vtx0 == null || vtxEnd == null)
         {
             Debug.Log("Failed to snap to base midpoints." + newVertices[0].Position + " " + newVertices[newVertices.Count - 1].Position);
-            return false;
+            return (null,null);
         }
 
-        newVertices.RemoveAt(0);
-        newVertices.RemoveAt(newVertices.Count - 1);
-        ReplaceVerticesBetween(newVertices, vtx0, vtxEnd);
-        return true;
+        return (vtx0,vtxEnd);
     }
 
     public void ResetEdge(LineRenderer lineRenderer)
     {
         List<Vertex> newVertices = ToVertices(lineRenderer);
-        Vertex vtx0 = BasePolygon.FindClosestVertex(newVertices[0].Position);
-        Vertex vtxEnd = BasePolygon.FindClosestVertex(newVertices[newVertices.Count - 1].Position);
-        if (vtx0 == null || vtxEnd == null)
-        {
-            Debug.LogError("Failed to snap to base vertices.");
-            return;
-        }
+        (Vertex vtx0, Vertex vtxEnd) = GetEndpntVerticesWhereLine(newVertices);
         ResetVerticesBetween(vtx0, vtxEnd);
     }
 
@@ -155,9 +160,9 @@ public class DerivedPolygon : NonConvexPolygon
         ISelectable oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, vertex2.Position);
         oldEdge?.Remove();
         Edge edge = BasePolygon.GetEdge(vertex1, vertex2);
-        oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, edge.MidPoint);
+        oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, edge.MidPoint.Position);
         oldEdge?.Remove();
-        oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(edge.MidPoint, vertex2.Position);
+        oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(edge.MidPoint.Position, vertex2.Position);
         oldEdge?.Remove();
     }
 
@@ -176,8 +181,9 @@ public class DerivedPolygon : NonConvexPolygon
 
         var list = _baseToDerivedVertex[(vtx0, vtxEnd)];
         list.Clear();
-
-        //list.Add(new Vertex(BasePolygon.GetEdge(vtx0, vtxEnd).MidPoint));
+        list.Add(vtx0);
+        list.Add(BasePolygon.GetEdge(vtx0, vtxEnd).MidPoint);
+        list.Add(vtxEnd);
     }
 
     private (Vertex, Vertex) GetEndpntVertices(LineRenderer lineRenderer)
@@ -224,8 +230,8 @@ public class DerivedPolygon : NonConvexPolygon
 
         foreach (var e in _edges)
         {
-            if ((e.A == a && e.MidPoint == b.Position) || (e.A == b && e.MidPoint == a.Position)
-                || (e.MidPoint == a.Position && e.B == b) || (e.MidPoint == b.Position && e.B == a))
+            if ((e.A == a && e.MidPoint == b) || (e.A == b && e.MidPoint == a)
+                || (e.MidPoint == a && e.B == b) || (e.MidPoint == b && e.B == a))
                 return true;
         }
         return false;

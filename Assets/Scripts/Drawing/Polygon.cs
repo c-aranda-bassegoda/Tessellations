@@ -47,7 +47,7 @@ public abstract class Polygon : MonoBehaviour
         float minDist = snapDistance;
         foreach (Edge e in Edges)
         {
-            float dist = Vector3.Distance(pos, e.MidPoint);
+            float dist = Vector3.Distance(pos, e.MidPoint.Position);
             if (dist < minDist)
             {
                 closest = e;
@@ -64,12 +64,13 @@ public class Edge
     public Vertex A { get; }
     public Vertex B { get; }
 
-    public Vector2 MidPoint => (A.Position + B.Position) / 2f;
+    public Vertex MidPoint { get; }
 
     public Edge(Vertex a, Vertex b)
     {
         A = a;
         B = b;
+        MidPoint = new Vertex( (A.Position + B.Position) / 2f);
     }
 }
 
