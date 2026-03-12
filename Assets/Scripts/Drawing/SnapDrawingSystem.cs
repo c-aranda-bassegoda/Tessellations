@@ -43,7 +43,8 @@ public class SnapDrawingSystem : ILineDrawer
         bool valid =
             startVertex != null &&
             endVertex != null &&
-            baseShape.HasEdge(endVertex, startVertex);
+            (baseShape.HasEdge(endVertex, startVertex) ||
+            baseShape.HasHalfEdge(endVertex, startVertex));
 
         if (valid)
         {
@@ -65,6 +66,15 @@ public class SnapDrawingSystem : ILineDrawer
         Vertex closest = null;
         float minDist = snapDistance;
         foreach (Vertex v in baseShape.SnapVertices)
+        {
+            float dist = Vector3.Distance(pos, v.Position);
+            if (dist < minDist)
+            {
+                closest = v;
+                minDist = dist;
+            }
+        }
+        foreach (Vertex v in baseShape.Midpoints)
         {
             float dist = Vector3.Distance(pos, v.Position);
             if (dist < minDist)

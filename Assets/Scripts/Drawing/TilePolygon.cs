@@ -11,8 +11,8 @@ public class TilePolygon : DerivedPolygon
         Vector2 selectedDir = GetEdgeDirection(selectedLine);
         float selectedLength = GetEdgeLength(selectedLine);
 
-        float lengthTolerance = snapDistance * 2;
-        float directionTolerance = snapDistance * 2;
+        float lengthTolerance = snapDistance; 
+        float directionTolerance = 0.99f;
 
         for (int i = 0; i < BasePolygon.SnapVertices.Count; i++)
         {
@@ -27,12 +27,9 @@ public class TilePolygon : DerivedPolygon
             // dot product checks orientation similarity
             bool directionMatch = Mathf.Abs(Vector2.Dot(dir, selectedDir)) > directionTolerance;
 
-            Debug.Log("Length: "+ length +"vs"+selectedLength + "Direction: " + dir + "vs" + selectedDir);
-
             if (lengthMatch && directionMatch)
             {
                 edges.Add(i);
-                Debug.Log("Compatible" + i);
             }
         }
 

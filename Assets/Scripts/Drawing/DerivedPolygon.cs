@@ -9,6 +9,7 @@ using static UnityEngine.Rendering.VolumeComponent;
 public class DerivedPolygon : NonConvexPolygon
 {
     [SerializeField] public NonConvexPolygon BasePolygon;
+
     public new IReadOnlyList<Vertex> SnapVertices => BasePolygon.Vertices;
 
     private readonly Dictionary<(Vertex, Vertex), List<Vertex> > _baseToDerivedVertex = new Dictionary<(Vertex, Vertex), List<Vertex>>();
@@ -192,4 +193,15 @@ public class DerivedPolygon : NonConvexPolygon
         return null;
     }
 
+    internal bool HasHalfEdge(Vertex a, Vertex b)
+    {
+
+        foreach (var e in _edges)
+        {
+            if ((e.A == a && e.MidPoint == b.Position) || (e.A == b && e.MidPoint == a.Position)
+                || (e.MidPoint == a.Position && e.B == b) || (e.MidPoint == b.Position && e.B == a))
+                return true;
+        }
+        return false;
+    }
 }

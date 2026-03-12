@@ -9,6 +9,9 @@ public abstract class Polygon : MonoBehaviour
     [SerializeField] protected List<Vertex> _vertices = new();
     public IReadOnlyList<Vertex> Vertices => _vertices;
     public IReadOnlyList<Vertex> SnapVertices => _vertices;
+
+    protected List<Vertex> _midpnts = new();
+    public IReadOnlyList<Vertex> Midpoints => _midpnts;
     protected List<Edge> _edges = new();
     public IReadOnlyList<Edge> Edges => _edges;
     public bool Initialized { get; protected set; }
@@ -16,7 +19,7 @@ public abstract class Polygon : MonoBehaviour
     // Should indicate whether point is enclosed by the polygon
     public abstract bool ContainsPoint(Vector2 point);
 
-    // Should indicade whether there is an adge in the Polygon with those vertices
+    // Should indicade whether there is an edge in the Polygon with those vertices
     public abstract bool HasEdge(Vertex a, Vertex b);
 
     public abstract bool ReplaceEdge(GameObject line);
