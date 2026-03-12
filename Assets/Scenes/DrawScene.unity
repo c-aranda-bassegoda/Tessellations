@@ -171,7 +171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea58ad63337ee8e4982699db2f04edd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toolType: 6
+  toolType: 7
   icon: {fileID: 74620883}
   selectedColor: {r: 0, g: 1, b: 0.95686275, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
@@ -2044,6 +2044,7 @@ MonoBehaviour:
   edgePrefab: {fileID: 8599736580140806056, guid: 050877c8eb864d7469a1fc0219816d60, type: 3}
   vtxPrefab: {fileID: 541626823425344348, guid: fc14d045290a7a84094ba6bf067b8d4e, type: 3}
   resolutionPerSegment: 20
+  edgeRenderers: []
   BasePolygon: {fileID: 1875255464}
 --- !u!4 &1580338541
 Transform:
@@ -2141,6 +2142,7 @@ MonoBehaviour:
   edgePrefab: {fileID: 8599736580140806056, guid: 050877c8eb864d7469a1fc0219816d60, type: 3}
   vtxPrefab: {fileID: 541626823425344348, guid: fc14d045290a7a84094ba6bf067b8d4e, type: 3}
   resolutionPerSegment: 3
+  edgeRenderers: []
 --- !u!4 &1875255465
 Transform:
   m_ObjectHideFlags: 0
@@ -2487,6 +2489,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2068527368}
   m_CullTransparentMesh: 1
+--- !u!1 &2126652116
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2126652118}
+  - component: {fileID: 2126652117}
+  m_Layer: 0
+  m_Name: Symmetry Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2126652117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126652116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51db80ddfe2e18542b2b594079cb5b28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseShape: {fileID: 2139440608}
+--- !u!4 &2126652118
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126652116}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -73.35507, y: 861.4296, z: -4.318773}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2139440607
 GameObject:
   m_ObjectHideFlags: 0
@@ -2524,7 +2571,9 @@ MonoBehaviour:
   edgePrefab: {fileID: 8599736580140806056, guid: 050877c8eb864d7469a1fc0219816d60, type: 3}
   vtxPrefab: {fileID: 541626823425344348, guid: fc14d045290a7a84094ba6bf067b8d4e, type: 3}
   resolutionPerSegment: 10
+  edgeRenderers: []
   BasePolygon: {fileID: 1875255464}
+  highlightPrefab: {fileID: 0}
 --- !u!4 &2139440609
 Transform:
   m_ObjectHideFlags: 0
@@ -2558,3 +2607,4 @@ SceneRoots:
   - {fileID: 1580338541}
   - {fileID: 2139440609}
   - {fileID: 755726611}
+  - {fileID: 2126652118}
