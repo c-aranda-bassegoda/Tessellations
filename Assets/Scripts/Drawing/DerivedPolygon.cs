@@ -41,7 +41,8 @@ public class DerivedPolygon : NonConvexPolygon
         Vertex vtxEnd = BasePolygon.FindClosestVertex(newVertices[newVertices.Count - 1].Position);
         if (vtx0 == null || vtxEnd == null)
         {
-            Debug.Log("Failed to snap to base vertices.");
+
+            Debug.Log("Failed to snap to base vertices." + newVertices[0].Position + " " + newVertices[newVertices.Count - 1].Position);
             return false;
         }
         Debug.Log(vtx0.Position);

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SymmetryManager : MonoBehaviour
@@ -7,6 +8,7 @@ public class SymmetryManager : MonoBehaviour
     public static SymmetryManager Instance { get; private set; }
 
     GameObject clipboard;
+    List<int> compatibleEdgeIdxs = new List<int>();
 
     ITransformable previewDraggable;
 
@@ -33,7 +35,9 @@ public class SymmetryManager : MonoBehaviour
             {
                 CopySelected();
                 LineSelectable line = clipboard.GetComponent<LineSelectable>();
-                baseShape.HighlightEdges(baseShape.FindCompatibleEdges(line), Color.red);
+                compatibleEdgeIdxs.Clear();
+                compatibleEdgeIdxs = baseShape.FindCompatibleEdges(line);
+                baseShape.HighlightEdges(compatibleEdgeIdxs, Color.red);
             }
 
             lastTool = currentTool;
@@ -72,7 +76,20 @@ public class SymmetryManager : MonoBehaviour
         if (clipboard == null)
             return;
 
-        ISelectable selectable = baseShape.TryPaste(clipboard, position);
+        ISelectable selectable = null;
+        foreach(var idx in compatibleEdgeIdxs)
+        {
+            if (baseShape.IsInEdgeWithIdx(position, idx))
+            {
+                switch (ToolManager.Instance.CurrentTool)
+                {
+                    case ToolType.Translate:
+                        selectable = baseShape.Translate(clipboard, idx);
+                        break;
+                }
+                break;
+            }
+        }
 
         if (selectable != null)
         {

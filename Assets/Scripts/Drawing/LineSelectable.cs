@@ -6,6 +6,7 @@ public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
 
     [SerializeField] protected LineRenderer line;
     List<Vector3> points = new List<Vector3>();
+    public Vector2 Center => (points[0] + points[^1]) / 2f;
 
     public float hitRadius = 0.1f;
 
@@ -63,8 +64,7 @@ public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
 
     public void OnTransform(Vector2 worldPosition)
     {
-        Vector2 center = (points[0] + points[^1]) / 2f;
-        Vector2 delta = worldPosition - center;
+        Vector2 delta = worldPosition - Center;
 
         for (int i = 0; i < points.Count; i++)
         {
