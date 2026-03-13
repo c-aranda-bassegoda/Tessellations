@@ -30,7 +30,7 @@ public class DerivedPolygon : NonConvexPolygon
             listvtx.Add(v2);
 
             _baseToDerivedVertex[(v1, v2)] = listvtx;
-            _baseToDerivedVertex[(v1, v2)] = listvtx;
+            _baseToDerivedVertex[(v2, v1)] = listvtx;
         }
     }
 
