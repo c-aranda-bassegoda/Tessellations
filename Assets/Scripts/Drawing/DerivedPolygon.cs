@@ -12,10 +12,12 @@ public class DerivedPolygon : NonConvexPolygon
 
     public new IReadOnlyList<Vertex> SnapVertices => BasePolygon.Vertices;
 
-    private readonly Dictionary<(Vertex, Vertex), List<Vertex> > _baseToDerivedVertex = new Dictionary<(Vertex, Vertex), List<Vertex>>();
+    private readonly Dictionary<(Vertex, Vertex), List<Vertex>> _baseToDerivedVertex =
+    new Dictionary<(Vertex, Vertex), List<Vertex>>(new VertexTupleComparer());
 
     private void Awake()
     {
+        BasePolygon.Initialize();
         _vertices = new List<Vertex>(BasePolygon.Vertices);
         BuildEdges();
         for (int i = 0; i < BasePolygon.Vertices.Count; i++)
@@ -235,5 +237,19 @@ public class DerivedPolygon : NonConvexPolygon
                 return true;
         }
         return false;
+    }
+}
+
+class VertexTupleComparer : IEqualityComparer<(Vertex, Vertex)>
+{
+    public bool Equals((Vertex, Vertex) x, (Vertex, Vertex) y)
+    {
+        return x.Item1.Equals(y.Item1) && x.Item2.Equals(y.Item2);
+    }
+
+    public int GetHashCode((Vertex, Vertex) obj)
+    {
+        // XOR hashes of the vertices to combine
+        return obj.Item1.GetHashCode() ^ obj.Item2.GetHashCode();
     }
 }

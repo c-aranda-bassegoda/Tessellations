@@ -84,5 +84,16 @@ public class Vertex
     {
         this.position = position;
     }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is not Vertex other) return false;
+        return Position == other.Position; // Or use Vector2.Distance(Position, other.Position) < tolerance
+    }
+
+    public override int GetHashCode()
+    {
+        return Position.GetHashCode();
+    }
 }
 

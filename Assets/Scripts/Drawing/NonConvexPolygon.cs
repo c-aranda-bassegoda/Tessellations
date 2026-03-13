@@ -5,8 +5,10 @@ using UnityEngine;
 public class NonConvexPolygon : Polygon
 {
 
-    private void Awake()
+    public void Initialize()
     {
+        if(Initialized) { return; }
+
         if (_vertices == null)
             _vertices = new List<Vertex>();
         base._vertices = _vertices;
