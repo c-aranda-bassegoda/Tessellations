@@ -62,7 +62,7 @@ public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
         Destroy(gameObject);
     }
 
-    public void OnTransform(Vector2 worldPosition)
+    public void OnTranslate(Vector2 worldPosition)
     {
         Vector2 delta = worldPosition - Center;
 
@@ -73,6 +73,25 @@ public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
                 points[i].y + delta.y,
                 points[i].z
             );
+            line.SetPosition(i, points[i]);
+        }
+    }
+
+    public void OnRotate(float angleDeg, Vector2 pivot)
+    {
+        Quaternion rot = Quaternion.Euler(0, 0, angleDeg);
+
+        for (int i = 0; i < points.Count; i++)
+        {
+            Vector2 dir = (Vector2)points[i] - pivot;
+            dir = rot * dir;
+
+            points[i] = new Vector3(
+                pivot.x + dir.x,
+                pivot.y + dir.y,
+                points[i].z
+            );
+
             line.SetPosition(i, points[i]);
         }
     }

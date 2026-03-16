@@ -53,6 +53,25 @@ public class DerivedPolygon : NonConvexPolygon
         return true;
     }
 
+    public bool ExtendEdge(GameObject line)
+    {
+
+        LineRenderer lineRenderer = line.GetComponent<LineRenderer>();
+        if (lineRenderer == null)
+        {
+            Debug.LogError("GameObject does not have a LineRenderer component.");
+            return false;
+        }
+
+        List<Vertex> newVertices = ToVertices(lineRenderer);
+        (Vertex vtx0, Vertex vtxEnd) = GetEndpntVerticesWhereLine(newVertices);
+
+        newVertices.RemoveAt(0);
+        newVertices.RemoveAt(newVertices.Count - 1);
+        AddVerticesBetween(newVertices, vtx0, vtxEnd);
+        return true;
+    }
+
     private (Vertex vtx0, Vertex vtxEnd) GetEndpntVerticesWhereLine(List<Vertex> newVertices)
     {
         Vertex vtx0 = BasePolygon.FindClosestVertex(newVertices[0].Position);
@@ -155,6 +174,39 @@ public class DerivedPolygon : NonConvexPolygon
         list.AddRange(newVertices);
 
         _vertices.InsertRange(removeStart, newVertices);
+    }
+
+    private void AddVerticesBetween(List<Vertex> newVertices, Vertex vertex1, Vertex vertex2)
+    {
+
+        List<Vertex> oldVertices = _baseToDerivedVertex[(vertex1, vertex2)];
+        Vertex oldVtx1 = oldVertices.Count > 0 ? oldVertices[0] : vertex1;
+        Vertex oldVtx2 = oldVertices.Count > 0 ? oldVertices[^1] : vertex2;
+        int index1 = _vertices.IndexOf(oldVtx1);
+        int index2 = _vertices.IndexOf(oldVtx2);
+
+        if (index1 < 0 || index2 < 0 || index1 >= _vertices.Count || index2 >= _vertices.Count)
+        {
+            Debug.LogError("Invalid vertex indices.");
+            return;
+        }
+
+        // If traversal is reversed, swap indices and invert inserted vertices
+        if ((index2 < index1 && !(index2 == 0 && index1 == _vertices.Count - 1)) || (index1 == 0 && index2 == _vertices.Count - 1))
+        {
+            (index1, index2) = (index2, index1);
+            newVertices.Reverse();
+        }
+
+        int addStart = index1;
+
+
+        var list = _baseToDerivedVertex[(vertex1, vertex2)];
+        list.Clear();
+        list.AddRange(newVertices);
+        list.AddRange(oldVertices);
+
+        _vertices.InsertRange(addStart, newVertices);
     }
 
     private void ClearEdge(Vertex vertex1, Vertex vertex2)

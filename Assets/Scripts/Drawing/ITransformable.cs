@@ -2,5 +2,5 @@ using UnityEngine;
 
 public interface ITransformable
 {
-    void OnTransform(Vector2 worldPosition);
+    void OnTranslate(Vector2 worldPosition);
 }

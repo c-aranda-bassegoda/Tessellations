@@ -101,14 +101,14 @@ public class CopyPasteManager : MonoBehaviour
 
         previewDraggable = previewObject.GetComponent<ITransformable>();
 
-        previewDraggable?.OnTransform(pointerPos);
+        previewDraggable?.OnTranslate(pointerPos);
 
         SetPreviewVisual(previewObject);
     }
 
     void UpdatePreview(Vector3 position)
     {
-        previewDraggable?.OnTransform(position);
+        previewDraggable?.OnTranslate(position);
     }
 
     void DestroyPreview()

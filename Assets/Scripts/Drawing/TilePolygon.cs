@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NUnit.Framework.Constraints;
 using UnityEngine;
 
 public class TilePolygon : DerivedPolygon
@@ -42,7 +43,7 @@ public class TilePolygon : DerivedPolygon
         {
             Vector2 m = BasePolygon.Midpoints[i].Position;
 
-            inEdge = (m==origA || m==origB);
+            inEdge = (m == origA || m == origB);
 
             if (inEdge)
             {
@@ -140,6 +141,10 @@ public class TilePolygon : DerivedPolygon
         return Vector2.Distance(a, b);
     }
 
+    // -------------------------------------------------------------------
+    // Transformations
+    // -------------------------------------------------------------------
+
     internal ISelectable Translate(GameObject lineObj, int selectedEdg)
     {
         Edge edge = BasePolygon.Edges[selectedEdg];
@@ -170,7 +175,7 @@ public class TilePolygon : DerivedPolygon
 
         Vector2 center = ls.Center;
         Debug.Log("Center: "+center + "New: "+ (center+delta));
-        ls.OnTransform(center + delta);
+        ls.OnTranslate(center + delta);
 
         Debug.Log("Translating edge");
 
@@ -181,6 +186,66 @@ public class TilePolygon : DerivedPolygon
             Destroy(newObj);
             return null;
         }
+        return ls;
+    }
+    internal ISelectable Rotate(GameObject lineObj, int selectedEdg)
+    {
+        bool success = false;
+
+        Edge edge = BasePolygon.Edges[selectedEdg];
+
+        LineRenderer src = lineObj.GetComponent<LineRenderer>();
+
+        if (src == null)
+        {
+            Debug.LogError("No LineRenderer on source object");
+            return null;
+        }
+
+        GameObject newObj = Instantiate(lineObj);
+        newObj.GetComponent<EdgeSelectable>().Polygon = this;
+
+        LineSelectable ls = newObj.GetComponent<LineSelectable>();
+        LineRenderer lr = newObj.GetComponent<LineRenderer>();
+
+        // Source line
+        Vector2 a = lr.GetPosition(0);
+        Vector2 b = lr.GetPosition(lr.positionCount - 1);
+
+        // Target edge
+        Vector2 targetA = edge.A.Position;
+        Vector2 targetB = edge.B.Position;
+        Vector2 targetMid = edge.MidPoint.Position;
+
+        if (Vector2.Distance(a, targetMid)<snapDistance || Vector2.Distance(b, targetMid) < snapDistance)
+        {
+            ls.OnRotate(180, targetMid);
+            success = ExtendEdge(newObj);
+        } 
+        else
+        {
+            bool pivotIsA = Vector2.Distance(a, targetA) < snapDistance || Vector2.Distance(a, targetB) < snapDistance;
+
+            Vector2 pivot = pivotIsA ? a : b;
+            Vector2 sourceDir = pivotIsA ? (b - a) : (a - b);
+
+            float sourceAngle = Mathf.Atan2(sourceDir.y, sourceDir.x) * Mathf.Rad2Deg;
+            float targetAngle = Mathf.Atan2(targetB.y - targetA.y, targetB.x - targetA.x) * Mathf.Rad2Deg;
+
+            // Rotation difference
+            float deltaAngle = targetAngle - sourceAngle;
+
+            ls.OnRotate(deltaAngle, pivot);
+            Debug.Log("Rotating edge by " + deltaAngle);
+            success = ReplaceEdge(newObj);
+        }
+
+        if (!success)
+        {
+            Destroy(newObj);
+            return null;
+        }
+
         return ls;
     }
 

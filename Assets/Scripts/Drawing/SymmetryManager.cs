@@ -101,6 +101,9 @@ public class SymmetryManager : MonoBehaviour
                     case ToolType.Translate:
                         selectable = baseShape.Translate(clipboard, idx);
                         break;
+                    case ToolType.Rotate:
+                        selectable = baseShape.Rotate(clipboard, idx);
+                        break;
                 }
                 break;
             }
