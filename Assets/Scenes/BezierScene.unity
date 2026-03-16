@@ -265,11 +265,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea58ad63337ee8e4982699db2f04edd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toolType: 0
+  toolType: 8
   icon: {fileID: 67552587}
   selectedColor: {r: 0, g: 0, b: 1, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  requiresSelection: 1
 --- !u!1 &135097865
 GameObject:
   m_ObjectHideFlags: 0
@@ -1144,7 +1143,6 @@ MonoBehaviour:
   icon: {fileID: 1147643401}
   selectedColor: {r: 0, g: 1, b: 0.9570346, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  requiresSelection: 0
 --- !u!114 &1147643400
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1393,7 +1391,6 @@ MonoBehaviour:
   icon: {fileID: 1252617379}
   selectedColor: {r: 0, g: 1, b: 0.9570346, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  requiresSelection: 0
 --- !u!114 &1252617378
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1944,7 +1941,6 @@ MonoBehaviour:
   icon: {fileID: 1775876836}
   selectedColor: {r: 0, g: 1, b: 0.9570346, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  requiresSelection: 0
 --- !u!114 &1775876835
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2095,7 +2091,6 @@ MonoBehaviour:
   icon: {fileID: 1837980416}
   selectedColor: {r: 0, g: 1, b: 0.9570346, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  requiresSelection: 0
 --- !u!114 &1837980415
 MonoBehaviour:
   m_ObjectHideFlags: 0
