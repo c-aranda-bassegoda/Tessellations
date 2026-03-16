@@ -70,6 +70,15 @@ public class SelectionManager : MonoBehaviour
         toRemove.Remove();
     }
 
+
+    public void ClearAll()
+    {
+        Deselect();
+
+        for (int i = selectables.Count - 1; i >= 0; i--)
+            selectables[i].Remove();
+    }
+
     public ISelectable FindSelectableWithEndpnts(Vector2 a, Vector2 b)
     {
 

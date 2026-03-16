@@ -198,13 +198,24 @@ public class DerivedPolygon : NonConvexPolygon
             newVertices.Reverse();
         }
 
-        int addStart = index1;
 
+        int addStart;
 
         var list = _baseToDerivedVertex[(vertex1, vertex2)];
-        list.Clear();
-        list.AddRange(newVertices);
-        list.AddRange(oldVertices);
+        if (Vector2.Distance(oldVertices[0].Position, newVertices[^1].Position)<snapDistance)
+        {
+            addStart = index1+1;
+            list.Clear();
+            list.AddRange(newVertices);
+            list.AddRange(oldVertices);
+        } 
+        else
+        {
+            addStart = index2;
+            list.Clear();
+            list.AddRange(oldVertices);
+            list.AddRange(newVertices);
+        }
 
         _vertices.InsertRange(addStart, newVertices);
     }
@@ -250,34 +261,34 @@ public class DerivedPolygon : NonConvexPolygon
     }
 
 
-    internal LineSelectable TryPaste(GameObject lineObj, Vector2 position)
-    {
-        LineRenderer lineRenderer = lineObj.GetComponent<LineRenderer>();
-        if (lineRenderer == null)
-        {
-            Debug.LogError("GameObject does not have a LineRenderer component.");
-            return null;
-        }
+    //internal LineSelectable TryPaste(GameObject lineObj, Vector2 position)
+    //{
+    //    LineRenderer lineRenderer = lineObj.GetComponent<LineRenderer>();
+    //    if (lineRenderer == null)
+    //    {
+    //        Debug.LogError("GameObject does not have a LineRenderer component.");
+    //        return null;
+    //    }
 
-        for (int i=0; i < BasePolygon.SnapVertices.Count; i++)
-        {
-            Vector2 midpoint = (BasePolygon.Vertices[i].Position + BasePolygon.Vertices[(i + 1) % BasePolygon.Vertices.Count].Position) / 2;
-            if (Vector3.Distance(midpoint, position) <= snapDistance)
-            {
-                GameObject newObj = Instantiate(lineObj);
-                newObj.GetComponent<EdgeSelectable>().Polygon = this;
-                Debug.Log("replacing(pasting) edge");
-                bool success = this.ReplaceEdge(newObj);
-                if (!success)
-                {
-                    Destroy(newObj);
-                    return null;
-                }
-                return newObj.GetComponent<LineSelectable>();
-            }
-        }
-        return null;
-    }
+    //    for (int i=0; i < BasePolygon.SnapVertices.Count; i++)
+    //    {
+    //        Vector2 midpoint = (BasePolygon.Vertices[i].Position + BasePolygon.Vertices[(i + 1) % BasePolygon.Vertices.Count].Position) / 2;
+    //        if (Vector3.Distance(midpoint, position) <= snapDistance)
+    //        {
+    //            GameObject newObj = Instantiate(lineObj);
+    //            newObj.GetComponent<EdgeSelectable>().Polygon = this;
+    //            Debug.Log("replacing(pasting) edge");
+    //            bool success = this.ReplaceEdge(newObj);
+    //            if (!success)
+    //            {
+    //                Destroy(newObj);
+    //                return null;
+    //            }
+    //            return newObj.GetComponent<LineSelectable>();
+    //        }
+    //    }
+    //    return null;
+    //}
 
     internal bool HasHalfEdge(Vertex a, Vertex b)
     {

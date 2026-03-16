@@ -44,6 +44,7 @@ public class TilePolygon : DerivedPolygon
             Vector2 m = BasePolygon.Midpoints[i].Position;
 
             inEdge = (m == origA || m == origB);
+            Debug.Log("Mid: "+ m + "Line ends " + origA + " " + origB);
 
             if (inEdge)
             {
