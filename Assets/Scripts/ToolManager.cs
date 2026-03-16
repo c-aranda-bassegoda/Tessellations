@@ -10,7 +10,8 @@ public enum ToolType
     SharpNode,
     Copy,
     Translate,
-    Delete
+    Delete,
+    Rotate
 }
 public class ToolManager : MonoBehaviour
 {
@@ -23,12 +24,23 @@ public class ToolManager : MonoBehaviour
     {
         ToolType.Copy,
         ToolType.Translate,
-        ToolType.Delete
+        ToolType.Delete,
+        ToolType.Rotate
+    };
+    public static readonly HashSet<ToolType> symmetryTools =
+    new HashSet<ToolType>
+    {
+        ToolType.Translate,
+        ToolType.Rotate
     };
 
     public bool CurrentToolRequiresSelection()
     {
         return toolsRequiringSelection.Contains(CurrentTool);
+    }
+    public bool CurrentToolIsTransformationTool()
+    {
+        return symmetryTools.Contains(CurrentTool);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

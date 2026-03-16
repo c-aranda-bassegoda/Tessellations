@@ -28,22 +28,29 @@ public class SymmetryManager : MonoBehaviour
         // tool changed
         if (currentTool != lastTool)
         {
-            if (currentTool != ToolType.Translate)
+            if (!ToolManager.Instance.CurrentToolIsTransformationTool())
                 baseShape.DehighlightEdges();
-
-            else 
+            else
             {
                 CopySelected();
                 LineSelectable line = clipboard?.GetComponent<LineSelectable>();
                 compatibleEdgeIdxs.Clear();
-                compatibleEdgeIdxs = baseShape.FindCompatibleEdges(line);
+                switch (currentTool)
+                {
+                    case ToolType.Translate:
+                        compatibleEdgeIdxs = baseShape.FindTranslationCompatibleEdges(line);
+                        break;
+                    case ToolType.Rotate:
+                        compatibleEdgeIdxs = baseShape.FindRotationCompatibleEdges(line);
+                        break;
+                }
                 baseShape.HighlightEdges(compatibleEdgeIdxs, Color.red);
             }
 
             lastTool = currentTool;
         } 
 
-        if (ToolManager.Instance.CurrentTool != ToolType.Translate)
+        if (!ToolManager.Instance.CurrentToolIsTransformationTool())
             return;
 
         if (InputManager.Instance.PointerOverUI)

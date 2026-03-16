@@ -4,7 +4,55 @@ using UnityEngine;
 
 public class TilePolygon : DerivedPolygon
 {
-    public List<int> FindCompatibleEdges(LineSelectable selectedLine)
+    public List<int> FindRotationCompatibleEdges(LineSelectable selectedLine)
+    {
+        Debug.Log("Looking for compatible rot...");
+        List<int> edges = new List<int>();
+        if (selectedLine == null)
+        {
+            Debug.Log("null edge");
+            return edges;
+        }
+        (Vector2 origA, Vector2 origB) = GetLineEndpoints(selectedLine);
+        float selectedLength = GetEdgeLength(selectedLine);
+
+        float lengthTolerance = snapDistance;
+        bool adjacency;
+        bool inEdge = false;
+
+        for (int i = 0; i < BasePolygon.SnapVertices.Count; i++)
+        {
+            Vector2 a = BasePolygon.SnapVertices[i].Position;
+            Vector2 b = BasePolygon.SnapVertices[(i + 1) % BasePolygon.SnapVertices.Count].Position;
+
+            Vector2 dir = (b - a).normalized;
+            float length = Vector2.Distance(a, b);
+
+            bool lengthMatch = Mathf.Abs(length - selectedLength) < lengthTolerance;
+
+            adjacency = (a==origA || a == origB) || (b == origA || b == origB);
+
+            if (lengthMatch && adjacency)
+            {
+                edges.Add(i);
+            }
+        }
+
+        for (int i = 0; i < BasePolygon.Midpoints.Count; i++)
+        {
+            Vector2 m = BasePolygon.Midpoints[i].Position;
+
+            inEdge = (m==origA || m==origB);
+
+            if (inEdge)
+            {
+                edges.Add(i);
+            }
+        }
+
+        return edges;
+    }
+    public List<int> FindTranslationCompatibleEdges(LineSelectable selectedLine)
     {
         Debug.Log("Looking for compatible...");
         List<int> edges = new List<int>();
@@ -41,6 +89,8 @@ public class TilePolygon : DerivedPolygon
         return edges;
     }
 
+   
+
     public bool IsInEdgeWithIdx(Vector2 pos, int idx)
     {
         if (idx < 0 || idx >= BasePolygon.Edges.Count)
@@ -62,12 +112,20 @@ public class TilePolygon : DerivedPolygon
         return distance <= snapDistance;
     }
 
-    Vector2 GetEdgeDirection(LineSelectable line)
+    (Vector2, Vector2) GetLineEndpoints(LineSelectable line)
     {
         var lr = line.GetComponent<LineRenderer>();
 
         Vector2 a = lr.GetPosition(0);
         Vector2 b = lr.GetPosition(lr.positionCount - 1);
+
+        return (a, b);
+    }
+
+
+    Vector2 GetEdgeDirection(LineSelectable line)
+    {
+        (Vector2 a, Vector2 b) = GetLineEndpoints(line);
 
         return (b - a).normalized;
     }
