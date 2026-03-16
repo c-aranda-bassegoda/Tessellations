@@ -27,7 +27,7 @@ public class SelectionManager : MonoBehaviour
 
     void Update()
     {
-        if (ToolManager.Instance.CurrentTool != ToolType.Select)
+        if (ToolManager.Instance.CurrentTool != ToolType.Select && !ToolManager.Instance.CurrentToolRequiresSelection())
         {
 
             Deselect();
@@ -159,7 +159,7 @@ public class SelectionManager : MonoBehaviour
             if (s.HitTest(pointerWorldPos))
             {
                 if (s == selected) return; // already selected, do nothing
-
+                Debug.Log("selected");
                 Select(s);
                 return;
             }

@@ -5,18 +5,19 @@ using UnityEngine.UI;
 public class ToolButton : MonoBehaviour
 {
     Button button;
-    public ToolType toolType;
+    public ToolType toolType = ToolType.None;
     public Image icon;
     public Color selectedColor = Color.blue;
     public Color normalColor = Color.white;
     private bool selected = false; 
 
     // is interactable only if there is a selected obj
-    public bool requiresSelection;
+    private bool requiresSelection;
 
     void Awake()
     {
         button = GetComponent<Button>();
+        requiresSelection = ToolManager.toolsRequiringSelection.Contains(toolType);
     }
 
     void Start()

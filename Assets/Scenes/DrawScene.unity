@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 74620882}
   - component: {fileID: 74620881}
   m_Layer: 5
-  m_Name: CopyButton
+  m_Name: TransButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -175,7 +175,6 @@ MonoBehaviour:
   icon: {fileID: 74620883}
   selectedColor: {r: 0, g: 1, b: 0.95686275, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  requiresSelection: 1
 --- !u!114 &74620882
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -641,11 +640,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea58ad63337ee8e4982699db2f04edd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toolType: 0
+  toolType: 8
   icon: {fileID: 377994320}
   selectedColor: {r: 0, g: 1, b: 0.95686275, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  requiresSelection: 1
 --- !u!1 &402874778
 GameObject:
   m_ObjectHideFlags: 0
@@ -1271,7 +1269,6 @@ MonoBehaviour:
   icon: {fileID: 807415723}
   selectedColor: {r: 0, g: 1, b: 0.9570346, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  requiresSelection: 0
 --- !u!114 &807415722
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1453,7 +1450,6 @@ MonoBehaviour:
   icon: {fileID: 1073813704}
   selectedColor: {r: 0, g: 1, b: 0.9570346, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  requiresSelection: 0
 --- !u!114 &1073813703
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1605,7 +1601,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Copy
+  m_text: 'Translate
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2308,7 +2306,6 @@ MonoBehaviour:
   icon: {fileID: 2058969140}
   selectedColor: {r: 0, g: 1, b: 0.9570346, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  requiresSelection: 0
 --- !u!1 &2063399932
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 public enum ToolType
 {
@@ -8,7 +9,8 @@ public enum ToolType
     Node,
     SharpNode,
     Copy,
-    Translate
+    Translate,
+    Delete
 }
 public class ToolManager : MonoBehaviour
 {
@@ -16,8 +18,21 @@ public class ToolManager : MonoBehaviour
 
     public ToolType CurrentTool { get; private set; } = ToolType.None;
 
+    public static readonly HashSet<ToolType> toolsRequiringSelection =
+    new HashSet<ToolType>
+    {
+        ToolType.Copy,
+        ToolType.Translate,
+        ToolType.Delete
+    };
+
+    public bool CurrentToolRequiresSelection()
+    {
+        return toolsRequiringSelection.Contains(CurrentTool);
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
         Instance = this;
     }

@@ -8,6 +8,11 @@ public class TilePolygon : DerivedPolygon
     {
         Debug.Log("Looking for compatible...");
         List<int> edges = new List<int>();
+        if (selectedLine == null)
+        {
+            Debug.Log("null edge");
+            return edges;
+        }
         Vector2 selectedDir = GetEdgeDirection(selectedLine);
         float selectedLength = GetEdgeLength(selectedLine);
 

@@ -31,17 +31,17 @@ public class SymmetryManager : MonoBehaviour
             if (currentTool != ToolType.Translate)
                 baseShape.DehighlightEdges();
 
-            else
+            else 
             {
                 CopySelected();
-                LineSelectable line = clipboard.GetComponent<LineSelectable>();
+                LineSelectable line = clipboard?.GetComponent<LineSelectable>();
                 compatibleEdgeIdxs.Clear();
                 compatibleEdgeIdxs = baseShape.FindCompatibleEdges(line);
                 baseShape.HighlightEdges(compatibleEdgeIdxs, Color.red);
             }
 
             lastTool = currentTool;
-        }
+        } 
 
         if (ToolManager.Instance.CurrentTool != ToolType.Translate)
             return;
@@ -61,13 +61,21 @@ public class SymmetryManager : MonoBehaviour
         var selected = SelectionManager.Instance.selected;
 
         if (selected == null)
+        {
+            Debug.Log("null selected");
             return;
+        }
 
         MonoBehaviour mb = selected as MonoBehaviour;
 
         if (mb == null)
+        {
+            Debug.Log("null mb");
             return;
+        }
 
+
+        Debug.Log("copySelected");
         clipboard = mb.gameObject;
     }
 
