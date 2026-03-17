@@ -56,6 +56,7 @@ public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
 
     public virtual void Remove()
     {
+        Debug.Log("LineSelectable.Remove()");
         if (SelectionManager.Instance != null)
             SelectionManager.Instance.Deregister(this);
 

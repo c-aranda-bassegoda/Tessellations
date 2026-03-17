@@ -12,8 +12,8 @@ public class DerivedPolygon : NonConvexPolygon
 
     public new IReadOnlyList<Vertex> SnapVertices => BasePolygon.Vertices;
 
-    private readonly Dictionary<(Vertex, Vertex), List<Vertex>> _baseToDerivedVertex =
-    new Dictionary<(Vertex, Vertex), List<Vertex>>(new VertexTupleComparer());
+    private readonly Dictionary<(Vertex, Vertex), (List<Vertex>, List<Vertex>)> _baseToDerivedVertex =
+    new Dictionary<(Vertex, Vertex), (List<Vertex>, List<Vertex>)>(new VertexTupleComparer());
 
     private void Awake()
     {
@@ -22,15 +22,22 @@ public class DerivedPolygon : NonConvexPolygon
         BuildEdges();
         for (int i = 0; i < BasePolygon.Vertices.Count; i++)
         {
-            List<Vertex> listvtx = new List<Vertex>();
+            List<Vertex> listvtx1 = new List<Vertex>();
+            List<Vertex> listvtx2 = new List<Vertex>();
             Vertex v1 = BasePolygon.Vertices[i];
             Vertex v2 = BasePolygon.Vertices[(i + 1) % BasePolygon.Vertices.Count];
-            listvtx.Add(v1);
-            listvtx.Add(BasePolygon.Midpoints[i]);
-            listvtx.Add(v2);
+            Vertex m = BasePolygon.Midpoints[i];
 
-            _baseToDerivedVertex[(v1, v2)] = listvtx;
-            _baseToDerivedVertex[(v2, v1)] = listvtx;
+            _vertices.Insert(2*i+1, m);
+
+            listvtx1.Add(v1);
+            listvtx1.Add(BasePolygon.Midpoints[i]);
+            listvtx2.Add(BasePolygon.Midpoints[i]);
+            listvtx2.Add(v2);
+
+            _baseToDerivedVertex[(v1, v2)] = (listvtx1, listvtx2);
+            _baseToDerivedVertex[(v1, m)] = (listvtx1, listvtx2);
+            _baseToDerivedVertex[(v2, m)] = (listvtx1, listvtx2);
         }
     }
 
@@ -45,10 +52,10 @@ public class DerivedPolygon : NonConvexPolygon
         }
 
         List<Vertex> newVertices = ToVertices(lineRenderer);
-        (Vertex vtx0, Vertex vtxEnd) = GetEndpntVerticesWhereLine(newVertices);
+        (Vertex vtx0, Vertex vtxEnd, Vertex vtxM) = GetVerticesWhereLine(newVertices);
 
         newVertices.RemoveAt(0);
-        newVertices.RemoveAt(newVertices.Count - 1);
+        newVertices.RemoveAt(newVertices.Count-1);
         ReplaceVerticesBetween(newVertices, vtx0, vtxEnd);
         return true;
     }
@@ -64,49 +71,64 @@ public class DerivedPolygon : NonConvexPolygon
         }
 
         List<Vertex> newVertices = ToVertices(lineRenderer);
-        (Vertex vtx0, Vertex vtxEnd) = GetEndpntVerticesWhereLine(newVertices);
+        (Vertex vtx0, Vertex vtxEnd, Vertex vtxMid) = GetVerticesWhereLine(newVertices);
 
         newVertices.RemoveAt(0);
         newVertices.RemoveAt(newVertices.Count - 1);
-        AddVerticesBetween(newVertices, vtx0, vtxEnd);
+        AddVerticesBetween(newVertices, vtx0, vtxEnd, vtxMid);
         return true;
     }
 
-    private (Vertex vtx0, Vertex vtxEnd) GetEndpntVerticesWhereLine(List<Vertex> newVertices)
+    private (Vertex vtx0, Vertex vtxEnd, Vertex vtxMid) GetVerticesWhereLine(List<Vertex> newVertices)
     {
         Vertex vtx0 = BasePolygon.FindClosestVertex(newVertices[0].Position);
         Vertex vtxEnd = BasePolygon.FindClosestVertex(newVertices[newVertices.Count - 1].Position);
+        Vertex vtxMid;
         if (vtx0 == null && vtxEnd == null)
         {
 
             Debug.Log("Failed to snap to base vertices." + newVertices[0].Position + " " + newVertices[newVertices.Count - 1].Position);
-            return (null, null); ;
+            return (null, null, null); ;
         }
         if (vtx0 == null)
         {
-            Edge edge = BasePolygon.FindClosestMidpoint(newVertices[0].Position);
+            Edge edge = BasePolygon.FindEdgeThroughMidpoint(newVertices[0].Position);
             vtx0 = edge?.A; vtxEnd = edge?.B;
         }
         if (vtxEnd == null)
         {
-            Edge edge = BasePolygon.FindClosestMidpoint(newVertices[newVertices.Count - 1].Position);
+            Edge edge = BasePolygon.FindEdgeThroughMidpoint(newVertices[newVertices.Count - 1].Position);
             vtx0 = edge?.A; vtxEnd = edge?.B;
         }
 
         if (vtx0 == null || vtxEnd == null)
         {
             Debug.Log("Failed to snap to base midpoints." + newVertices[0].Position + " " + newVertices[newVertices.Count - 1].Position);
-            return (null,null);
+            return (null,null, null);
         }
+        vtxMid = FindEdgeThroughMidpoint((vtx0.Position + vtxEnd.Position) / 2).MidPoint;
 
-        return (vtx0,vtxEnd);
+        return (vtx0,vtxEnd, vtxMid);
     }
 
-    public void ResetEdge(LineRenderer lineRenderer)
+    public void ResetLine(LineRenderer lineRenderer)
     {
         List<Vertex> newVertices = ToVertices(lineRenderer);
-        (Vertex vtx0, Vertex vtxEnd) = GetEndpntVerticesWhereLine(newVertices);
-        ResetVerticesBetween(vtx0, vtxEnd);
+        (Vertex vtx0, Vertex vtxEnd, Vertex vtxMid) = GetVerticesWhereLine(newVertices);
+        (Vertex line0, Vertex lineEnd) = (newVertices[0], newVertices[^1]);
+        if ((vtx0.Position == line0.Position && vtxEnd.Position == lineEnd.Position) || (vtx0.Position == lineEnd.Position && vtxEnd.Position == line0.Position))
+            ResetVerticesBetween(vtx0, vtxEnd);
+        else if (vtx0.Position == line0.Position || vtx0.Position == lineEnd.Position)
+            ResetVerticesBetween(vtx0, vtxMid);
+        else 
+            ResetVerticesBetween(vtxMid, vtxEnd);
+    }
+
+    public void ResetEdge(Vertex vtx0, Vertex vtxEnd)
+    {
+        Vertex mid = FindEdgeThroughMidpoint((vtx0.Position + vtxEnd.Position) / 2 ).MidPoint;
+        ResetVerticesBetween(vtx0, mid);
+        ResetVerticesBetween(mid, vtxEnd);
     }
 
 
@@ -144,9 +166,9 @@ public class DerivedPolygon : NonConvexPolygon
     {
         ClearEdge(vertex1, vertex2);
 
-        List<Vertex> oldVertices = _baseToDerivedVertex[(vertex1, vertex2)];
-        Vertex oldVtx1 = oldVertices.Count > 0 ? oldVertices[0] : vertex1;
-        Vertex oldVtx2 = oldVertices.Count > 0 ? oldVertices[^1] : vertex2;
+        (List<Vertex> oldVertices, List<Vertex> oldVertices2) = _baseToDerivedVertex[(vertex1, vertex2)];
+        Vertex oldVtx1 = vertex1;
+        Vertex oldVtx2 = vertex2;
         int index1 = _vertices.IndexOf(oldVtx1);
         int index2 = _vertices.IndexOf(oldVtx2);
 
@@ -157,42 +179,43 @@ public class DerivedPolygon : NonConvexPolygon
         }
 
         // If traversal is reversed, swap indices and invert inserted vertices
-        if ((index2 < index1 && !(index2==0 && index1==_vertices.Count-1)) || (index1 == 0 && index2 == _vertices.Count - 1))
+        if ((index2 < index1 && !(index2==0 && index1==_vertices.Count-2)) || (index1 == 0 && index2 == _vertices.Count - 2))
         {
             (index1, index2) = (index2, index1);
             newVertices.Reverse();
         }
 
-        int removeStart = index1 + 1;
-        int removeCount = index2 - index1 - 1;
+        int removeStart = index1+1;
+        int removeCount = index2 - index1 - 2;
 
         if (removeCount > 0)
             _vertices.RemoveRange(removeStart, removeCount);
 
-        var list = _baseToDerivedVertex[(vertex1, vertex2)];
-        list.Clear();
-        list.AddRange(newVertices);
+        oldVertices.Clear();
+        oldVertices2.Clear();
+        oldVertices.AddRange(newVertices);
 
         _vertices.InsertRange(removeStart, newVertices);
     }
 
-    private void AddVerticesBetween(List<Vertex> newVertices, Vertex vertex1, Vertex vertex2)
+    private void AddVerticesBetween(List<Vertex> newVertices, Vertex vertex0, Vertex vertexEnd, Vertex vertexM)
     {
+        (List<Vertex> oldVertices, List < Vertex > oldVertices2) = _baseToDerivedVertex[(vertex0, vertexEnd)];
+        Vertex oldVtx0 = vertex0;
+        Vertex oldVtxMid = vertexM;
+        Vertex oldVtxEnd = vertexEnd;
+        int index1 = _vertices.IndexOf(oldVtx0);
+        int index2 = _vertices.IndexOf(oldVtxEnd);
+        int indexM = _vertices.IndexOf(oldVtxMid);
 
-        List<Vertex> oldVertices = _baseToDerivedVertex[(vertex1, vertex2)];
-        Vertex oldVtx1 = oldVertices.Count > 0 ? oldVertices[0] : vertex1;
-        Vertex oldVtx2 = oldVertices.Count > 0 ? oldVertices[^1] : vertex2;
-        int index1 = _vertices.IndexOf(oldVtx1);
-        int index2 = _vertices.IndexOf(oldVtx2);
-
-        if (index1 < 0 || index2 < 0 || index1 >= _vertices.Count || index2 >= _vertices.Count)
+        if (index1 < 0 || index2 < 0 || indexM < 0 || index1 >= _vertices.Count || index2 >= _vertices.Count || indexM >= _vertices.Count)
         {
             Debug.LogError("Invalid vertex indices.");
             return;
         }
 
         // If traversal is reversed, swap indices and invert inserted vertices
-        if ((index2 < index1 && !(index2 == 0 && index1 == _vertices.Count - 1)) || (index1 == 0 && index2 == _vertices.Count - 1))
+        if ((index2 < index1 && !(index2 == 0 && index1 == _vertices.Count - 2)) || (index1 == 0 && index2 == _vertices.Count - 2))
         {
             (index1, index2) = (index2, index1);
             newVertices.Reverse();
@@ -201,20 +224,18 @@ public class DerivedPolygon : NonConvexPolygon
 
         int addStart;
 
-        var list = _baseToDerivedVertex[(vertex1, vertex2)];
-        if (Vector2.Distance(oldVertices[0].Position, newVertices[^1].Position)<snapDistance)
+        (List<Vertex> list1, List<Vertex> list2) = _baseToDerivedVertex[(vertex0, vertexEnd)];
+        if (newVertices[0] == oldVertices[0])
         {
-            addStart = index1+1;
-            list.Clear();
-            list.AddRange(newVertices);
-            list.AddRange(oldVertices);
+            addStart = index1;
+            list1.Clear();
+            list1.AddRange(newVertices);
         } 
         else
         {
-            addStart = index2;
-            list.Clear();
-            list.AddRange(oldVertices);
-            list.AddRange(newVertices);
+            addStart = indexM;
+            list2.Clear();
+            list2.AddRange(newVertices);
         }
 
         _vertices.InsertRange(addStart, newVertices);
@@ -233,22 +254,27 @@ public class DerivedPolygon : NonConvexPolygon
 
     private void ResetVerticesBetween(Vertex vtx0, Vertex vtxEnd)
     {
-        List<Vertex> oldVertices = _baseToDerivedVertex[(vtx0, vtxEnd)];
+        (List<Vertex> oldVertices, List<Vertex> oldVertices2) = _baseToDerivedVertex[(vtx0, vtxEnd)];
 
 
-        int removeCount = oldVertices.Count;
+        int removeCount = oldVertices.Count + oldVertices2.Count;
 
         if (removeCount > 0)
         {
             int removeStart = _vertices.IndexOf(oldVertices[0]);
             _vertices.RemoveRange(removeStart, removeCount);
         }
+        List<Vertex> line = new List<Vertex>();
+        line.Add(vtx0);
+        line.Add(vtxEnd);
+        (Vertex _vtx0, Vertex _vtxEnd, Vertex mid) = GetVerticesWhereLine(line);
+        oldVertices.Clear();
+        oldVertices2.Clear();
+        oldVertices.Add(_vtx0);
+        oldVertices.Add(mid);
+        oldVertices2.Add(mid);
+        oldVertices2.Add(_vtxEnd);
 
-        var list = _baseToDerivedVertex[(vtx0, vtxEnd)];
-        list.Clear();
-        list.Add(vtx0);
-        list.Add(BasePolygon.GetEdge(vtx0, vtxEnd).MidPoint);
-        list.Add(vtxEnd);
     }
 
     private (Vertex, Vertex) GetEndpntVertices(LineRenderer lineRenderer)
@@ -307,12 +333,17 @@ class VertexTupleComparer : IEqualityComparer<(Vertex, Vertex)>
 {
     public bool Equals((Vertex, Vertex) x, (Vertex, Vertex) y)
     {
-        return x.Item1.Equals(y.Item1) && x.Item2.Equals(y.Item2);
+        return
+            (x.Item1.Equals(y.Item1) && x.Item2.Equals(y.Item2)) ||
+            (x.Item1.Equals(y.Item2) && x.Item2.Equals(y.Item1));
     }
 
     public int GetHashCode((Vertex, Vertex) obj)
     {
-        // XOR hashes of the vertices to combine
-        return obj.Item1.GetHashCode() ^ obj.Item2.GetHashCode();
+        // Order-independent hash
+        int h1 = obj.Item1.GetHashCode();
+        int h2 = obj.Item2.GetHashCode();
+
+        return h1 ^ h2; // XOR is symmetric
     }
 }

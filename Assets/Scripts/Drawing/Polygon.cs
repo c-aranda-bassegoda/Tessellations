@@ -25,7 +25,7 @@ public abstract class Polygon : MonoBehaviour
     public abstract bool ReplaceEdge(GameObject line);
 
     protected float snapDistance = 0.2f;
-    public  Vertex FindClosestVertex(Vector3 pos)
+    public  Vertex FindClosestVertex(Vector2 pos)
     {
         Vertex closest = null;
         float minDist = snapDistance;
@@ -41,7 +41,7 @@ public abstract class Polygon : MonoBehaviour
         return closest;
     }
 
-    public Edge FindClosestMidpoint(Vector3 pos)
+    public Edge FindEdgeThroughMidpoint(Vector2 pos)
     {
         Edge closest = null;
         float minDist = snapDistance;

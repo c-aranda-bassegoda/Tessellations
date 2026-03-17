@@ -7,7 +7,7 @@ public class EdgeSelectable : LineSelectable
     {
         if (Polygon == null) Debug.LogError("edge selectable has null polygon");
         if (line == null) Debug.LogError("edge selectable has null line renderer");
-        Polygon.ResetEdge(line);
+        Polygon.ResetLine(line);
         base.Remove();
     }
 }
