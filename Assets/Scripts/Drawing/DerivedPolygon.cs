@@ -54,8 +54,6 @@ public class DerivedPolygon : NonConvexPolygon
         List<Vertex> newVertices = ToVertices(lineRenderer);
         (Vertex vtx0, Vertex vtxEnd, Vertex vtxM) = GetVerticesWhereLine(newVertices);
 
-        newVertices.RemoveAt(0);
-        newVertices.RemoveAt(newVertices.Count-1);
         ReplaceVerticesBetween(newVertices, vtx0, vtxEnd);
         return true;
     }
@@ -73,8 +71,6 @@ public class DerivedPolygon : NonConvexPolygon
         List<Vertex> newVertices = ToVertices(lineRenderer);
         (Vertex vtx0, Vertex vtxEnd, Vertex vtxMid) = GetVerticesWhereLine(newVertices);
 
-        newVertices.RemoveAt(0);
-        newVertices.RemoveAt(newVertices.Count - 1);
         AddVerticesBetween(newVertices, vtx0, vtxEnd, vtxMid);
         return true;
     }
@@ -188,14 +184,56 @@ public class DerivedPolygon : NonConvexPolygon
         int removeStart = index1+1;
         int removeCount = index2 - index1 - 2;
 
+        Wipe(oldVertices);
+        Wipe(oldVertices2);
+        if (IsMidPoint(newVertices[^1]))
+        {
+            Debug.Log("First half");
+            newVertices.RemoveAt(0);
+            newVertices.RemoveAt(newVertices.Count - 1);
+            oldVertices.InsertRange(1,newVertices);
+        }
+        else if (IsMidPoint(newVertices[0]))
+        {
+            Debug.Log("2nd half");
+            newVertices.RemoveAt(0);
+            newVertices.RemoveAt(newVertices.Count - 1);
+            oldVertices2.InsertRange(1, newVertices);
+            removeStart++;
+        } 
+        else
+        {
+            Debug.Log("all");
+            newVertices.RemoveAt(0);
+            newVertices.RemoveAt(newVertices.Count - 1);
+            oldVertices.InsertRange(1, newVertices);
+            removeCount++;
+        }
+
         if (removeCount > 0)
             _vertices.RemoveRange(removeStart, removeCount);
 
-        oldVertices.Clear();
-        oldVertices2.Clear();
-        oldVertices.AddRange(newVertices);
-
         _vertices.InsertRange(removeStart, newVertices);
+    }
+
+    private void Wipe(List<Vertex> oldVertices)
+    {
+        if (oldVertices.Count <= 1) return;
+
+        Vertex start = oldVertices[0];
+        Vertex end = oldVertices[^1];
+
+        oldVertices.Clear();
+        oldVertices.Add(start);
+        oldVertices.Add(end);
+    }
+
+    private bool IsMidPoint(Vertex vertex)
+    {
+        Edge edge = FindEdgeThroughMidpoint(vertex.Position);
+        if (edge != null) 
+            return true;
+        return false;
     }
 
     private void AddVerticesBetween(List<Vertex> newVertices, Vertex vertex0, Vertex vertexEnd, Vertex vertexM)
@@ -222,20 +260,21 @@ public class DerivedPolygon : NonConvexPolygon
         }
 
 
-        int addStart;
-
-        (List<Vertex> list1, List<Vertex> list2) = _baseToDerivedVertex[(vertex0, vertexEnd)];
-        if (newVertices[0] == oldVertices[0])
+        int addStart = index1 + 1;
+        if (IsMidPoint(newVertices[^1]))
         {
-            addStart = index1;
-            list1.Clear();
-            list1.AddRange(newVertices);
-        } 
-        else
+            Debug.Log("First half");
+            newVertices.RemoveAt(0);
+            newVertices.RemoveAt(newVertices.Count - 1);
+            oldVertices.InsertRange(1, newVertices);
+        }
+        else if (IsMidPoint(newVertices[0]))
         {
-            addStart = indexM;
-            list2.Clear();
-            list2.AddRange(newVertices);
+            Debug.Log("2nd half");
+            newVertices.RemoveAt(0);
+            newVertices.RemoveAt(newVertices.Count - 1);
+            oldVertices2.InsertRange(1, newVertices);
+            addStart++;
         }
 
         _vertices.InsertRange(addStart, newVertices);
@@ -257,23 +296,27 @@ public class DerivedPolygon : NonConvexPolygon
         (List<Vertex> oldVertices, List<Vertex> oldVertices2) = _baseToDerivedVertex[(vtx0, vtxEnd)];
 
 
-        int removeCount = oldVertices.Count + oldVertices2.Count;
+        int removeCount = oldVertices.Count - 2 + oldVertices2.Count - 2;
+        int removeStart = _vertices.IndexOf(oldVertices[0]) + 1;
 
+        if (IsMidPoint(vtxEnd))
+        {
+        }
+        else if (IsMidPoint(vtx0))
+        {
+            removeStart++;
+        }
+        else
+        {
+            Debug.Log("all");
+            // need to add midpoint back
+        }
         if (removeCount > 0)
         {
-            int removeStart = _vertices.IndexOf(oldVertices[0]);
             _vertices.RemoveRange(removeStart, removeCount);
         }
-        List<Vertex> line = new List<Vertex>();
-        line.Add(vtx0);
-        line.Add(vtxEnd);
-        (Vertex _vtx0, Vertex _vtxEnd, Vertex mid) = GetVerticesWhereLine(line);
-        oldVertices.Clear();
-        oldVertices2.Clear();
-        oldVertices.Add(_vtx0);
-        oldVertices.Add(mid);
-        oldVertices2.Add(mid);
-        oldVertices2.Add(_vtxEnd);
+        Wipe(oldVertices);
+        Wipe(oldVertices2);
 
     }
 
