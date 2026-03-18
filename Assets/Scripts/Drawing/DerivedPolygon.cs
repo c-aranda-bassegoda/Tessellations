@@ -77,6 +77,7 @@ public class DerivedPolygon : NonConvexPolygon
 
     private (Vertex vtx0, Vertex vtxEnd, Vertex vtxMid) GetVerticesWhereLine(List<Vertex> newVertices)
     {
+        // Vertex vtx0, Vertex vtxEnd reflect the orientation of newVertices
         Vertex vtx0 = BasePolygon.FindClosestVertex(newVertices[0].Position);
         Vertex vtxEnd = BasePolygon.FindClosestVertex(newVertices[newVertices.Count - 1].Position);
         Vertex vtxMid;
@@ -89,12 +90,18 @@ public class DerivedPolygon : NonConvexPolygon
         if (vtx0 == null)
         {
             Edge edge = BasePolygon.FindEdgeThroughMidpoint(newVertices[0].Position);
-            vtx0 = edge?.A; vtxEnd = edge?.B;
+            if (vtxEnd.Position == edge?.B.Position) 
+                vtx0 = edge?.A; 
+            else
+                vtx0 = edge?.B;
         }
         if (vtxEnd == null)
         {
             Edge edge = BasePolygon.FindEdgeThroughMidpoint(newVertices[newVertices.Count - 1].Position);
-            vtx0 = edge?.A; vtxEnd = edge?.B;
+            if (vtx0.Position == edge?.B.Position)
+                vtxEnd = edge?.A;
+            else
+                vtxEnd = edge?.B;
         }
 
         if (vtx0 == null || vtxEnd == null)
@@ -175,6 +182,7 @@ public class DerivedPolygon : NonConvexPolygon
         // If traversal is reversed, swap indices and invert inserted vertices
         if ((index2 < index1 && !(index2==0 && index1==_vertices.Count-2)) || (index1 == 0 && index2 == _vertices.Count - 2))
         {
+            Debug.Log("Reversed vtices");
             (index1, index2) = (index2, index1);
             newVertices.Reverse();
         }
@@ -255,6 +263,7 @@ public class DerivedPolygon : NonConvexPolygon
         // If traversal is reversed, swap indices and invert inserted vertices
         if ((index2 < index1 && !(index2 == 0 && index1 == _vertices.Count - 2)) || (index1 == 0 && index2 == _vertices.Count - 2))
         {
+            Debug.Log("Reversed vtices");
             (index1, index2) = (index2, index1);
             newVertices.Reverse();
         }
