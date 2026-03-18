@@ -179,9 +179,11 @@ public class DerivedPolygon : NonConvexPolygon
             return;
         }
 
+        int fix = 0;
         // If traversal is reversed, swap indices and invert inserted vertices
         if ((index2 < index1 && !(index2==0 && index1==_vertices.Count-2)) || (index1 == 0 && index2 == _vertices.Count - 2))
         {
+
             Debug.Log("Reversed vtices");
             (index1, index2) = (index2, index1);
             newVertices.Reverse();
@@ -189,6 +191,11 @@ public class DerivedPolygon : NonConvexPolygon
 
         int removeStart = index1+1;
         int removeCount = index2 - index1 - 2;
+        if (index2 == 0 && index1 == _vertices.Count - 2)
+        {
+            removeCount = 0;
+            Debug.Log("fix");
+        }
 
         Wipe(oldVertices);
         Wipe(oldVertices2);
@@ -318,6 +325,9 @@ public class DerivedPolygon : NonConvexPolygon
 
         //int removeCount = oldVertices.Count - 2 + oldVertices2.Count - 1;
         int removeCount = removeEnd - removeStart;
+        if (removeEnd < removeStart)
+            removeCount = _vertices.Count - removeStart;
+
 
         // need to add midpoint back to _vertices
         Vertex mid = FindEdgeThroughMidpoint((vtx0.Position + vtxEnd.Position) / 2).MidPoint;
