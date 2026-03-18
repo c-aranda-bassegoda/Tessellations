@@ -228,10 +228,12 @@ public class TilePolygon : DerivedPolygon
             bool pivotIsA = Vector2.Distance(a, targetA) < snapDistance || Vector2.Distance(a, targetB) < snapDistance;
 
             Vector2 pivot = pivotIsA ? a : b;
-            Vector2 sourceDir = pivotIsA ? (b - a) : (a - b);
 
+            Vector2 sourceDir = pivotIsA ? (b - a) : (a - b);
             float sourceAngle = Mathf.Atan2(sourceDir.y, sourceDir.x) * Mathf.Rad2Deg;
-            float targetAngle = Mathf.Atan2(targetB.y - targetA.y, targetB.x - targetA.x) * Mathf.Rad2Deg;
+
+            Vector2 targetDir = (Vector2.Distance(pivot, targetA) < snapDistance ? targetB - targetA : targetA - targetB);
+            float targetAngle = Mathf.Atan2(targetDir.y, targetDir.x) * Mathf.Rad2Deg;
 
             // Rotation difference
             float deltaAngle = targetAngle - sourceAngle;

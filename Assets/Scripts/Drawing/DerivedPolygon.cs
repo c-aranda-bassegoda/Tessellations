@@ -217,7 +217,6 @@ public class DerivedPolygon : NonConvexPolygon
             Debug.Log("all");
             newVertices.RemoveAt(0);
             newVertices.RemoveAt(newVertices.Count - 1);
-            //newVertices.Insert(0, newVertices[0]); // duplicate vertex accounts for lost midpoint
             oldVertices.InsertRange(1, newVertices);
             removeCount++;
         }
@@ -291,7 +290,6 @@ public class DerivedPolygon : NonConvexPolygon
             newVertices.RemoveAt(0);
             newVertices.RemoveAt(newVertices.Count - 1); 
             addStart = _vertices.IndexOf(oldVertices[0]) + 1;
-            //newVertices.Insert(0, newVertices[0]); // duplicate vertex accounts for lost midpoint
         }
 
         _vertices.InsertRange(addStart, newVertices);
