@@ -1,10 +1,5 @@
-using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEditor.Searcher.SearcherWindow.Alignment;
-using static UnityEngine.Rendering.VolumeComponent;
 
 public class DerivedPolygon : NonConvexPolygon
 {
@@ -75,6 +70,11 @@ public class DerivedPolygon : NonConvexPolygon
         return true;
     }
 
+    /// <summary>
+    /// Given a list of vertices corresponding (position-wise) to an edge or to half of the edge, it returns the endpoints and midpoint of said edge
+    /// </summary>
+    /// <param name="newVertices"></param>
+    /// <returns></returns>
     private (Vertex vtx0, Vertex vtxEnd, Vertex vtxMid) GetVerticesWhereLine(List<Vertex> newVertices)
     {
         // Vertex vtx0, Vertex vtxEnd reflect the orientation of newVertices
@@ -83,8 +83,7 @@ public class DerivedPolygon : NonConvexPolygon
         Vertex vtxMid;
         if (vtx0 == null && vtxEnd == null)
         {
-
-            Debug.Log("Failed to snap to base vertices." + newVertices[0].Position + " " + newVertices[newVertices.Count - 1].Position);
+            Debug.LogError("Failed to snap to base vertices." + newVertices[0].Position + " " + newVertices[newVertices.Count - 1].Position);
             return (null, null, null); ;
         }
         if (vtx0 == null)
@@ -119,18 +118,9 @@ public class DerivedPolygon : NonConvexPolygon
         List<Vertex> newVertices = ToVertices(lineRenderer);
         (Vertex vtx0, Vertex vtxEnd, Vertex vtxMid) = GetVerticesWhereLine(newVertices);
         (Vertex line0, Vertex lineEnd) = (newVertices[0], newVertices[^1]);
-        //ResetVerticesBetween(vtxMid, vtxEnd);
-        //ResetVerticesBetween(vtx0, vtxMid);
+
         ResetEdge(vtx0, vtxEnd);
     }
-
-    //public void ResetEdge(Vertex vtx0, Vertex vtxEnd)
-    //{
-    //    Vertex mid = FindEdgeThroughMidpoint((vtx0.Position + vtxEnd.Position) / 2 ).MidPoint;
-    //    ResetVerticesBetween(vtx0, mid);
-    //    ResetVerticesBetween(mid, vtxEnd);
-    //}
-
 
     private List<Vertex> ToVertices(LineRenderer lineRenderer)
     {
@@ -149,19 +139,14 @@ public class DerivedPolygon : NonConvexPolygon
         return vertices;
     }
 
-    private List<Vector2> VerticesToPositions(List<Vertex> vertices)
-    {
-        if (vertices== null || vertices.Count == 0) return null;
-
-        var list = new List<Vector2>();
-
-        for (int i = 0; i < vertices.Count; i++)
-        {
-            list.Add(vertices[i].Position);
-        }
-        return list;
-    }
-
+    /// <summary>
+    /// Replaces vertices of an edge. 
+    /// newVertices must correspond to a list of vertices from one end of an edge (vertex1, vertex2) to the opposite end (of the edge or half edge)
+    /// It removes any vertices that might've previously been on the edge (vertex1, vertex2)
+    /// </summary>
+    /// <param name="newVertices"></param>
+    /// <param name="vertex1"></param>
+    /// <param name="vertex2"></param>
     private void ReplaceVerticesBetween(List<Vertex> newVertices, Vertex vertex1, Vertex vertex2)
     {
         Debug.Log("Replacing Vertices");
@@ -182,7 +167,6 @@ public class DerivedPolygon : NonConvexPolygon
         // If traversal is reversed, swap indices and invert inserted vertices
         if ((index2 < index1 && !(index2==0 && index1==_vertices.Count-2)) || (index1 == 0 && index2 == _vertices.Count - 2))
         {
-            Debug.Log("Reversed vtices");
             (index1, index2) = (index2, index1);
             newVertices.Reverse();
         }
@@ -192,7 +176,6 @@ public class DerivedPolygon : NonConvexPolygon
         if (index2 == 0 && index1 == _vertices.Count - 2)
         {
             removeCount = 0;
-            Debug.Log("fix");
         }
 
         Wipe(oldVertices);
@@ -247,6 +230,13 @@ public class DerivedPolygon : NonConvexPolygon
         return false;
     }
 
+    /// <summary>
+    /// Adds vertices to an edge (without removing vertices that were there already!)
+    /// </summary>
+    /// <param name="newVertices"></param>
+    /// <param name="vertex0"></param>
+    /// <param name="vertexEnd"></param>
+    /// <param name="vertexM"></param>
     private void AddVerticesBetween(List<Vertex> newVertices, Vertex vertex0, Vertex vertexEnd, Vertex vertexM)
     {
         Debug.Log("Adding Vertices");
@@ -307,7 +297,13 @@ public class DerivedPolygon : NonConvexPolygon
         oldEdge?.Remove();
     }
 
-    // I think it assumes vertices are endpoints (midpoint check is superfluous)
+     
+    /// <summary>
+    /// Resets the _vertices such that the edge corresponding to the base edge (vtx0, vtxEnd) is a stright line
+    /// It assumes the input vertices are endpoints 
+    /// </summary>
+    /// <param name="vtx0"></param>
+    /// <param name="vtxEnd"></param>
     private void ResetEdge(Vertex vtx0, Vertex vtxEnd)
     {
         Debug.Log("Reset Vertices");
@@ -318,62 +314,22 @@ public class DerivedPolygon : NonConvexPolygon
         int removeEnd = _vertices.IndexOf(oldVertices2[^1]);
 
         int removeCount = removeEnd - removeStart;
-        if (removeEnd < removeStart) 
+        if (removeEnd < removeStart) // _vertices[0] is always the beginning of the first edge and the end of the last edge.
+                                     // "removeEnd < removeStart" is only true if removeEnd = 0 (i.e. we're resetting the last edge)
             removeCount = _vertices.Count - removeStart;
-
-
-        // need to add midpoint back to _vertices
-        Vertex mid = FindEdgeThroughMidpoint((vtx0.Position + vtxEnd.Position) / 2).MidPoint;
 
         if (removeCount > 0)
         {
             _vertices.RemoveRange(removeStart, removeCount);
         }
+
+        // We add midpoint back to _vertices 
+        Vertex mid = FindEdgeThroughMidpoint((vtx0.Position + vtxEnd.Position) / 2).MidPoint;
         _vertices.Insert(removeStart, mid);
 
         Wipe(oldVertices);
         Wipe(oldVertices2);
-
     }
-
-    private (Vertex, Vertex) GetEndpntVertices(LineRenderer lineRenderer)
-    {
-        List<Vertex> newVertices = ToVertices(lineRenderer);
-        Vertex vtx0 = BasePolygon.FindClosestVertex(newVertices[0].Position);
-        Vertex vtxEnd = BasePolygon.FindClosestVertex(newVertices[newVertices.Count - 1].Position);
-
-        return (vtx0, vtxEnd);
-    }
-
-
-    //internal LineSelectable TryPaste(GameObject lineObj, Vector2 position)
-    //{
-    //    LineRenderer lineRenderer = lineObj.GetComponent<LineRenderer>();
-    //    if (lineRenderer == null)
-    //    {
-    //        Debug.LogError("GameObject does not have a LineRenderer component.");
-    //        return null;
-    //    }
-
-    //    for (int i=0; i < BasePolygon.SnapVertices.Count; i++)
-    //    {
-    //        Vector2 midpoint = (BasePolygon.Vertices[i].Position + BasePolygon.Vertices[(i + 1) % BasePolygon.Vertices.Count].Position) / 2;
-    //        if (Vector3.Distance(midpoint, position) <= snapDistance)
-    //        {
-    //            GameObject newObj = Instantiate(lineObj);
-    //            newObj.GetComponent<EdgeSelectable>().Polygon = this;
-    //            Debug.Log("replacing(pasting) edge");
-    //            bool success = this.ReplaceEdge(newObj);
-    //            if (!success)
-    //            {
-    //                Destroy(newObj);
-    //                return null;
-    //            }
-    //            return newObj.GetComponent<LineSelectable>();
-    //        }
-    //    }
-    //    return null;
-    //}
 
     internal bool HasHalfEdge(Vertex a, Vertex b)
     {
@@ -388,6 +344,9 @@ public class DerivedPolygon : NonConvexPolygon
     }
 }
 
+/// <summary>
+/// Custom comparer. The vertex tuple (a, b) should be the same as (b,a)
+/// </summary>
 class VertexTupleComparer : IEqualityComparer<(Vertex, Vertex)>
 {
     public bool Equals((Vertex, Vertex) x, (Vertex, Vertex) y)
