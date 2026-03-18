@@ -179,11 +179,9 @@ public class DerivedPolygon : NonConvexPolygon
             return;
         }
 
-        int fix = 0;
         // If traversal is reversed, swap indices and invert inserted vertices
         if ((index2 < index1 && !(index2==0 && index1==_vertices.Count-2)) || (index1 == 0 && index2 == _vertices.Count - 2))
         {
-
             Debug.Log("Reversed vtices");
             (index1, index2) = (index2, index1);
             newVertices.Reverse();
@@ -254,14 +252,10 @@ public class DerivedPolygon : NonConvexPolygon
     {
         Debug.Log("Adding Vertices");
         (List<Vertex> oldVertices, List < Vertex > oldVertices2) = _baseToDerivedVertex[(vertex0, vertexEnd)];
-        Vertex oldVtx0 = vertex0;
-        Vertex oldVtxMid = vertexM;
-        Vertex oldVtxEnd = vertexEnd;
-        int index1 = _vertices.IndexOf(oldVtx0);
-        int index2 = _vertices.IndexOf(oldVtxEnd);
-        int indexM = _vertices.IndexOf(oldVtxMid);
+        int index1 = _vertices.IndexOf(vertex0);
+        int index2 = _vertices.IndexOf(vertexEnd);
 
-        if (index1 < 0 || index2 < 0 || indexM < 0 || index1 >= _vertices.Count || index2 >= _vertices.Count || indexM >= _vertices.Count)
+        if (index1 < 0 || index2 < 0 || index1 >= _vertices.Count || index2 >= _vertices.Count)
         {
             Debug.LogError("Invalid vertex indices.");
             return;
@@ -276,13 +270,14 @@ public class DerivedPolygon : NonConvexPolygon
         }
 
 
-        int addStart = index1 + 1;
+        int addStart;
         if (IsMidPoint(newVertices[^1]))
         {
             Debug.Log("First half");
             newVertices.RemoveAt(0);
             newVertices.RemoveAt(newVertices.Count - 1);
             oldVertices.InsertRange(1, newVertices);
+            addStart = _vertices.IndexOf(oldVertices[0]) + 1;
         }
         else if (IsMidPoint(newVertices[0]))
         {
@@ -290,11 +285,12 @@ public class DerivedPolygon : NonConvexPolygon
             newVertices.RemoveAt(0);
             newVertices.RemoveAt(newVertices.Count - 1);
             oldVertices2.InsertRange(1, newVertices);
-            addStart++;
+            addStart = _vertices.IndexOf(oldVertices2[0]) + 1; ;
         } else
         {
             newVertices.RemoveAt(0);
-            newVertices.RemoveAt(newVertices.Count - 1);
+            newVertices.RemoveAt(newVertices.Count - 1); 
+            addStart = _vertices.IndexOf(oldVertices[0]) + 1;
             //newVertices.Insert(0, newVertices[0]); // duplicate vertex accounts for lost midpoint
         }
 
@@ -323,9 +319,8 @@ public class DerivedPolygon : NonConvexPolygon
         int removeStart = _vertices.IndexOf(oldVertices[0]) + 1;
         int removeEnd = _vertices.IndexOf(oldVertices2[^1]);
 
-        //int removeCount = oldVertices.Count - 2 + oldVertices2.Count - 1;
         int removeCount = removeEnd - removeStart;
-        if (removeEnd < removeStart)
+        if (removeEnd < removeStart) 
             removeCount = _vertices.Count - removeStart;
 
 
