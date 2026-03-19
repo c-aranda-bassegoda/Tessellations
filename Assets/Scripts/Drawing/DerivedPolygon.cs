@@ -36,6 +36,11 @@ public class DerivedPolygon : NonConvexPolygon
         }
     }
 
+    /// <summary>
+    /// Replaces the vertices of the edge whose andpoints correspond to the lineRenderer with the vertices corresponding to the lineRenderer.
+    /// </summary>
+    /// <param name="line"></param>
+    /// <returns></returns>
     public override bool ReplaceEdge(GameObject line)
     {
 
@@ -53,6 +58,13 @@ public class DerivedPolygon : NonConvexPolygon
         return true;
     }
 
+    /// <summary>
+    /// Adds vertices to the edge corresponding to the lineRenderer. It does not remove any vertices that were there already, 
+    /// so it can be used to extend a half edge to a full edge or to add more vertices to an already fully extended edge.
+    /// HOwever, the latter will result in a double edge which will cause some weird behavior (e.g. The ContainsPoint() method is not well defined for such polygons).
+    /// </summary>
+    /// <param name="line"></param>
+    /// <returns></returns>
     public bool ExtendEdge(GameObject line)
     {
 
@@ -71,7 +83,9 @@ public class DerivedPolygon : NonConvexPolygon
     }
 
     /// <summary>
-    /// Given a list of vertices corresponding (position-wise) to an edge or to half of the edge, it returns the endpoints and midpoint of said edge
+    /// Given a list of vertices corresponding (position-wise) to an edge or to half of the edge, it returns the endpoints and midpoint of said edge.
+    /// (vtx0, vtxEnd) are the endpoints of the edge corresponding to the lineRenderer. They reflect the orientation of newVertices 
+    /// (i.e. if newVertices goes from b to a, then a is the second item in the tuple and b is the first).
     /// </summary>
     /// <param name="newVertices"></param>
     /// <returns></returns>
@@ -113,6 +127,10 @@ public class DerivedPolygon : NonConvexPolygon
         return (vtx0,vtxEnd, vtxMid);
     }
 
+    /// <summary>
+    /// Resets the vertices of the edge corresponding to the lineRenderer to be a straight line between vtx0 and vtxEnd.
+    /// </summary>
+    /// <param name="lineRenderer"></param>
     public void ResetLine(LineRenderer lineRenderer)
     {
         List<Vertex> newVertices = ToVertices(lineRenderer);
@@ -122,6 +140,11 @@ public class DerivedPolygon : NonConvexPolygon
         ResetEdge(vtx0, vtxEnd);
     }
 
+    /// <summary>
+    /// Converts a LineRenderer to a list of vertices. 
+    /// </summary>
+    /// <param name="lineRenderer"></param>
+    /// <returns></returns>
     private List<Vertex> ToVertices(LineRenderer lineRenderer)
     {
 
@@ -142,7 +165,7 @@ public class DerivedPolygon : NonConvexPolygon
     /// <summary>
     /// Replaces vertices of an edge. 
     /// newVertices must correspond to a list of vertices from one end of an edge (vertex1, vertex2) to the opposite end (of the edge or half edge)
-    /// It removes any vertices that might've previously been on the edge (vertex1, vertex2)
+    /// It removes any vertices that might've previously been on the edge (vertex1, vertex2).
     /// </summary>
     /// <param name="newVertices"></param>
     /// <param name="vertex1"></param>
@@ -210,6 +233,10 @@ public class DerivedPolygon : NonConvexPolygon
         _vertices.InsertRange(removeStart, newVertices);
     }
 
+    /// <summary>
+    /// Removes all vertices from the list except the first and the last one.
+    /// </summary>
+    /// <param name="oldVertices"></param>
     private void Wipe(List<Vertex> oldVertices)
     {
         if (oldVertices.Count <= 1) return;
@@ -222,6 +249,11 @@ public class DerivedPolygon : NonConvexPolygon
         oldVertices.Add(end);
     }
 
+    /// <summary>
+    /// Checks if the vertex position corresponds to a midpoint of an edge in the base polygon.
+    /// </summary>
+    /// <param name="vertex"></param>
+    /// <returns></returns>
     private bool IsMidPoint(Vertex vertex)
     {
         Edge edge = FindEdgeThroughMidpoint(vertex.Position);
@@ -285,6 +317,11 @@ public class DerivedPolygon : NonConvexPolygon
         _vertices.InsertRange(addStart, newVertices);
     }
 
+    /// <summary>
+    /// Removes all vertices corresponding to the edge (vertex1, vertex2) and deregisters any selectables corresponding to that edge from the selection manager.
+    /// </summary>
+    /// <param name="vertex1"></param>
+    /// <param name="vertex2"></param>
     private void ClearEdge(Vertex vertex1, Vertex vertex2)
     {
         Debug.Log("Clear Edge");
@@ -297,10 +334,11 @@ public class DerivedPolygon : NonConvexPolygon
         oldEdge?.Remove();
     }
 
-     
+
     /// <summary>
-    /// Resets the _vertices such that the edge corresponding to the base edge (vtx0, vtxEnd) is a stright line
-    /// It assumes the input vertices are endpoints 
+    /// Resets the _vertices such that the edge corresponding to the base edge (vtx0, vtxEnd) 
+    /// is a stright line between vtx0 and vtxEnd with only the midpoint in between.
+    /// It assumes the input vertices are endpoints. 
     /// </summary>
     /// <param name="vtx0"></param>
     /// <param name="vtxEnd"></param>

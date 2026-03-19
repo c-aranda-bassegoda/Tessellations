@@ -25,7 +25,13 @@ public abstract class Polygon : MonoBehaviour
     public abstract bool ReplaceEdge(GameObject line);
 
     protected float snapDistance = 0.2f;
-    public  Vertex FindClosestVertex(Vector2 pos)
+
+    /// <summary>
+    /// Finds the vertex closest to the given position, but only if it's within snapDistance.
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <returns></returns>
+    public Vertex FindClosestVertex(Vector2 pos)
     {
         Vertex closest = null;
         float minDist = snapDistance;
@@ -41,6 +47,11 @@ public abstract class Polygon : MonoBehaviour
         return closest;
     }
 
+    /// <summary>
+    /// Finds the edge whose midpoint is closest to the given position, but only if it's within snapDistance.
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <returns></returns>
     public Edge FindEdgeThroughMidpoint(Vector2 pos)
     {
         Edge closest = null;
@@ -85,6 +96,11 @@ public class Vertex
         this.position = position;
     }
 
+    /// <summary>
+    /// A Vertex Equals another if they have the same position
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
     public override bool Equals(object obj)
     {
         if (obj is not Vertex other) return false;

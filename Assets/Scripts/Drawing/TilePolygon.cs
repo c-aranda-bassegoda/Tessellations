@@ -5,6 +5,12 @@ using UnityEngine;
 
 public class TilePolygon : DerivedPolygon
 {
+    /// <summary>
+    /// Finds edges in the base polygon that are compatible for rotation with the selected line.
+    /// An edge is considered compatible if it has the same length (up to floating pnt error) and shares at least one endpoint with the selected line.
+    /// </summary>
+    /// <param name="selectedLine"> </param> 
+    /// <returns>  </returns>
     public List<int> FindRotationCompatibleEdges(LineSelectable selectedLine)
     {
         Debug.Log("Looking for compatible rot...");
@@ -54,6 +60,13 @@ public class TilePolygon : DerivedPolygon
 
         return edges;
     }
+
+    /// <summary>
+    /// Finds edges in the base polygon that are compatible for translation with the selected line.
+    /// An edge is considered compatible if it has the same length and is parallel (up to floating pnt error) to the selected line.
+    /// </summary>
+    /// <param name="selectedLine"></param>
+    /// <returns></returns>
     public List<int> FindTranslationCompatibleEdges(LineSelectable selectedLine)
     {
         Debug.Log("Looking for compatible...");
@@ -91,8 +104,13 @@ public class TilePolygon : DerivedPolygon
         return edges;
     }
 
-   
 
+    /// <summary>
+    /// Checks if the given position is within snap distance of the edge at the specified index in the base polygon.
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <param name="idx"></param>
+    /// <returns></returns>
     public bool IsInEdgeWithIdx(Vector2 pos, int idx)
     {
         if (idx < 0 || idx >= BasePolygon.Edges.Count)
@@ -114,6 +132,12 @@ public class TilePolygon : DerivedPolygon
         return distance <= snapDistance;
     }
 
+    /// <summary>
+    /// Returns the endpoints of the line as Vector2s. 
+    /// Assumes the line renderer has at least 2 positions.
+    /// </summary>
+    /// <param name="line"></param>
+    /// <returns></returns>
     (Vector2, Vector2) GetLineEndpoints(LineSelectable line)
     {
         var lr = line.GetComponent<LineRenderer>();
@@ -124,7 +148,12 @@ public class TilePolygon : DerivedPolygon
         return (a, b);
     }
 
-
+    /// <summary>
+    /// Returns the normalized direction vector of the line. 
+    /// Assumes the line renderer has at least 2 positions.
+    /// </summary>
+    /// <param name="line"></param>
+    /// <returns></returns>
     Vector2 GetEdgeDirection(LineSelectable line)
     {
         (Vector2 a, Vector2 b) = GetLineEndpoints(line);
@@ -132,6 +161,12 @@ public class TilePolygon : DerivedPolygon
         return (b - a).normalized;
     }
 
+    /// <summary>
+    /// Returns the length of the line. Assumes the line renderer has at least 2 positions and is straight. 
+    /// For more complex lines, this would need to be modified to sum segment lengths.
+    /// </summary>
+    /// <param name="line"></param>
+    /// <returns></returns>
     float GetEdgeLength(LineSelectable line)
     {
         var lr = line.GetComponent<LineRenderer>();
@@ -146,6 +181,12 @@ public class TilePolygon : DerivedPolygon
     // Transformations
     // -------------------------------------------------------------------
 
+    /// <summary>
+    /// Translates the given line object to align with the edge at the specified index in the base polygon.
+    /// </summary>
+    /// <param name="lineObj"></param>
+    /// <param name="selectedEdg"></param>
+    /// <returns></returns>
     internal ISelectable Translate(GameObject lineObj, int selectedEdg)
     {
         Edge edge = BasePolygon.Edges[selectedEdg];
@@ -189,6 +230,13 @@ public class TilePolygon : DerivedPolygon
         }
         return ls;
     }
+
+    /// <summary>
+    /// Rotates the given line object to align with the edge at the specified index in the base polygon.
+    /// </summary>
+    /// <param name="lineObj"></param>
+    /// <param name="selectedEdg"></param>
+    /// <returns></returns>
     internal ISelectable Rotate(GameObject lineObj, int selectedEdg)
     {
         bool success = false;
@@ -229,6 +277,7 @@ public class TilePolygon : DerivedPolygon
 
             Vector2 pivot = pivotIsA ? a : b;
 
+            // The angles are computed with respect to the pivot point (i.e. The direction vectors are from pivot to the other endpoint)
             Vector2 sourceDir = pivotIsA ? (b - a) : (a - b);
             float sourceAngle = Mathf.Atan2(sourceDir.y, sourceDir.x) * Mathf.Rad2Deg;
 
@@ -257,6 +306,12 @@ public class TilePolygon : DerivedPolygon
     // ------------------------------------------
 
     [SerializeField] private GameObject highlightPrefab; // transparent sprite in the future?
+
+    /// <summary>
+    /// Highlights the edges at the specified indices in the base polygon by changing their line renderer colors to the given highlight color.
+    /// </summary>
+    /// <param name="edgeIndices"></param>
+    /// <param name="highlightColor"></param>
     public void HighlightEdges(List<int> edgeIndices, Color highlightColor)
     {
         if (BasePolygon.edgeRenderers == null)
@@ -277,7 +332,10 @@ public class TilePolygon : DerivedPolygon
             lr.endColor = highlightColor;
         }
     }
-    
+
+    /// <summary>
+    /// Resets the colors of all edge line renderers in the base polygon to black.
+    /// </summary>
     public void DehighlightEdges()
     {
         for (int i = 0; i < BasePolygon.edgeRenderers.Count; i++)

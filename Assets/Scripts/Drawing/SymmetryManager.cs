@@ -63,6 +63,9 @@ public class SymmetryManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Copies the currently selected object to the clipboard. Only works if the selected object is a MonoBehaviour (i.e. a GameObject in the scene).
+    /// </summary>
     public void CopySelected()
     {
         var selected = SelectionManager.Instance.selected;
@@ -86,6 +89,12 @@ public class SymmetryManager : MonoBehaviour
         clipboard = mb.gameObject;
     }
 
+    /// <summary>
+    /// Pastes the object in the clipboard to the position given if it is position lies on any edge of the base shape. 
+    /// If successful, the pasted object is registered to the selection manager and selected. 
+    /// If there is no compatible edge, it deselects all objects.
+    /// </summary>
+    /// <param name="position"></param>
     public void Paste(Vector3 position)
     {
         if (clipboard == null)
