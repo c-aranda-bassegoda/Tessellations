@@ -11,7 +11,8 @@ public enum ToolType
     Copy,
     Translate,
     Delete,
-    Rotate
+    Rotate,
+    Glide
 }
 public class ToolManager : MonoBehaviour
 {
@@ -25,13 +26,15 @@ public class ToolManager : MonoBehaviour
         ToolType.Copy,
         ToolType.Translate,
         ToolType.Delete,
-        ToolType.Rotate
+        ToolType.Rotate,
+        ToolType.Glide
     };
     public static readonly HashSet<ToolType> symmetryTools =
     new HashSet<ToolType>
     {
         ToolType.Translate,
-        ToolType.Rotate
+        ToolType.Rotate,
+        ToolType.Glide
     };
 
     public bool CurrentToolRequiresSelection()

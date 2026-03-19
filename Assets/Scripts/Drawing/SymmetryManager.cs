@@ -43,6 +43,9 @@ public class SymmetryManager : MonoBehaviour
                     case ToolType.Rotate:
                         compatibleEdgeIdxs = baseShape.FindRotationCompatibleEdges(line);
                         break;
+                    case ToolType.Glide:
+                        compatibleEdgeIdxs = baseShape.FindGlideReflectionCompatibleEdges(line);
+                        break;
                 }
                 baseShape.HighlightEdges(compatibleEdgeIdxs, Color.red);
             }
@@ -112,6 +115,9 @@ public class SymmetryManager : MonoBehaviour
                         break;
                     case ToolType.Rotate:
                         selectable = baseShape.Rotate(clipboard, idx);
+                        break;
+                    case ToolType.Glide:
+                        selectable = baseShape.GlideReflect(clipboard, idx);
                         break;
                 }
                 break;

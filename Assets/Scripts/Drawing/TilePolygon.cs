@@ -5,6 +5,13 @@ using UnityEngine;
 
 public class TilePolygon : DerivedPolygon
 {
+    internal List<int> FindGlideReflectionCompatibleEdges(LineSelectable line)
+    {
+        // We can define glide reflection compatibility as the same criteria as translation compatibility (parallel and equal length),
+        // since glide reflection is essentially a translation followed by a reflection.
+        return FindTranslationCompatibleEdges(line);
+    }
+
     /// <summary>
     /// Finds edges in the base polygon that are compatible for rotation with the selected line.
     /// An edge is considered compatible if it has the same length (up to floating pnt error) and shares at least one endpoint with the selected line.
@@ -298,6 +305,52 @@ public class TilePolygon : DerivedPolygon
             return null;
         }
 
+        return ls;
+    }
+
+    internal ISelectable GlideReflect(GameObject lineObj, int selectedEdg)
+    {
+        Edge edge = BasePolygon.Edges[selectedEdg];
+
+        LineRenderer src = lineObj.GetComponent<LineRenderer>();
+
+        if (src == null)
+        {
+            Debug.LogError("No LineRenderer on source object");
+            return null;
+        }
+        GameObject newObj = Instantiate(lineObj);
+        newObj.GetComponent<EdgeSelectable>().Polygon = this;
+
+        LineSelectable ls = newObj.GetComponent<LineSelectable>();
+        LineRenderer lr = newObj.GetComponent<LineRenderer>();
+
+        Vector2 a = lr.GetPosition(0);
+        Vector2 b = lr.GetPosition(lr.positionCount - 1);
+        Vector2 midpnt = (a + b) / 2;
+
+        Vector2 targetA = edge.A.Position;
+        Vector2 targetB = edge.B.Position;
+        Vector2 targetMidpnt = (targetA + targetB) / 2;
+
+        // Compute translation so first point aligns
+        Vector2 delta = targetMidpnt - midpnt;
+
+        Vector2 center = ls.Center;
+        Debug.Log("Center: " + center + "New: " + (center + delta));
+        ls.OnTranslate(center + delta);
+        Vector2 dir = (b - a).normalized;
+        ls.OnReflect(ls.Center, dir);
+
+        Debug.Log("Glide reflecting edge");
+
+        bool success = ReplaceEdge(newObj);
+
+        if (!success)
+        {
+            Destroy(newObj);
+            return null;
+        }
         return ls;
     }
 

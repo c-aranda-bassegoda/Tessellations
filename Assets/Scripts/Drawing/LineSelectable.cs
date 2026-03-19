@@ -97,4 +97,21 @@ public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
         }
     }
 
+    public void OnReflect(Vector2 pivot, Vector2 mirrorDir)
+    {
+        Vector2 dir = mirrorDir;
+        for (int i = 0; i < points.Count; i++)
+        {
+            Vector2 toPoint = (Vector2)points[i] - pivot;
+            float dist = Vector2.Dot(toPoint, dir);
+            Vector2 reflection = toPoint - 2 * dist * dir;
+            points[i] = new Vector3(
+                pivot.x + reflection.x,
+                pivot.y + reflection.y,
+                points[i].z
+            );
+            line.SetPosition(i, points[i]);
+        }
+    }
+
 }
