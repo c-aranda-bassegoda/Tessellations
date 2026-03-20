@@ -10,7 +10,13 @@ public class DerivedPolygon : NonConvexPolygon
     private readonly Dictionary<(Vertex, Vertex), (List<Vertex>, List<Vertex>)> _baseToDerivedVertex =
     new Dictionary<(Vertex, Vertex), (List<Vertex>, List<Vertex>)>(new VertexTupleComparer());
 
-    private void Awake()
+
+    public int DrawnEdges { get; set; }
+    public int DrawnHalfEdges { get; set; }
+
+    public int TotalEdges => BasePolygon.Edges.Count;
+
+    public new void Initialize()
     {
         BasePolygon.Initialize();
         _vertices = new List<Vertex>(BasePolygon.Vertices);
@@ -34,6 +40,8 @@ public class DerivedPolygon : NonConvexPolygon
             _baseToDerivedVertex[(v1, m)] = (listvtx1, listvtx2);
             _baseToDerivedVertex[(v2, m)] = (listvtx1, listvtx2);
         }
+
+        DrawnEdges = 0;
     }
 
     /// <summary>
@@ -55,6 +63,8 @@ public class DerivedPolygon : NonConvexPolygon
         (Vertex vtx0, Vertex vtxEnd, Vertex vtxM) = GetVerticesWhereLine(newVertices);
 
         ReplaceVerticesBetween(newVertices, vtx0, vtxEnd);
+
+        DrawnEdges++;
         return true;
     }
 
@@ -326,11 +336,14 @@ public class DerivedPolygon : NonConvexPolygon
     {
         Debug.Log("Clear Edge");
         ISelectable oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, vertex2.Position);
+        if (oldEdge != null) DrawnEdges--;
         oldEdge?.Remove();
         Edge edge = BasePolygon.GetEdge(vertex1, vertex2);
         oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, edge.MidPoint.Position);
+        if (oldEdge != null) DrawnEdges--;
         oldEdge?.Remove();
         oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(edge.MidPoint.Position, vertex2.Position);
+        if (oldEdge != null) DrawnEdges--;
         oldEdge?.Remove();
     }
 

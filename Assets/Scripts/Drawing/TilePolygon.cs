@@ -5,13 +5,10 @@ using UnityEngine;
 
 public class TilePolygon : DerivedPolygon
 {
-    public int DrawnEdges { get; set; }
-
-    public int TotalEdges => BasePolygon.Edges.Count;
 
     private void Awake()
     {
-        DrawnEdges = 0;
+        base.Initialize();
     }
 
     internal List<int> FindGlideReflectionCompatibleEdges(LineSelectable line)
