@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework.Constraints;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class TilePolygon : DerivedPolygon
 {
@@ -15,7 +17,11 @@ public class TilePolygon : DerivedPolygon
     {
         // We can define glide reflection compatibility as the same criteria as translation compatibility (parallel and equal length),
         // since glide reflection is essentially a translation followed by a reflection.
-        return FindTranslationCompatibleEdges(line);
+        // A special case are glide reflections of type VI which reflect on adjacent lines.
+        // For these the compatibility criteria is the same as rotation compatibility (equal length and sharing an endpoint).
+
+        List<int> result = FindTranslationCompatibleEdges(line).Union(FindRotationCompatibleEdges(line)).ToList();
+        return result;
     }
 
     /// <summary>
@@ -334,19 +340,46 @@ public class TilePolygon : DerivedPolygon
         Vector2 a = lr.GetPosition(0);
         Vector2 b = lr.GetPosition(lr.positionCount - 1);
         Vector2 midpnt = (a + b) / 2;
+        Vector2 dir = (b - a).normalized;
 
         Vector2 targetA = edge.A.Position;
         Vector2 targetB = edge.B.Position;
         Vector2 targetMidpnt = (targetA + targetB) / 2;
+        Vector2 targerDir = (targetB - targetA).normalized;
+
+
+        // dot product checks orientation similarity
+        bool parallel = Mathf.Abs(Vector2.Dot(dir, targerDir)) > 0.99f;
 
         // Compute translation so first point aligns
         Vector2 delta = targetMidpnt - midpnt;
 
         Vector2 center = ls.Center;
         Debug.Log("Center: " + center + "New: " + (center + delta));
-        ls.OnTranslate(center + delta);
-        Vector2 dir = (b - a).normalized;
-        ls.OnReflect(ls.Center, dir);
+        ls.OnReflect(center, dir);
+        if(parallel)
+        {
+            ls.OnTranslate(center + delta);
+        }
+        else
+        {
+            bool pivotIsA = Vector2.Distance(a, targetA) < snapDistance || Vector2.Distance(a, targetB) < snapDistance;
+
+            Vector2 pivot = pivotIsA ? a : b;
+
+            // The angles are computed with respect to the pivot point (i.e. The direction vectors are from pivot to the other endpoint)
+            Vector2 sourceDir = pivotIsA ? (b - a) : (a - b);
+            float sourceAngle = Mathf.Atan2(sourceDir.y, sourceDir.x) * Mathf.Rad2Deg;
+
+            Vector2 targetDir = (Vector2.Distance(pivot, targetA) < snapDistance ? targetB - targetA : targetA - targetB);
+            float targetAngle = Mathf.Atan2(targetDir.y, targetDir.x) * Mathf.Rad2Deg;
+
+            // Rotation difference
+            float deltaAngle = targetAngle - sourceAngle;
+
+            ls.OnRotate(deltaAngle, pivot);
+        }
+
 
         Debug.Log("Glide reflecting edge");
 
