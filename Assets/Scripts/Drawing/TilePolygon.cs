@@ -5,6 +5,15 @@ using UnityEngine;
 
 public class TilePolygon : DerivedPolygon
 {
+    public int DrawnEdges { get; set; }
+
+    public int TotalEdges => BasePolygon.Edges.Count;
+
+    private void Awake()
+    {
+        DrawnEdges = 0;
+    }
+
     internal List<int> FindGlideReflectionCompatibleEdges(LineSelectable line)
     {
         // We can define glide reflection compatibility as the same criteria as translation compatibility (parallel and equal length),

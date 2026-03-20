@@ -137,4 +137,10 @@ public class SymmetryManager : MonoBehaviour
         clipboard = null;
     }
 
+    public bool CanDraw()
+    {
+        Debug.Log("CanDraw: " + baseShape.DrawnEdges + " " + baseShape.TotalEdges);
+        return true;
+    }
+
 }

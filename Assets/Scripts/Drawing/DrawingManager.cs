@@ -45,7 +45,7 @@ public class DrawingManager : MonoBehaviour
         {
             if (activeDrawer.EndDrawing(pointerPos) && currentLine != null)
             {
-                if (ToolType.SnappingPencil == lastTool)
+                if (ToolType.SnappingPencil == lastTool )
                 {
                     baseShape.ReplaceEdge(currentLine);
                 }
