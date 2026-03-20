@@ -3,14 +3,42 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework.Constraints;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static UnityEngine.GraphicsBuffer;
 
 public class TilePolygon : DerivedPolygon
 {
+    public int Rotations { get; set; }
+    public int StraightRotations { get; set; }
+    public int AdjGlideReflections { get; set; }
+    public int ParallelGlideReflections { get; set; }
 
     private void Awake()
     {
         base.Initialize();
+        Rotations = 0;
+        StraightRotations = 0;
+        AdjGlideReflections = 0;
+        ParallelGlideReflections = 0;
+    }
+
+    public bool EdgeIsDrawn(int edgeIdx)
+    {
+        (Vertex vertex1, Vertex vertex2) = (Edges[edgeIdx].A, Edges[edgeIdx].B);
+        ISelectable oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, vertex2.Position);
+        if (oldEdge != null) return true;
+        return false;
+    }
+
+    public bool EdgeIsHalfDrawn(int edgeIdx)
+    {
+        (Vertex vertex1, Vertex vertex2) = (Edges[edgeIdx].A, Edges[edgeIdx].B);
+        Edge edge = Edges[edgeIdx];
+        ISelectable oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, edge.MidPoint.Position);
+        if (oldEdge != null) return true;
+        oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(edge.MidPoint.Position, vertex2.Position);
+        if (oldEdge != null) return true;
+        return false;
     }
 
     internal List<int> FindGlideReflectionCompatibleEdges(LineSelectable line)
@@ -289,6 +317,7 @@ public class TilePolygon : DerivedPolygon
         {
             ls.OnRotate(180, targetMid);
             success = ExtendEdge(newObj);
+            StraightRotations += (success ? 1 : 0);
         } 
         else
         {
@@ -309,6 +338,7 @@ public class TilePolygon : DerivedPolygon
             ls.OnRotate(deltaAngle, pivot);
             Debug.Log("Rotating edge by " + deltaAngle);
             success = ReplaceEdge(newObj);
+            Rotations += (success ? 1 : 0);
         }
 
         if (!success)
@@ -357,9 +387,12 @@ public class TilePolygon : DerivedPolygon
         Vector2 center = ls.Center;
         Debug.Log("Center: " + center + "New: " + (center + delta));
         ls.OnReflect(center, dir);
-        if(parallel)
+        bool success = false;
+        if (parallel)
         {
             ls.OnTranslate(center + delta);
+            success = ReplaceEdge(newObj);
+            ParallelGlideReflections += (success ? 1 : 0);
         }
         else
         {
@@ -378,18 +411,18 @@ public class TilePolygon : DerivedPolygon
             float deltaAngle = targetAngle - sourceAngle;
 
             ls.OnRotate(deltaAngle, pivot);
+            Debug.Log("Glide reflecting edge");
+
+            success = ReplaceEdge(newObj);
+            AdjGlideReflections += (success ? 1 : 0);
         }
-
-
-        Debug.Log("Glide reflecting edge");
-
-        bool success = ReplaceEdge(newObj);
 
         if (!success)
         {
             Destroy(newObj);
             return null;
         }
+
         return ls;
     }
 
