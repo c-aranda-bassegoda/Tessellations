@@ -22,22 +22,38 @@ public class TilePolygon : DerivedPolygon
         ParallelGlideReflections = 0;
     }
 
-    public bool EdgeIsDrawn(int edgeIdx)
+    public bool EdgeIsDrawn(Vertex vertex1, Vertex vertex2)
     {
-        (Vertex vertex1, Vertex vertex2) = (Edges[edgeIdx].A, Edges[edgeIdx].B);
+        //(Vertex vertex1, Vertex vertex2) = (Edges[edgeIdx].A, Edges[edgeIdx].B);
         ISelectable oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, vertex2.Position);
         if (oldEdge != null) return true;
         return false;
     }
 
-    public bool EdgeIsHalfDrawn(int edgeIdx)
+    public bool EdgeIsHalfDrawn(Vertex vertex1, Vertex vertex2)
     {
-        (Vertex vertex1, Vertex vertex2) = (Edges[edgeIdx].A, Edges[edgeIdx].B);
-        Edge edge = Edges[edgeIdx];
+        Edge edge = BasePolygon.GetEdge(vertex1, vertex2);
         ISelectable oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, edge.MidPoint.Position);
         if (oldEdge != null) return true;
         oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(edge.MidPoint.Position, vertex2.Position);
         if (oldEdge != null) return true;
+        return false;
+    }
+
+    public override bool ReplaceEdge(GameObject line)
+    {
+        LineRenderer lineRenderer = line.GetComponent<LineRenderer>();
+        if (lineRenderer == null)
+        {
+            Debug.LogError("GameObject does not have a LineRenderer component.");
+            return false;
+        }
+
+        List<Vertex> newVertices = base.ToVertices(lineRenderer);
+        (Vertex vtx0, Vertex vtxEnd, Vertex vtxM) = base.GetVerticesWhereLine(newVertices);
+
+        if (!EdgeIsDrawn(vtx0,vtxEnd))
+            return base.ReplaceEdge(line);
         return false;
     }
 

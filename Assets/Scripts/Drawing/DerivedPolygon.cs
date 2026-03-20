@@ -99,7 +99,7 @@ public class DerivedPolygon : NonConvexPolygon
     /// </summary>
     /// <param name="newVertices"></param>
     /// <returns></returns>
-    private (Vertex vtx0, Vertex vtxEnd, Vertex vtxMid) GetVerticesWhereLine(List<Vertex> newVertices)
+    protected (Vertex vtx0, Vertex vtxEnd, Vertex vtxMid) GetVerticesWhereLine(List<Vertex> newVertices)
     {
         // Vertex vtx0, Vertex vtxEnd reflect the orientation of newVertices
         Vertex vtx0 = BasePolygon.FindClosestVertex(newVertices[0].Position);
@@ -155,7 +155,7 @@ public class DerivedPolygon : NonConvexPolygon
     /// </summary>
     /// <param name="lineRenderer"></param>
     /// <returns></returns>
-    private List<Vertex> ToVertices(LineRenderer lineRenderer)
+    protected List<Vertex> ToVertices(LineRenderer lineRenderer)
     {
 
         var vertices = new List<Vertex>();
