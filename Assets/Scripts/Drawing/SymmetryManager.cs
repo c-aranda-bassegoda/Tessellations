@@ -33,7 +33,7 @@ public class SymmetryManager : MonoBehaviour
             else
             {
                 CopySelected();
-                LineSelectable line = clipboard?.GetComponent<LineSelectable>();
+                EdgeSelectable line = clipboard?.GetComponent<EdgeSelectable>();
                 compatibleEdgeIdxs.Clear();
                 switch (currentTool)
                 {
@@ -140,6 +140,11 @@ public class SymmetryManager : MonoBehaviour
     public bool CanDraw()
     {
         Debug.Log("CanDraw: " + baseShape.DrawnEdges + " " + baseShape.TotalEdges);
+        //if (baseShape.DrawnEdges >= baseShape.TotalEdges/2)
+        //{
+        //    Debug.Log("Cannot draw: all edges drawn");
+        //    return false;
+        //}
         return true;
     }
 

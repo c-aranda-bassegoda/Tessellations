@@ -39,7 +39,7 @@ public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
         return false;
     }
 
-    public void SetSelected(bool selected)
+    public virtual void SetSelected(bool selected)
     {
         line.startColor = selected ? Color.blue : Color.black;
         line.endColor = selected ? Color.blue : Color.black;

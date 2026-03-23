@@ -29,7 +29,6 @@ public class SelectionManager : MonoBehaviour
     {
         if (ToolManager.Instance.CurrentTool != ToolType.Select && !ToolManager.Instance.CurrentToolRequiresSelection())
         {
-
             Deselect();
             return;
         }
@@ -74,9 +73,10 @@ public class SelectionManager : MonoBehaviour
     public void ClearAll()
     {
         Deselect();
-
-        for (int i = selectables.Count - 1; i >= 0; i--)
-            selectables[i].Remove();
+        if (selectables == null || selectables.Count == 0)
+            return;
+        selectables[0].Remove(); // recursive bc some selectables remove others when removed 
+        ClearAll();
     }
 
     public ISelectable FindSelectableWithEndpnts(Vector2 a, Vector2 b)

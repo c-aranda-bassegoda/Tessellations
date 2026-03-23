@@ -64,7 +64,6 @@ public class DerivedPolygon : NonConvexPolygon
 
         ReplaceVerticesBetween(newVertices, vtx0, vtxEnd);
 
-        DrawnEdges++;
         return true;
     }
 
@@ -219,6 +218,7 @@ public class DerivedPolygon : NonConvexPolygon
             newVertices.RemoveAt(0);
             newVertices.RemoveAt(newVertices.Count - 1);
             oldVertices.InsertRange(1,newVertices);
+            DrawnHalfEdges++;
         }
         else if (IsMidPoint(newVertices[0]))
         {
@@ -227,6 +227,7 @@ public class DerivedPolygon : NonConvexPolygon
             newVertices.RemoveAt(newVertices.Count - 1);
             oldVertices2.InsertRange(1, newVertices);
             removeStart++;
+            DrawnHalfEdges++;
         } 
         else
         {
@@ -235,6 +236,7 @@ public class DerivedPolygon : NonConvexPolygon
             newVertices.RemoveAt(newVertices.Count - 1);
             oldVertices.InsertRange(1, newVertices);
             removeCount++;
+            DrawnEdges++;
         }
 
         if (removeCount > 0)

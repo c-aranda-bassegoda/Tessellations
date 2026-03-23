@@ -30,12 +30,21 @@ public class TilePolygon : DerivedPolygon
         return false;
     }
 
-    public bool EdgeIsHalfDrawn(Vertex vertex1, Vertex vertex2)
+    public bool EdgeIsHalfDrawn(Vertex vtx0, Vertex vtxEnd, Vertex midpoint = null)
     {
-        Edge edge = BasePolygon.GetEdge(vertex1, vertex2);
-        ISelectable oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, edge.MidPoint.Position);
+        if (midpoint == null)
+        {
+            Edge edge = BasePolygon.GetEdge(vtx0, vtxEnd);
+            if (edge == null)
+            {
+                Debug.LogError("Edge not found between vertices: " + vtx0.Position + " and " + vtxEnd.Position);
+                return false;
+            }
+            midpoint = edge.MidPoint;
+        }
+        ISelectable oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vtx0.Position, midpoint.Position);
         if (oldEdge != null) return true;
-        oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(edge.MidPoint.Position, vertex2.Position);
+        oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(midpoint.Position, vtxEnd.Position);
         if (oldEdge != null) return true;
         return false;
     }
@@ -52,20 +61,70 @@ public class TilePolygon : DerivedPolygon
         List<Vertex> newVertices = base.ToVertices(lineRenderer);
         (Vertex vtx0, Vertex vtxEnd, Vertex vtxM) = base.GetVerticesWhereLine(newVertices);
 
-        if (!EdgeIsDrawn(vtx0,vtxEnd))
+        if (!EdgeIsDrawn(vtx0,vtxEnd) && !EdgeIsHalfDrawn(vtx0, vtxEnd, vtxM) && ExistsSymmTransformation(line.GetComponent<EdgeSelectable>()))
             return base.ReplaceEdge(line);
         return false;
     }
 
-    internal List<int> FindGlideReflectionCompatibleEdges(LineSelectable line)
+    private bool ExistsSymmTransformation(EdgeSelectable line)
+    {
+        List<int> result = FindTranslationCompatibleEdges(line).Union(FindRotationCompatibleEdges(line).Union(FindGlideReflectionCompatibleEdges(line))).ToList();
+        return result.Count > 0;
+    }
+
+    internal List<int> FindGlideReflectionCompatibleEdges(EdgeSelectable selectedLine)
     {
         // We can define glide reflection compatibility as the same criteria as translation compatibility (parallel and equal length),
         // since glide reflection is essentially a translation followed by a reflection.
         // A special case are glide reflections of type VI which reflect on adjacent lines.
-        // For these the compatibility criteria is the same as rotation compatibility (equal length and sharing an endpoint).
+        // half edges cannot be glide reflected.
 
-        List<int> result = FindTranslationCompatibleEdges(line).Union(FindRotationCompatibleEdges(line)).ToList();
-        return result;
+        Debug.Log("Looking for compatible rot...");
+        List<int> edges = new List<int>();
+        if (selectedLine == null)
+        {
+            Debug.Log("null edge");
+            return edges;
+        }
+        if (selectedLine.SymmEdge != null)
+        {
+            Debug.Log("Already has symm edge");
+            return edges;
+        }
+
+        (Vector2 origA, Vector2 origB) = GetLineEndpoints(selectedLine);
+        float selectedLength = GetEdgeLength(selectedLine);
+        Vector2 selectedDir = GetEdgeDirection(selectedLine);
+
+        float directionTolerance = 0.99f;
+
+        float lengthTolerance = snapDistance;
+        bool adjacency;
+
+        for (int i = 0; i < BasePolygon.SnapVertices.Count; i++)
+        {
+            Vector2 a = BasePolygon.SnapVertices[i].Position;
+            Vector2 b = BasePolygon.SnapVertices[(i + 1) % BasePolygon.SnapVertices.Count].Position;
+
+            Vector2 dir = (b - a).normalized;
+            float length = Vector2.Distance(a, b);
+
+            bool lengthMatch = Mathf.Abs(length - selectedLength) < lengthTolerance;
+
+            adjacency = (a == origA || a == origB) || (b == origA || b == origB);
+
+            // dot product checks orientation similarity
+            bool directionMatch = Mathf.Abs(Vector2.Dot(dir, selectedDir)) > directionTolerance;
+
+            bool isSelf = (a == origA && b == origB) || (a == origB && b == origA);
+
+            if (lengthMatch && (adjacency || directionMatch) && !isSelf)
+            {
+                edges.Add(i);
+            }
+        }
+
+        return edges;
     }
 
     /// <summary>
@@ -74,7 +133,7 @@ public class TilePolygon : DerivedPolygon
     /// </summary>
     /// <param name="selectedLine"> </param> 
     /// <returns>  </returns>
-    public List<int> FindRotationCompatibleEdges(LineSelectable selectedLine)
+    public List<int> FindRotationCompatibleEdges(EdgeSelectable selectedLine)
     {
         Debug.Log("Looking for compatible rot...");
         List<int> edges = new List<int>();
@@ -83,6 +142,12 @@ public class TilePolygon : DerivedPolygon
             Debug.Log("null edge");
             return edges;
         }
+        if (selectedLine.SymmEdge != null)
+        {
+            Debug.Log("Already has symm edge");
+            return edges;
+        }
+
         (Vector2 origA, Vector2 origB) = GetLineEndpoints(selectedLine);
         float selectedLength = GetEdgeLength(selectedLine);
 
@@ -102,7 +167,9 @@ public class TilePolygon : DerivedPolygon
 
             adjacency = (a==origA || a == origB) || (b == origA || b == origB);
 
-            if (lengthMatch && adjacency)
+            bool isSelf = (a == origA && b == origB) || (a == origB && b == origA);
+
+            if (lengthMatch && adjacency && !isSelf)
             {
                 edges.Add(i);
             }
@@ -130,7 +197,7 @@ public class TilePolygon : DerivedPolygon
     /// </summary>
     /// <param name="selectedLine"></param>
     /// <returns></returns>
-    public List<int> FindTranslationCompatibleEdges(LineSelectable selectedLine)
+    public List<int> FindTranslationCompatibleEdges(EdgeSelectable selectedLine)
     {
         Debug.Log("Looking for compatible...");
         List<int> edges = new List<int>();
@@ -139,6 +206,14 @@ public class TilePolygon : DerivedPolygon
             Debug.Log("null edge");
             return edges;
         }
+
+        if (selectedLine.SymmEdge != null)
+        {
+            Debug.Log("Already has symm edge");
+            return edges;
+        }
+
+        (Vector2 origA, Vector2 origB) = GetLineEndpoints(selectedLine);
         Vector2 selectedDir = GetEdgeDirection(selectedLine);
         float selectedLength = GetEdgeLength(selectedLine);
 
@@ -158,7 +233,9 @@ public class TilePolygon : DerivedPolygon
             // dot product checks orientation similarity
             bool directionMatch = Mathf.Abs(Vector2.Dot(dir, selectedDir)) > directionTolerance;
 
-            if (lengthMatch && directionMatch)
+            bool isSelf = (a == origA && b == origB) || (a == origB && b == origA);
+            
+            if (lengthMatch && directionMatch && !isSelf)
             {
                 edges.Add(i);
             }
@@ -244,6 +321,15 @@ public class TilePolygon : DerivedPolygon
     // Transformations
     // -------------------------------------------------------------------
 
+    private void SetEdgeProps(GameObject newObj, GameObject lineObj)
+    {
+        EdgeSelectable newES = newObj.GetComponent<EdgeSelectable>();
+        newES.Polygon = this;
+        EdgeSelectable oldES = lineObj.GetComponent<EdgeSelectable>();
+        oldES.SymmEdge = newES;
+        newES.SymmEdge = oldES;
+    }
+
     /// <summary>
     /// Translates the given line object to align with the edge at the specified index in the base polygon.
     /// </summary>
@@ -261,8 +347,9 @@ public class TilePolygon : DerivedPolygon
             Debug.LogError("No LineRenderer on source object");
             return null;
         }
+
         GameObject newObj = Instantiate(lineObj);
-        newObj.GetComponent<EdgeSelectable>().Polygon = this;
+        SetEdgeProps(newObj, lineObj);
 
         LineSelectable ls = newObj.GetComponent<LineSelectable>();
         LineRenderer lr = newObj.GetComponent<LineRenderer>();
@@ -284,13 +371,14 @@ public class TilePolygon : DerivedPolygon
 
         Debug.Log("Translating edge");
 
-        bool success = ReplaceEdge(newObj);
+        bool success = base.ReplaceEdge(newObj);
 
         if (!success)
         {
             Destroy(newObj);
             return null;
         }
+        DrawnEdges--;
         return ls;
     }
 
@@ -315,7 +403,7 @@ public class TilePolygon : DerivedPolygon
         }
 
         GameObject newObj = Instantiate(lineObj);
-        newObj.GetComponent<EdgeSelectable>().Polygon = this;
+        SetEdgeProps(newObj, lineObj);
 
         LineSelectable ls = newObj.GetComponent<LineSelectable>();
         LineRenderer lr = newObj.GetComponent<LineRenderer>();
@@ -353,7 +441,7 @@ public class TilePolygon : DerivedPolygon
 
             ls.OnRotate(deltaAngle, pivot);
             Debug.Log("Rotating edge by " + deltaAngle);
-            success = ReplaceEdge(newObj);
+            success = base.ReplaceEdge(newObj);
             Rotations += (success ? 1 : 0);
         }
 
@@ -363,6 +451,7 @@ public class TilePolygon : DerivedPolygon
             return null;
         }
 
+        DrawnEdges--;
         return ls;
     }
 
@@ -378,7 +467,7 @@ public class TilePolygon : DerivedPolygon
             return null;
         }
         GameObject newObj = Instantiate(lineObj);
-        newObj.GetComponent<EdgeSelectable>().Polygon = this;
+        SetEdgeProps(newObj, lineObj);
 
         LineSelectable ls = newObj.GetComponent<LineSelectable>();
         LineRenderer lr = newObj.GetComponent<LineRenderer>();
@@ -407,7 +496,7 @@ public class TilePolygon : DerivedPolygon
         if (parallel)
         {
             ls.OnTranslate(center + delta);
-            success = ReplaceEdge(newObj);
+            success = base.ReplaceEdge(newObj);
             ParallelGlideReflections += (success ? 1 : 0);
         }
         else
@@ -429,7 +518,7 @@ public class TilePolygon : DerivedPolygon
             ls.OnRotate(deltaAngle, pivot);
             Debug.Log("Glide reflecting edge");
 
-            success = ReplaceEdge(newObj);
+            success = base.ReplaceEdge(newObj);
             AdjGlideReflections += (success ? 1 : 0);
         }
 
@@ -439,6 +528,7 @@ public class TilePolygon : DerivedPolygon
             return null;
         }
 
+        DrawnEdges--;
         return ls;
     }
 
