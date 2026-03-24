@@ -111,13 +111,13 @@ public class SymmetryManager : MonoBehaviour
                 switch (ToolManager.Instance.CurrentTool)
                 {
                     case ToolType.Translate:
-                        selectable = baseShape.Translate(clipboard, idx);
+                        selectable = baseShape.TranslateEdge(clipboard, idx);
                         break;
                     case ToolType.Rotate:
-                        selectable = baseShape.Rotate(clipboard, idx);
+                        selectable = baseShape.RotateEdge(clipboard, idx);
                         break;
                     case ToolType.Glide:
-                        selectable = baseShape.GlideReflect(clipboard, idx);
+                        selectable = baseShape.GlideReflectEdge(clipboard, idx);
                         break;
                 }
                 break;

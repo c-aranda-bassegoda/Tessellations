@@ -6,12 +6,23 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using static UnityEngine.GraphicsBuffer;
 
+public class EdgeMapping
+{
+    public int SourceEdgeIndex;
+    public int TargetEdgeIndex;
+    public Matrix4x4 Transform;
+
+    public bool IsReflection; // optional but useful
+}
+
 public class TilePolygon : DerivedPolygon
 {
     public int Rotations { get; set; }
     public int StraightRotations { get; set; }
     public int AdjGlideReflections { get; set; }
     public int ParallelGlideReflections { get; set; }
+
+    public List<EdgeMapping> edgeMappings = new List<EdgeMapping>();
 
     private void Awake()
     {
@@ -69,9 +80,17 @@ public class TilePolygon : DerivedPolygon
     private bool ExistsSymmTransformation(EdgeSelectable line)
     {
         List<int> result = FindTranslationCompatibleEdges(line).Union(FindRotationCompatibleEdges(line).Union(FindGlideReflectionCompatibleEdges(line))).ToList();
+        // TODO: compute lists one by one and do checks with number of rotations, glide refl, etc. 
+        // it it doesn't work, we can make a dictionary for valid transformation combitantions per polygon size
         return result.Count > 0;
     }
 
+    /// <summary>
+    /// Finds edges in the base polygon that are compatible for glide reflection with the selected line.
+    /// An edge is considered compatible if it has the same length and is either parallel or adjacent (shares an endpoint) to the selected line.
+    /// </summary>
+    /// <param name="selectedLine"></param>
+    /// <returns></returns>
     internal List<int> FindGlideReflectionCompatibleEdges(EdgeSelectable selectedLine)
     {
         // We can define glide reflection compatibility as the same criteria as translation compatibility (parallel and equal length),
@@ -273,6 +292,21 @@ public class TilePolygon : DerivedPolygon
     }
 
     /// <summary>
+    /// Gets the index of the edge in the base polygon that the given position is within snap distance of, or -1 if there is no such edge.
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <returns></returns>
+    public int GetEdgeIdx(Vector2 pos)
+    {
+        for (int i = 0; i < BasePolygon.Edges.Count; i++)
+        {
+            if (IsInEdgeWithIdx(pos, i))
+                return i;
+        }
+        return -1;
+    }
+
+    /// <summary>
     /// Returns the endpoints of the line as Vector2s. 
     /// Assumes the line renderer has at least 2 positions.
     /// </summary>
@@ -321,6 +355,11 @@ public class TilePolygon : DerivedPolygon
     // Transformations
     // -------------------------------------------------------------------
 
+    /// <summary>
+    /// Sets the properties of the new edge object to link it with the original line object and the polygon.
+    /// </summary>
+    /// <param name="newObj"></param>
+    /// <param name="lineObj"></param>
     private void SetEdgeProps(GameObject newObj, GameObject lineObj)
     {
         EdgeSelectable newES = newObj.GetComponent<EdgeSelectable>();
@@ -336,7 +375,7 @@ public class TilePolygon : DerivedPolygon
     /// <param name="lineObj"></param>
     /// <param name="selectedEdg"></param>
     /// <returns></returns>
-    internal ISelectable Translate(GameObject lineObj, int selectedEdg)
+    internal ISelectable TranslateEdge(GameObject lineObj, int selectedEdg)
     {
         Edge edge = BasePolygon.Edges[selectedEdg];
 
@@ -379,6 +418,16 @@ public class TilePolygon : DerivedPolygon
             return null;
         }
         DrawnEdges--;
+
+        int origEdg = GetEdgeIdx(midpnt);
+
+        edgeMappings.Add(new EdgeMapping
+            {
+                SourceEdgeIndex = origEdg,
+                TargetEdgeIndex = selectedEdg, 
+                Transform = Matrix4x4.Translate(delta),
+                IsReflection = false
+            });
         return ls;
     }
 
@@ -388,7 +437,7 @@ public class TilePolygon : DerivedPolygon
     /// <param name="lineObj"></param>
     /// <param name="selectedEdg"></param>
     /// <returns></returns>
-    internal ISelectable Rotate(GameObject lineObj, int selectedEdg)
+    internal ISelectable RotateEdge(GameObject lineObj, int selectedEdg)
     {
         bool success = false;
 
@@ -411,15 +460,21 @@ public class TilePolygon : DerivedPolygon
         // Source line
         Vector2 a = lr.GetPosition(0);
         Vector2 b = lr.GetPosition(lr.positionCount - 1);
+        Vector2 midpnt = (a + b) / 2;
 
         // Target edge
         Vector2 targetA = edge.A.Position;
         Vector2 targetB = edge.B.Position;
         Vector2 targetMid = edge.MidPoint.Position;
 
+        float deltaAngle;
+        Vector2 pivot;
+
         if (Vector2.Distance(a, targetMid)<snapDistance || Vector2.Distance(b, targetMid) < snapDistance)
         {
-            ls.OnRotate(180, targetMid);
+            deltaAngle = 180f;
+            pivot = targetMid;
+            ls.OnRotate(deltaAngle, pivot);
             success = ExtendEdge(newObj);
             StraightRotations += (success ? 1 : 0);
         } 
@@ -427,7 +482,7 @@ public class TilePolygon : DerivedPolygon
         {
             bool pivotIsA = Vector2.Distance(a, targetA) < snapDistance || Vector2.Distance(a, targetB) < snapDistance;
 
-            Vector2 pivot = pivotIsA ? a : b;
+            pivot = pivotIsA ? a : b;
 
             // The angles are computed with respect to the pivot point (i.e. The direction vectors are from pivot to the other endpoint)
             Vector2 sourceDir = pivotIsA ? (b - a) : (a - b);
@@ -437,7 +492,7 @@ public class TilePolygon : DerivedPolygon
             float targetAngle = Mathf.Atan2(targetDir.y, targetDir.x) * Mathf.Rad2Deg;
 
             // Rotation difference
-            float deltaAngle = targetAngle - sourceAngle;
+            deltaAngle = targetAngle - sourceAngle;
 
             ls.OnRotate(deltaAngle, pivot);
             Debug.Log("Rotating edge by " + deltaAngle);
@@ -452,10 +507,39 @@ public class TilePolygon : DerivedPolygon
         }
 
         DrawnEdges--;
+
+        int origEdg = GetEdgeIdx(midpnt);
+
+        Vector3 pivot3D = new Vector3(pivot.x, pivot.y, 0);
+        Quaternion rotation = Quaternion.Euler(0, 0, deltaAngle);
+
+        // 1. Move pivot to origin
+        Matrix4x4 toOrigin = Matrix4x4.Translate(-pivot3D);
+        // 2. Rotate around origin
+        Matrix4x4 rotMatrix = Matrix4x4.Rotate(rotation);
+        // 3. Move pivot back
+        Matrix4x4 fromOrigin = Matrix4x4.Translate(pivot3D);
+        // Combine into final transformation
+        Matrix4x4 finalTransform = fromOrigin * rotMatrix * toOrigin;
+
+        edgeMappings.Add(new EdgeMapping
+        {
+            SourceEdgeIndex = origEdg,
+            TargetEdgeIndex = selectedEdg,
+            Transform = finalTransform,
+            IsReflection = false
+        });
+
         return ls;
     }
 
-    internal ISelectable GlideReflect(GameObject lineObj, int selectedEdg)
+    /// <summary>
+    /// Glide reflects the given line object to align with the edge at the specified index in the base polygon.
+    /// </summary>
+    /// <param name="lineObj"></param>
+    /// <param name="selectedEdg"></param>
+    /// <returns></returns>
+    internal ISelectable GlideReflectEdge(GameObject lineObj, int selectedEdg)
     {
         Edge edge = BasePolygon.Edges[selectedEdg];
 
@@ -493,11 +577,15 @@ public class TilePolygon : DerivedPolygon
         Debug.Log("Center: " + center + "New: " + (center + delta));
         ls.OnReflect(center, dir);
         bool success = false;
+
+        Matrix4x4 finalTransformation;
         if (parallel)
         {
             ls.OnTranslate(center + delta);
             success = base.ReplaceEdge(newObj);
             ParallelGlideReflections += (success ? 1 : 0);
+
+            finalTransformation = Matrix4x4.Translate(delta) * Matrix4x4.Scale(new Vector3(-1, 1, 1));
         }
         else
         {
@@ -520,6 +608,15 @@ public class TilePolygon : DerivedPolygon
 
             success = base.ReplaceEdge(newObj);
             AdjGlideReflections += (success ? 1 : 0);
+
+
+            // Compute full transformation matrix including pivot rotation + reflection
+            Vector3 pivot3D = new Vector3(pivot.x, pivot.y, 0);
+            Matrix4x4 toOrigin = Matrix4x4.Translate(-pivot3D);
+            Matrix4x4 rotMatrix = Matrix4x4.Rotate(Quaternion.Euler(0, 0, deltaAngle));
+            Matrix4x4 fromOrigin = Matrix4x4.Translate(pivot3D);
+            Matrix4x4 reflect = Matrix4x4.Scale(new Vector3(-1, 1, 1)); // reflect along X axis
+            finalTransformation = fromOrigin * rotMatrix * toOrigin * reflect;
         }
 
         if (!success)
@@ -529,6 +626,18 @@ public class TilePolygon : DerivedPolygon
         }
 
         DrawnEdges--;
+
+
+        int origEdg = GetEdgeIdx(midpnt);
+
+        edgeMappings.Add(new EdgeMapping
+        {
+            SourceEdgeIndex = origEdg,
+            TargetEdgeIndex = selectedEdg,
+            Transform = finalTransformation,
+            IsReflection = true
+        });
+
         return ls;
     }
 
