@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using static UnityEngine.UI.Image;
 
 public class DerivedPolygon : NonConvexPolygon
 {
@@ -7,7 +9,7 @@ public class DerivedPolygon : NonConvexPolygon
 
     public new IReadOnlyList<Vertex> SnapVertices => BasePolygon.Vertices;
 
-    private readonly Dictionary<(Vertex, Vertex), (List<Vertex>, List<Vertex>)> _baseToDerivedVertex =
+    private Dictionary<(Vertex, Vertex), (List<Vertex>, List<Vertex>)> _baseToDerivedVertex =
     new Dictionary<(Vertex, Vertex), (List<Vertex>, List<Vertex>)>(new VertexTupleComparer());
 
 
@@ -15,6 +17,42 @@ public class DerivedPolygon : NonConvexPolygon
     public int DrawnHalfEdges { get; set; }
 
     public int TotalEdges => BasePolygon.Edges.Count;
+
+    public virtual DerivedPolygon DeepCopy(Transform parent = null)
+    {
+        GameObject go = new GameObject($"{GetType().Name}_Copy");
+
+        if (parent != null)
+            go.transform.parent = parent;
+
+        // Create SAME runtime type
+        DerivedPolygon copy = (DerivedPolygon)go.AddComponent(this.GetType());
+
+        if (BasePolygon != null)
+            copy.BasePolygon = BasePolygon.DeepCopy(BasePolygon, go.transform);
+        copy.Initialize();
+
+        copy.DrawnEdges = this.DrawnEdges;
+        copy.DrawnHalfEdges = this.DrawnHalfEdges;
+
+        copy._baseToDerivedVertex = new Dictionary<(Vertex, Vertex), (List<Vertex>, List<Vertex>)>(new VertexTupleComparer());
+
+        foreach (var kvp in _baseToDerivedVertex)
+        {
+            var (baseA, baseB) = kvp.Key;
+            var (list1, list2) = kvp.Value;
+
+            Vertex newA = copy.BasePolygon.Vertices.First(v => v.Equals(baseA));
+            Vertex newB = copy.BasePolygon.Vertices.First(v => v.Equals(baseB));
+
+            List<Vertex> newList1 = list1.Select(v => new Vertex(v.Position)).ToList();
+            List<Vertex> newList2 = list2.Select(v => new Vertex(v.Position)).ToList();
+
+            copy._baseToDerivedVertex[(newA, newB)] = (newList1, newList2);
+        }
+
+        return copy;
+    }
 
     public new void Initialize()
     {

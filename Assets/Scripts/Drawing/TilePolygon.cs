@@ -12,7 +12,7 @@ public class EdgeMapping
     public int TargetEdgeIndex;
     public Matrix4x4 Transform;
 
-    public bool IsReflection; // optional but useful
+    public bool IsReflection; // maybe?
 }
 
 public class TilePolygon : DerivedPolygon
@@ -23,6 +23,32 @@ public class TilePolygon : DerivedPolygon
     public int ParallelGlideReflections { get; set; }
 
     public List<EdgeMapping> edgeMappings = new List<EdgeMapping>();
+
+    public new TilePolygon DeepCopy(Transform parent = null)
+    {
+        TilePolygon copy = (TilePolygon)base.DeepCopy(parent);
+
+        // Copy Tile-specific fields
+        copy.Rotations = this.Rotations;
+        copy.StraightRotations = this.StraightRotations;
+        copy.AdjGlideReflections = this.AdjGlideReflections;
+        copy.ParallelGlideReflections = this.ParallelGlideReflections;
+
+        // Deep copy edge mappings
+        copy.edgeMappings = new List<EdgeMapping>();
+        foreach (var m in this.edgeMappings)
+        {
+            copy.edgeMappings.Add(new EdgeMapping
+            {
+                SourceEdgeIndex = m.SourceEdgeIndex,
+                TargetEdgeIndex = m.TargetEdgeIndex,
+                Transform = m.Transform,
+                IsReflection = m.IsReflection
+            });
+        }
+
+        return copy;
+    }
 
     private void Awake()
     {
@@ -685,4 +711,46 @@ public class TilePolygon : DerivedPolygon
         }
     }
 
+
+    // ---------------------------------------------------
+    // Self-transformation 
+    // ---------------------------------------------------
+
+    /// <summary>
+    /// Returns the center of the polygon (average of vertices)
+    /// </summary>
+    public Vector2 GetCenter()
+    {
+        Vector2 sum = Vector2.zero;
+        foreach (var v in BasePolygon.SnapVertices)
+            sum += v.Position;
+        return sum / BasePolygon.SnapVertices.Count;
+    }
+
+    /// <summary>
+    /// Translates the entire tile polygon by moving all vertices.
+    /// </summary>
+    public void OnTranslate(Vector2 newWorldPosition)
+    {
+        Vector2 delta = newWorldPosition - GetCenter();
+        Debug.Log(GetCenter() + " to " + newWorldPosition + " delta: " + delta);
+
+        // Move all vertices
+        foreach (var v in BasePolygon.SnapVertices)
+            v.position += delta;
+        // Move all vertices
+        foreach (var v in _vertices)
+            v.position += delta;
+
+        // Update edge renderers
+        if (BasePolygon.edgeRenderers != null)
+        {
+            for (int i = 0; i < BasePolygon.edgeRenderers.Count; i++)
+            {
+                var lr = BasePolygon.edgeRenderers[i];
+                lr.SetPosition(0, BasePolygon.Edges[i].A.Position);
+                lr.SetPosition(1, BasePolygon.Edges[i].B.Position);
+            }
+        }
+    }
 }

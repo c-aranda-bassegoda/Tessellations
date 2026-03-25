@@ -166,4 +166,30 @@ public class NonConvexPolygon : Polygon
         }
         return null;
     }
+
+    public NonConvexPolygon DeepCopy(NonConvexPolygon original, Transform parent)
+    {
+        GameObject gameObj = new GameObject("BasePolygon_Copy");
+        gameObj.transform.parent = parent;
+
+        NonConvexPolygon newPolygon = gameObj.AddComponent<NonConvexPolygon>();
+        newPolygon.Initialize();    
+
+        // Copy vertices
+        newPolygon._vertices = new List<Vertex>();
+        foreach (var v in original.Vertices)
+            newPolygon._vertices.Add(new Vertex(v.Position));
+
+        // Rebuild edges
+        newPolygon._edges = new List<Edge>();
+        for (int i = 0; i < newPolygon.Vertices.Count; i++)
+        {
+            Vertex a = newPolygon.Vertices[i];
+            Vertex b = newPolygon.Vertices[(i + 1) % newPolygon.Vertices.Count];
+
+            newPolygon._edges.Add(new Edge(a, b));
+        }
+
+        return newPolygon;
+    }
 }

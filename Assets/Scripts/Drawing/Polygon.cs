@@ -88,7 +88,7 @@ public class Edge
 [System.Serializable]
 public class Vertex
 {
-    [SerializeField] private Vector2 position;
+    [SerializeField] public Vector2 position;
     public Vector2 Position => position;
 
     public Vertex(Vector2 position)
