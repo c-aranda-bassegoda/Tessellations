@@ -61,6 +61,11 @@ public class TilePolygon : DerivedPolygon
         List<Vertex> newVertices = base.ToVertices(lineRenderer);
         (Vertex vtx0, Vertex vtxEnd, Vertex vtxM) = base.GetVerticesWhereLine(newVertices);
 
+        if (((float)DrawnEdges + (float)DrawnHalfEdges / 2) >= (float)TotalEdges / 2)
+            return false;
+        if (!IsMidPoint(newVertices[^1]) && !IsMidPoint(newVertices[0]) && ((float)DrawnEdges + 1 + (float)(DrawnHalfEdges / 2)) >= (float)TotalEdges / 2)
+            return false;
+
         if (!EdgeIsDrawn(vtx0,vtxEnd) && !EdgeIsHalfDrawn(vtx0, vtxEnd, vtxM) && ExistsSymmTransformation(line.GetComponent<EdgeSelectable>()))
             return base.ReplaceEdge(line);
         return false;
@@ -103,8 +108,12 @@ public class TilePolygon : DerivedPolygon
 
         for (int i = 0; i < BasePolygon.SnapVertices.Count; i++)
         {
-            Vector2 a = BasePolygon.SnapVertices[i].Position;
-            Vector2 b = BasePolygon.SnapVertices[(i + 1) % BasePolygon.SnapVertices.Count].Position;
+            Vertex va = BasePolygon.SnapVertices[i];
+            Vertex vb = BasePolygon.SnapVertices[(i + 1) % BasePolygon.SnapVertices.Count];
+            if(EdgeIsDrawn(va, vb) || EdgeIsHalfDrawn(va, vb))
+                continue;
+            Vector2 a = va.Position;
+            Vector2 b = vb.Position;
 
             Vector2 dir = (b - a).normalized;
             float length = Vector2.Distance(a, b);
@@ -157,6 +166,10 @@ public class TilePolygon : DerivedPolygon
 
         for (int i = 0; i < BasePolygon.SnapVertices.Count; i++)
         {
+            Vertex va = BasePolygon.SnapVertices[i];
+            Vertex vb = BasePolygon.SnapVertices[(i + 1) % BasePolygon.SnapVertices.Count];
+            if (EdgeIsDrawn(va, vb) || EdgeIsHalfDrawn(va, vb))
+                continue;
             Vector2 a = BasePolygon.SnapVertices[i].Position;
             Vector2 b = BasePolygon.SnapVertices[(i + 1) % BasePolygon.SnapVertices.Count].Position;
 
@@ -222,6 +235,10 @@ public class TilePolygon : DerivedPolygon
 
         for (int i = 0; i < BasePolygon.SnapVertices.Count; i++)
         {
+            Vertex va = BasePolygon.SnapVertices[i];
+            Vertex vb = BasePolygon.SnapVertices[(i + 1) % BasePolygon.SnapVertices.Count];
+            if (EdgeIsDrawn(va, vb) || EdgeIsHalfDrawn(va, vb))
+                continue;
             Vector2 a = BasePolygon.SnapVertices[i].Position;
             Vector2 b = BasePolygon.SnapVertices[(i + 1) % BasePolygon.SnapVertices.Count].Position;
 

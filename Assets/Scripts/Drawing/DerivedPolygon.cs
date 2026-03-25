@@ -62,9 +62,7 @@ public class DerivedPolygon : NonConvexPolygon
         List<Vertex> newVertices = ToVertices(lineRenderer);
         (Vertex vtx0, Vertex vtxEnd, Vertex vtxM) = GetVerticesWhereLine(newVertices);
 
-        ReplaceVerticesBetween(newVertices, vtx0, vtxEnd);
-
-        return true;
+        return ReplaceVerticesBetween(newVertices, vtx0, vtxEnd);
     }
 
     /// <summary>
@@ -144,9 +142,19 @@ public class DerivedPolygon : NonConvexPolygon
     {
         List<Vertex> newVertices = ToVertices(lineRenderer);
         (Vertex vtx0, Vertex vtxEnd, Vertex vtxMid) = GetVerticesWhereLine(newVertices);
-        (Vertex line0, Vertex lineEnd) = (newVertices[0], newVertices[^1]);
 
         ResetEdge(vtx0, vtxEnd);
+    }
+
+    public void ResetDrawnEdgeCount(LineRenderer lineRenderer)
+    {
+        List<Vertex> newVertices = ToVertices(lineRenderer);
+        (Vertex line0, Vertex lineEnd) = (newVertices[0], newVertices[^1]);
+
+        if (IsMidPoint(line0) || IsMidPoint(lineEnd))
+            DrawnHalfEdges--;
+        else
+            DrawnEdges--;
     }
 
     /// <summary>
@@ -179,8 +187,9 @@ public class DerivedPolygon : NonConvexPolygon
     /// <param name="newVertices"></param>
     /// <param name="vertex1"></param>
     /// <param name="vertex2"></param>
-    private void ReplaceVerticesBetween(List<Vertex> newVertices, Vertex vertex1, Vertex vertex2)
+    private bool ReplaceVerticesBetween(List<Vertex> newVertices, Vertex vertex1, Vertex vertex2)
     {
+
         Debug.Log("Replacing Vertices");
         ClearEdge(vertex1, vertex2);
 
@@ -193,7 +202,7 @@ public class DerivedPolygon : NonConvexPolygon
         if (index1 < 0 || index2 < 0 || index1 >= _vertices.Count || index2 >= _vertices.Count)
         {
             Debug.LogError("Invalid vertex indices.");
-            return;
+            return false;
         }
 
         // If traversal is reversed, swap indices and invert inserted vertices
@@ -243,6 +252,8 @@ public class DerivedPolygon : NonConvexPolygon
             _vertices.RemoveRange(removeStart, removeCount);
 
         _vertices.InsertRange(removeStart, newVertices);
+
+        return true;
     }
 
     /// <summary>
@@ -266,7 +277,7 @@ public class DerivedPolygon : NonConvexPolygon
     /// </summary>
     /// <param name="vertex"></param>
     /// <returns></returns>
-    private bool IsMidPoint(Vertex vertex)
+    protected bool IsMidPoint(Vertex vertex)
     {
         Edge edge = FindEdgeThroughMidpoint(vertex.Position);
         if (edge != null) 
