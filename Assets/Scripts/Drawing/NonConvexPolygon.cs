@@ -1,11 +1,14 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class NonConvexPolygon : Polygon
 {
 
-    private void Awake()
+    public void Initialize()
     {
+        if(Initialized) { return; }
+
         if (_vertices == null)
             _vertices = new List<Vertex>();
         base._vertices = _vertices;
@@ -35,6 +38,7 @@ public class NonConvexPolygon : Polygon
             var a = _vertices[i];
             var b = _vertices[(i + 1) % _vertices.Count];
             _edges.Add(new Edge(a, b));
+            _midpnts.Add(_edges[i].MidPoint);
         }
     }
 
@@ -106,7 +110,7 @@ public class NonConvexPolygon : Polygon
     [SerializeField] private GameObject edgePrefab;
     [SerializeField] private GameObject vtxPrefab;
     [SerializeField] private int resolutionPerSegment = 3;
-    protected List<LineRenderer> edgeRenderers = new List<LineRenderer>();
+    public List<LineRenderer> edgeRenderers = new List<LineRenderer>();
 
     private void DrawVertices()
     {
@@ -142,11 +146,24 @@ public class NonConvexPolygon : Polygon
             }
 
             edgeRenderers?.Add(lr);
+
+            GameObject midpntObj = Instantiate(vtxPrefab, (Vector2)_midpnts[i].Position, Quaternion.identity);
+            midpntObj.GetComponent<SpriteRenderer>().color = Color.red;
         }
     }
 
-    public override void ReplaceEdge(GameObject line)
+    public override bool ReplaceEdge(GameObject line)
     {
         throw new System.NotImplementedException();
+    }
+
+    internal Edge GetEdge(Vertex a, Vertex b)
+    {
+        foreach (var e in _edges)
+        {
+            if ((e.A == a && e.B == b) || (e.A == b && e.B == a))
+                return e;
+        }
+        return null;
     }
 }

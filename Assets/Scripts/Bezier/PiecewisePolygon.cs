@@ -131,7 +131,7 @@ public class PiecewisePolygon : BezierPolygon
 
     }
 
-    public override void ReplaceEdge(GameObject line)
+    public override bool ReplaceEdge(GameObject line)
     {
         throw new NotImplementedException();
     }

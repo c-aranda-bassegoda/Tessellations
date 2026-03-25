@@ -1,18 +1,20 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using static UnityEditor.PlayerSettings;
 
 public class SelectionManager : MonoBehaviour
 {
+    public event Action<ISelectable> OnSelectionChanged;
     public static SelectionManager Instance { get; private set; }
 
     [SerializeField] List<ISelectable> selectables = new List<ISelectable>();
-    ISelectable selected;
+    public ISelectable selected;
 
     IDraggable currentDraggable;
     bool isDragging;
 
-    private void Start()
+    private void Awake()
     {
         Instance = this;
     }
@@ -25,7 +27,7 @@ public class SelectionManager : MonoBehaviour
 
     void Update()
     {
-        if (ToolManager.Instance.CurrentTool != ToolType.Select)
+        if (ToolManager.Instance.CurrentTool != ToolType.Select && !ToolManager.Instance.CurrentToolRequiresSelection())
         {
             Deselect();
             return;
@@ -65,7 +67,43 @@ public class SelectionManager : MonoBehaviour
         ISelectable toRemove = selected;
         Deselect();
         toRemove.Remove();
-        //Deregister(toRemove);
+    }
+
+
+    public void ClearAll()
+    {
+        Deselect();
+        if (selectables == null || selectables.Count == 0)
+            return;
+        selectables[0].Remove(); // recursive bc some selectables remove others when removed 
+        ClearAll();
+    }
+
+    public ISelectable FindSelectableWithEndpnts(Vector2 a, Vector2 b)
+    {
+
+        ISelectable match = null;
+
+        float tolerance = 0.05f;
+
+        foreach (ISelectable selectable in selectables)
+        {
+            var mb = selectable as MonoBehaviour;
+            if (mb == null)
+                continue;
+
+            LineRenderer lr = mb.GetComponent<LineRenderer>();
+            if (lr == null)
+                continue;
+
+            Vector2 p = lr.GetPosition(0);
+            Vector2 q = lr.GetPosition(lr.positionCount-1);
+            if ((Vector2.Distance(p, a) < tolerance && Vector2.Distance(q, b) < tolerance)
+                || (Vector2.Distance(q, a) < tolerance && Vector2.Distance(p, b) < tolerance))
+                match = selectable;
+        }
+
+        return match;
     }
 
     public ISelectable FindBestFitSelectable(List<Vector2> positions)
@@ -130,7 +168,7 @@ public class SelectionManager : MonoBehaviour
             if (s.HitTest(pointerWorldPos))
             {
                 if (s == selected) return; // already selected, do nothing
-
+                Debug.Log("selected");
                 Select(s);
                 return;
             }
@@ -140,12 +178,14 @@ public class SelectionManager : MonoBehaviour
         
     }
 
-    void Select(ISelectable s)
+    public void Select(ISelectable s)
     {
         if (selected != null)
             selected.SetSelected(false); // if sth is selected deselect it
         selected = s;
         selected.SetSelected(true);
+
+        OnSelectionChanged?.Invoke(selected);
     }
 
     public void Deselect()
@@ -153,6 +193,7 @@ public class SelectionManager : MonoBehaviour
         if (selected != null)
             selected.SetSelected(false); // if sth is selected deselect it
         selected = null;
+        OnSelectionChanged?.Invoke(null);
     }
 
     internal void Deregister(ISelectable selectable)

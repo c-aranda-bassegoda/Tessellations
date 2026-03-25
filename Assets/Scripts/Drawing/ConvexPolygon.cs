@@ -111,7 +111,7 @@ public class ConvexPolygon : Polygon
         }
     }
 
-    public override void ReplaceEdge(GameObject line)
+    public override bool ReplaceEdge(GameObject line)
     {
         throw new NotImplementedException();
     }

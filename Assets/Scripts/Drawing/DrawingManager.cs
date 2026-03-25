@@ -45,12 +45,15 @@ public class DrawingManager : MonoBehaviour
         {
             if (activeDrawer.EndDrawing(pointerPos) && currentLine != null)
             {
+                bool success = false;
                 if (ToolType.SnappingPencil == lastTool)
                 {
-                    baseShape.ReplaceEdge(currentLine);
+                    success = baseShape.ReplaceEdge(currentLine);
+                    if (!success)
+                        Destroy(currentLine);
                 }
                 ISelectable selectable = currentLine?.GetComponent<ISelectable>();
-                if (selectable != null)
+                if (selectable != null && success)
                     SelectionManager.Instance.Register(selectable);
             }
             currentLine = null;

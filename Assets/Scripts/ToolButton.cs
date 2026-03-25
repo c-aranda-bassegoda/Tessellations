@@ -1,17 +1,49 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ToolButton : MonoBehaviour
 {
-    public ToolType toolType;
+    Button button;
+    public ToolType toolType = ToolType.None;
     public Image icon;
     public Color selectedColor = Color.blue;
     public Color normalColor = Color.white;
-    private bool selected = false;
+    private bool selected = false; 
+
+    // is interactable only if there is a selected obj
+    private bool requiresSelection;
+
+    void Awake()
+    {
+        button = GetComponent<Button>();
+        requiresSelection = ToolManager.toolsRequiringSelection.Contains(toolType);
+    }
+
+    void Start()
+    {
+        if (requiresSelection)
+        {
+            SelectionManager.Instance.OnSelectionChanged += HandleSelectionChanged;
+            button.interactable = SelectionManager.Instance.selected != null;
+        }
+    }
+
+    void OnDestroy()
+    {
+        if (requiresSelection && SelectionManager.Instance != null)
+            SelectionManager.Instance.OnSelectionChanged -= HandleSelectionChanged;
+    }
+    private void HandleSelectionChanged(ISelectable selection)
+    {
+        button.interactable = selection != null;
+    }
+
 
     void Update()
     {
         selected = ToolManager.Instance.CurrentTool == toolType;
+        if (toolType == ToolType.None) return;
         icon.color = selected ? selectedColor : normalColor;
     }
 
