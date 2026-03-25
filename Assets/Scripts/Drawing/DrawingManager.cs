@@ -49,12 +49,12 @@ public class DrawingManager : MonoBehaviour
                 if (ToolType.SnappingPencil == lastTool)
                 {
                     success = baseShape.ReplaceEdge(currentLine);
+                    if (!success)
+                        Destroy(currentLine);
                 }
                 ISelectable selectable = currentLine?.GetComponent<ISelectable>();
                 if (selectable != null && success)
                     SelectionManager.Instance.Register(selectable);
-                if (!success)
-                    Destroy(currentLine);
             }
             currentLine = null;
             isDrawing = false;
