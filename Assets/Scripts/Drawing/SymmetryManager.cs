@@ -139,12 +139,12 @@ public class SymmetryManager : MonoBehaviour
 
     public bool CanDraw()
     {
-        Debug.Log("CanDraw: " + baseShape.DrawnEdges + " " + baseShape.TotalEdges);
-        //if (baseShape.DrawnEdges >= baseShape.TotalEdges/2)
-        //{
-        //    Debug.Log("Cannot draw: all edges drawn");
-        //    return false;
-        //}
+        Debug.Log("CanDraw: " + baseShape.DrawnEdges + " " + baseShape.DrawnHalfEdges + " " + baseShape.TotalEdges);
+        if (((float)baseShape.DrawnEdges + (float)baseShape.DrawnHalfEdges/2) >= (float)baseShape.TotalEdges / 2)
+        {
+            Debug.Log("Cannot draw: all edges drawn");
+            return false;
+        }
         return true;
     }
 

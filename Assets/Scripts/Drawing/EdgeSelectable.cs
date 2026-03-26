@@ -21,7 +21,7 @@ public class EdgeSelectable : LineSelectable
         }
         else
         {
-            Polygon.DrawnEdges--;
+            Polygon.ResetDrawnEdgeCount(line);
         }
         base.Remove();
     }

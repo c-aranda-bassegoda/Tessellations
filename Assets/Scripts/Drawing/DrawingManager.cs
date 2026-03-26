@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class DrawingManager : MonoBehaviour
 {
-    [SerializeField] private Polygon baseShape;
+    [SerializeField] public Polygon baseShape;
     [SerializeField] private GameObject linePrefab;
     [SerializeField] private GameObject edgePrefab;
 
@@ -50,10 +50,13 @@ public class DrawingManager : MonoBehaviour
                 {
                     success = baseShape.ReplaceEdge(currentLine);
                     if (!success)
+                    {
                         Destroy(currentLine);
+                        currentLine = null;
+                    }
                 }
                 ISelectable selectable = currentLine?.GetComponent<ISelectable>();
-                if (selectable != null && success)
+                if (selectable != null)
                     SelectionManager.Instance.Register(selectable);
             }
             currentLine = null;
