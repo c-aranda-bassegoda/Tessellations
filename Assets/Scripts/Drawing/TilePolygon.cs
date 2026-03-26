@@ -63,8 +63,17 @@ public class TilePolygon : DerivedPolygon
 
         if (((float)DrawnEdges + (float)DrawnHalfEdges / 2) >= (float)TotalEdges / 2)
             return false;
-        if (!IsMidPoint(newVertices[^1]) && !IsMidPoint(newVertices[0]) && ((float)DrawnEdges + 1 + (float)(DrawnHalfEdges / 2)) >= (float)TotalEdges / 2)
-            return false;
+
+        if (!IsMidPoint(newVertices[^1]) && !IsMidPoint(newVertices[0]))
+        {
+            if (((float)DrawnEdges + 1 + (float)(DrawnHalfEdges / 2)) > (float)TotalEdges / 2)
+                return false;
+        }
+        else
+        {
+            if (((float)DrawnEdges + (float)((DrawnHalfEdges + 1) / 2)) > ((float)TotalEdges / 2))
+                return false;
+        }
 
         if (!EdgeIsDrawn(vtx0,vtxEnd) && !EdgeIsHalfDrawn(vtx0, vtxEnd, vtxM) && ExistsSymmTransformation(line.GetComponent<EdgeSelectable>()))
             return base.ReplaceEdge(line);
