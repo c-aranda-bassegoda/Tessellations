@@ -6,7 +6,7 @@ using UnityEngine;
 // polygon with special vertices which are game objects rather than just data
 public class PiecewisePolygon : BezierPolygon
 {
-    [SerializeField] List<Vector2> vertices;
+    //[SerializeField] List<Vector2> vertices;
     protected List<Path> edges;
     [SerializeField] private GameObject linePrefab; // Prefab with LineRenderer
     [SerializeField] private GameObject nodePrefab;
@@ -109,11 +109,11 @@ public class PiecewisePolygon : BezierPolygon
 
     void Start()
     {
-        if (vertices == null || vertices.Count < 2) return;
+        if (_vertices == null || _vertices.Count < 2) return;
 
         // Makes polygon out of vertex list
-        Vector2 prev = vertices[vertices.Count - 1];
-        for (int i = 0; i < vertices.Count; i++)
+        Vector2 prev = _vertices[^1].Position;
+        for (int i = 0; i < _vertices.Count; i++)
         {
             GameObject edgeObj = Instantiate(linePrefab, Vector2.zero, Quaternion.identity);
             edgeObj.transform.parent = transform;
@@ -122,11 +122,11 @@ public class PiecewisePolygon : BezierPolygon
             path.resolutionPerSegment = resolutionPerSegment;
             path.nodePrefab = nodePrefab;
             path.clickThreshold = clickThreshold;
-            path.Initialize(prev, vertices[i]);
+            path.Initialize(prev, _vertices[i].Position);
             edges.Add(path);
 
 
-            prev = vertices[i];
+            prev = _vertices[i].Position;
         }
 
     }
