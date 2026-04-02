@@ -885,7 +885,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2cb1d28c219df149a914da88b12221b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _vertices: []
+  _vertices:
+  - position: {x: 2, y: -2}
+  - position: {x: 2, y: 0}
+  - position: {x: 2, y: 2}
+  - position: {x: -2, y: 2}
+  - position: {x: -2, y: 0}
+  - position: {x: -2, y: -2}
   vertices:
   - {x: 2, y: -2}
   - {x: 2, y: 0}
@@ -2084,7 +2090,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2cb1d28c219df149a914da88b12221b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _vertices: []
+  _vertices:
+  - position: {x: 2, y: -2}
+  - position: {x: 2, y: 2}
+  - position: {x: -2, y: 2}
+  - position: {x: -2, y: -2}
   vertices:
   - {x: 2, y: -2}
   - {x: 2, y: 2}
@@ -2450,7 +2460,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2cb1d28c219df149a914da88b12221b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _vertices: []
+  _vertices:
+  - position: {x: 0, y: -2}
+  - position: {x: 2, y: -2}
+  - position: {x: 2, y: 0}
+  - position: {x: 2, y: 2}
+  - position: {x: 0, y: 2}
+  - position: {x: -2, y: 2}
+  - position: {x: -2, y: 0}
+  - position: {x: -2, y: -2}
   vertices:
   - {x: 0, y: -2}
   - {x: 2, y: -2}
@@ -3296,7 +3314,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2cb1d28c219df149a914da88b12221b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _vertices: []
+  _vertices:
+  - position: {x: 2, y: -2}
+  - position: {x: 2, y: 2}
+  - position: {x: -2, y: 2}
+  - position: {x: -2, y: -2}
   vertices:
   - {x: 2, y: -2}
   - {x: 2, y: 2}
@@ -3503,7 +3525,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2cb1d28c219df149a914da88b12221b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _vertices: []
+  _vertices:
+  - position: {x: 2, y: -2}
+  - position: {x: 2, y: 2}
+  - position: {x: -2, y: 2}
+  - position: {x: -2, y: -2}
   vertices:
   - {x: 2, y: -2}
   - {x: 2, y: 2}
@@ -4020,7 +4046,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2cb1d28c219df149a914da88b12221b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _vertices: []
+  _vertices:
+  - position: {x: 2, y: -2}
+  - position: {x: 2, y: 2}
+  - position: {x: -2, y: 2}
+  - position: {x: -2, y: -2}
   vertices:
   - {x: 2, y: -2}
   - {x: 2, y: 2}
@@ -4520,7 +4550,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2cb1d28c219df149a914da88b12221b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _vertices: []
+  _vertices:
+  - position: {x: 2, y: -2}
+  - position: {x: 2, y: 2}
+  - position: {x: 0, y: 2}
+  - position: {x: -2, y: 2}
+  - position: {x: -2, y: 0}
+  - position: {x: -2, y: -2}
   vertices:
   - {x: 2, y: -2}
   - {x: 2, y: 2}
@@ -5151,7 +5187,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2cb1d28c219df149a914da88b12221b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _vertices: []
+  _vertices:
+  - position: {x: 2, y: -2}
+  - position: {x: 2, y: 2}
+  - position: {x: -2, y: 2}
+  - position: {x: -2, y: -2}
   vertices:
   - {x: 2, y: -2}
   - {x: 2, y: 2}
@@ -5357,7 +5397,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2cb1d28c219df149a914da88b12221b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _vertices: []
+  _vertices:
+  - position: {x: 2, y: -2}
+  - position: {x: 2, y: 0}
+  - position: {x: 2, y: 2}
+  - position: {x: -2, y: 2}
+  - position: {x: -2, y: 0}
+  - position: {x: -2, y: -2}
   vertices:
   - {x: 2, y: -2}
   - {x: 2, y: 0}
