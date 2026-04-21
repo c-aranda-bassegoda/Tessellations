@@ -9,6 +9,7 @@ public class PolygonSelectionManager : MonoBehaviour
     public static PolygonSelectionManager Instance { get; private set; }
 
     [SerializeField] public DrawingManager drawingManager;
+    [SerializeField] public Lattice lattice;
     [SerializeField] public PathManager pathManager;
     [SerializeField] public GameObject polygonsPanel;
     [SerializeField] public List<GameObject> polygons;
@@ -27,10 +28,13 @@ public class PolygonSelectionManager : MonoBehaviour
         Instance = this;
 
         if (drawingManager == null)
-            Debug.LogWarning("DrawingManager reference not set in PolygonSelectionManager. Attempting to find one in the scene.");
+            Debug.LogWarning("DrawingManager reference not set in PolygonSelectionManager.");
 
         if (pathManager == null)
-            Debug.LogWarning("PathManager reference not set in PolygonSelectionManager. Attempting to find one in the scene.");
+            Debug.LogWarning("PathManager reference not set in PolygonSelectionManager.");
+
+        if (lattice == null)
+            Debug.LogWarning("Lattice reference not set in PolygonSelectionManager.");
 
         if (polygons == null)
             polygons = new List<GameObject>();
@@ -79,6 +83,7 @@ public class PolygonSelectionManager : MonoBehaviour
         polygons[0].SetActive(true);
         drawingManager.baseShape = polygons[0].GetComponent<BezierPolygon>();
         pathManager.polygon = polygons[0].GetComponent<BezierPolygon>();
+        lattice.tile = polygons[0].GetComponent<TessellationPolygon>();
     }
 
     public void SetPolygon(int idx)
@@ -92,6 +97,7 @@ public class PolygonSelectionManager : MonoBehaviour
         polygons[idx].SetActive(true);
         drawingManager.baseShape = polygons[idx].GetComponent<BezierPolygon>();
         pathManager.polygon = polygons[idx].GetComponent<BezierPolygon>();
+        lattice.tile = polygons[idx].GetComponent<TessellationPolygon>();
     }
 
     private void ResetPolygons()

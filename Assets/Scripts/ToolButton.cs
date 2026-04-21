@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class ToolButton : MonoBehaviour
 {
-    Button button;
+    protected Button button;
     public ToolType toolType = ToolType.None;
     public Image icon;
     public Color selectedColor = Color.blue;
