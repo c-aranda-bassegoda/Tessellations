@@ -23,6 +23,8 @@ public class TransfToolButton : ToolButton
         if (mb == null)
         {
             Debug.Log("null mb");
+            button.gameObject.SetActive((selection != null));
+            button.interactable = (selection != null);
             return;
         }
         EdgeSelectable line = mb.gameObject?.GetComponent<EdgeSelectable>();
