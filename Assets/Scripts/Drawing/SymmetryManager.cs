@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class SymmetryManager : MonoBehaviour
 {
-    [SerializeField] private TilePolygon baseShape;
+    [SerializeField] public TilePolygon baseShape;
 
     public static SymmetryManager Instance { get; private set; }
 

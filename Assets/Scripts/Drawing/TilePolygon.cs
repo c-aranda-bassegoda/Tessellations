@@ -61,11 +61,14 @@ public class TilePolygon : DerivedPolygon
         List<Vertex> newVertices = base.ToVertices(lineRenderer);
         (Vertex vtx0, Vertex vtxEnd, Vertex vtxM) = base.GetVerticesWhereLine(newVertices);
 
-        if (((float)DrawnEdges + (float)DrawnHalfEdges / 2) >= (float)TotalEdges / 2)
+        Debug.Log("Drawn edges: " + DrawnEdges + "Drawn half edges: " + DrawnHalfEdges + "Drawable: " + TotalEdges / 2);
+
+        if (((float)DrawnEdges + (float)(DrawnHalfEdges / 2)) >= (float)TotalEdges / 2)
             return false;
 
         if (!IsMidPoint(newVertices[^1]) && !IsMidPoint(newVertices[0]))
         {
+            Debug.Log("midpoint");
             if (((float)DrawnEdges + 1 + (float)(DrawnHalfEdges / 2)) > (float)TotalEdges / 2)
                 return false;
         }
