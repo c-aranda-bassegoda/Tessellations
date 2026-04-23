@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,7 +18,6 @@ public class ToolButton : MonoBehaviour
     {
         button = GetComponent<Button>();
         requiresSelection = ToolManager.toolsRequiringSelection.Contains(toolType);
-        Debug.Log($"ToolButton Awake: {toolType}, requiresSelection = {requiresSelection}");
     }
 
     void Start()
@@ -27,7 +25,7 @@ public class ToolButton : MonoBehaviour
         if (requiresSelection)
         {
             SelectionManager.Instance.OnSelectionChanged += HandleSelectionChanged;
-            //button.interactable = SelectionManager.Instance.selected != null;
+            button.interactable = SelectionManager.Instance.selected != null;
         }
     }
 
@@ -38,13 +36,7 @@ public class ToolButton : MonoBehaviour
     }
     private void HandleSelectionChanged(ISelectable selection)
     {
-        StartCoroutine(SetInteractableNextFrame(selection != null));
-    }
-
-    IEnumerator SetInteractableNextFrame(bool state)
-    {
-        yield return null;
-        //button.interactable = state;
+        button.interactable = selection != null;
     }
 
 
