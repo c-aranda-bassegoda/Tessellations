@@ -13,6 +13,8 @@ public class InputManager : MonoBehaviour
     public Vector2 PointerWorldPos { get; private set; }
 
     public bool PointerOverUI { get; private set; }
+    //public bool StartedOverUI { get; private set; }
+    //public bool BlockWorldInput { get; private set; }
 
 
 
@@ -28,8 +30,23 @@ public class InputManager : MonoBehaviour
     {
         ResetFrameState();
 
-        HandleMouse();
+        //HandleMouse();
         HandleTouch();
+
+        //if (PointerDown)
+        //{
+        //    PointerOverUI = EventSystem.current.IsPointerOverGameObject(Input.touchCount > 0 ? Input.GetTouch(0).fingerId : -1);
+
+        //    StartedOverUI = PointerOverUI;
+        //    BlockWorldInput = PointerOverUI;
+        //    Debug.Log("BlockWorldInput: " + BlockWorldInput);
+        //}
+
+        //if (PointerUp)
+        //{
+        //    StartedOverUI = false;
+        //    BlockWorldInput = false;
+        //}
     }
 
     void ResetFrameState()

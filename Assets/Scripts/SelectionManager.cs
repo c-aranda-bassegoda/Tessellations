@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using static UnityEditor.PlayerSettings;
+using System.Collections;
+using UnityEngine.EventSystems;
 
 public class SelectionManager : MonoBehaviour
 {
@@ -13,6 +15,8 @@ public class SelectionManager : MonoBehaviour
 
     IDraggable currentDraggable;
     bool isDragging;
+
+    Coroutine selectRoutine;
 
     private void Awake()
     {
@@ -27,6 +31,17 @@ public class SelectionManager : MonoBehaviour
 
     void Update()
     {
+        //if (InputManager.Instance.BlockWorldInput)
+        //{
+        //    return;
+        //}
+
+        //if (InputManager.Instance.StartedOverUI)
+        //{
+        //    Debug.Log("Pointer started over UI, ignoring selection input");
+        //    return;
+        //}
+
         if (ToolManager.Instance.CurrentTool != ToolType.Select && !ToolManager.Instance.CurrentToolRequiresSelection())
         {
             Deselect();
@@ -59,10 +74,42 @@ public class SelectionManager : MonoBehaviour
         }
     }
 
+    IEnumerator DelayedSelect(Vector2 pos)
+    {
+        yield return null; // wait one frame
+
+        Debug.Log("Delayed select, trying to select");
+        // Now UI system has updated correctly
+        if (EventSystem.current.IsPointerOverGameObject(
+            Input.touchCount > 0 ? Input.GetTouch(0).fingerId : -1))
+        {
+            yield break; 
+        }
+
+        TrySelect(pos);
+
+        if (selected is IDraggable draggable)
+        {
+            currentDraggable = draggable;
+            isDragging = true;
+        }
+    }
+
     public void DeleteSelected()
     {
+        Debug.Log("DELETE CALLED");
+
+        if (selectRoutine != null)
+        {
+            StopCoroutine(selectRoutine);
+            selectRoutine = null;
+        }
+
         if (selected == null)
+        {
+            Debug.Log("BUT SELECTED IS NULL");
             return;
+        }
 
         ISelectable toRemove = selected;
         Deselect();
@@ -154,6 +201,12 @@ public class SelectionManager : MonoBehaviour
 
     private void TrySelect(Vector2 pointerWorldPos)
     {
+        if (InputManager.Instance.PointerOverUI)
+            return;
+
+        if (EventSystem.current != null &&
+            EventSystem.current.IsPointerOverGameObject())
+            return;
 
         for (int i = selectables.Count - 1; i >= 0; i--)
         {
@@ -174,8 +227,10 @@ public class SelectionManager : MonoBehaviour
             }
         }
 
-        Deselect();
-        
+        //if (!InputManager.Instance.PointerOverUI)
+        //{
+            Deselect();
+        //}
     }
 
     public void Select(ISelectable s)

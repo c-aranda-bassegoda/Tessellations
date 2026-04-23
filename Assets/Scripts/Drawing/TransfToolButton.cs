@@ -11,7 +11,7 @@ public class TransfToolButton : ToolButton
     {
         SelectionManager.Instance.OnSelectionChanged += HandleSelectionChanged;
         //button.interactable = SelectionManager.Instance.selected != null;
-        button.gameObject.SetActive(SelectionManager.Instance.selected != null);
+        button.enabled = (SelectionManager.Instance.selected != null);
     }
 
     private void HandleSelectionChanged(ISelectable selection)
@@ -22,9 +22,10 @@ public class TransfToolButton : ToolButton
 
         if (mb == null)
         {
-            Debug.Log("null mb");
-            button.gameObject.SetActive((selection != null));
-            button.interactable = (selection != null);
+            //Debug.Log("null mb");
+            //button.gameObject.SetActive((selection != null));
+            button.enabled = (selection != null);
+            //button.interactable = (selection != null);
             return;
         }
         EdgeSelectable line = mb.gameObject?.GetComponent<EdgeSelectable>();
@@ -43,8 +44,9 @@ public class TransfToolButton : ToolButton
                 break;
         }
 
-        button.gameObject.SetActive((selection != null) && active);
-        button.interactable = (selection != null) && active;
+        //button.gameObject.SetActive((selection != null) && active);
+        button.enabled = active;
+        //button.interactable = (selection != null) && active;
     }
 
     void OnDestroy()
