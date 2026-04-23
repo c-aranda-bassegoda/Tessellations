@@ -67,6 +67,8 @@ public class SelectionManager : MonoBehaviour
 
         ISelectable toRemove = selected;
         Deselect();
+        isDragging = false;
+        currentDraggable = null;
         toRemove.Remove();
     }
 
