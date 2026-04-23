@@ -8,7 +8,7 @@ public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
     List<Vector3> points = new List<Vector3>();
     public Vector2 Center => (points[0] + points[^1]) / 2f;
 
-    public float hitRadius = 0.1f;
+    public float hitRadius = 0.2f;
 
     void Awake()
     {

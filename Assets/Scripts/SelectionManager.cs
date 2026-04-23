@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using static UnityEditor.PlayerSettings;
+using UnityEngine.EventSystems;
 
 public class SelectionManager : MonoBehaviour
 {
@@ -66,6 +67,8 @@ public class SelectionManager : MonoBehaviour
 
         ISelectable toRemove = selected;
         Deselect();
+        isDragging = false;
+        currentDraggable = null;
         toRemove.Remove();
     }
 
@@ -154,6 +157,13 @@ public class SelectionManager : MonoBehaviour
 
     private void TrySelect(Vector2 pointerWorldPos)
     {
+
+        if (InputManager.Instance.PointerOverUI)
+            return;
+
+        if (EventSystem.current != null &&
+            EventSystem.current.IsPointerOverGameObject())
+            return;
 
         for (int i = selectables.Count - 1; i >= 0; i--)
         {

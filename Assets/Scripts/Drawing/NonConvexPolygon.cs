@@ -118,7 +118,7 @@ public class NonConvexPolygon : Polygon
 
         for (int i = 0; i < _vertices.Count; i++)
         {
-            GameObject vtxObj = Instantiate(vtxPrefab, (Vector2)_vertices[i].Position, Quaternion.identity);
+            GameObject vtxObj = Instantiate(vtxPrefab, (Vector2)_vertices[i].Position, Quaternion.identity, transform);
             Debug.Log("color: " + vtxObj.GetComponent<SpriteRenderer>().color);
         }
     }
@@ -129,8 +129,8 @@ public class NonConvexPolygon : Polygon
 
         for (int i = 0; i < _edges.Count; i++)
         {
-            GameObject edgeObj = Instantiate(edgePrefab, Vector2.zero, Quaternion.identity);
-            edgeObj.transform.parent = transform;
+            GameObject edgeObj = Instantiate(edgePrefab, Vector2.zero, Quaternion.identity, transform);
+            //edgeObj.transform.parent = transform;
 
             LineRenderer lr = edgeObj.GetComponent<LineRenderer>();
             if (lr == null) return;
@@ -147,7 +147,7 @@ public class NonConvexPolygon : Polygon
 
             edgeRenderers?.Add(lr);
 
-            GameObject midpntObj = Instantiate(vtxPrefab, (Vector2)_midpnts[i].Position, Quaternion.identity);
+            GameObject midpntObj = Instantiate(vtxPrefab, (Vector2)_midpnts[i].Position, Quaternion.identity, transform);
             midpntObj.GetComponent<SpriteRenderer>().color = Color.red;
         }
     }

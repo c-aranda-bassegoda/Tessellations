@@ -81,7 +81,7 @@ public class Path : MonoBehaviour
 
         if (segmentIndex != -1 && Vector3.Distance(closestPoint, clickPos) < clickThreshold)
         {
-            NodeSelectable node = Instantiate(nodePrefab, closestPoint, Quaternion.identity)
+            NodeSelectable node = Instantiate(nodePrefab, closestPoint, Quaternion.identity, transform)
                         .GetComponent<NodeSelectable>();
             PathPointSelectable p1 = new PathPointSelectable();
             p1.parentPath = this;

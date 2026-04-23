@@ -80,7 +80,7 @@ public class ConvexPolygon : Polygon
 
         for (int i = 0; i < vertices.Count; i++)
         {
-            GameObject vtxObj = Instantiate(vtxPrefab, (Vector2)vertices[i].Position, Quaternion.identity);
+            GameObject vtxObj = Instantiate(vtxPrefab, (Vector2)vertices[i].Position, Quaternion.identity, transform);
             Debug.Log("color: " + vtxObj.GetComponent<SpriteRenderer>().color);
         }
     }
