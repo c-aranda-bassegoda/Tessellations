@@ -25,6 +25,9 @@ public class PathPointSelectable : IPointSelectable
     private bool isSelected;
     public bool IsSelected() => isSelected;
 
+
+    public float handleRadius = 0.2f;
+
     public enum ActivePart
     {
         None,
@@ -119,7 +122,6 @@ public class PathPointSelectable : IPointSelectable
         // Only check handles if the anchor is currently selected
         if (IsSelected() && selectionHandler != null)
         {
-            float handleRadius = 0.2f; // tweak for your scale
             if ((HandleInPos - worldPoint).sqrMagnitude <= handleRadius * handleRadius)
             {
                 activePart = ActivePart.HandleIn;
