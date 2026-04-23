@@ -377,7 +377,7 @@ public class TilePolygon : DerivedPolygon
             return null;
         }
 
-        GameObject newObj = Instantiate(lineObj);
+        GameObject newObj = Instantiate(lineObj, transform);
         SetEdgeProps(newObj, lineObj);
 
         LineSelectable ls = newObj.GetComponent<LineSelectable>();
@@ -431,7 +431,7 @@ public class TilePolygon : DerivedPolygon
             return null;
         }
 
-        GameObject newObj = Instantiate(lineObj);
+        GameObject newObj = Instantiate(lineObj, transform);
         SetEdgeProps(newObj, lineObj);
 
         LineSelectable ls = newObj.GetComponent<LineSelectable>();
@@ -495,7 +495,7 @@ public class TilePolygon : DerivedPolygon
             Debug.LogError("No LineRenderer on source object");
             return null;
         }
-        GameObject newObj = Instantiate(lineObj);
+        GameObject newObj = Instantiate(lineObj, transform);
         SetEdgeProps(newObj, lineObj);
 
         LineSelectable ls = newObj.GetComponent<LineSelectable>();

@@ -16,12 +16,12 @@ public class SnapDrawingSystem : ILineDrawer
         this.snapDistance = snapDistance;
     }
 
-    public GameObject StartDrawing(Vector3 startPos)
+    public GameObject StartDrawing(Vector3 startPos, Transform parent)
     {
         startVertex = FindClosestVertex(startPos);
         if (startVertex == null) return null;
 
-        currentLine = baseDrawer.StartDrawing(startVertex.Position);
+        currentLine = baseDrawer.StartDrawing(startVertex.Position, parent);
         EdgeSelectable selectable = currentLine.GetComponent<EdgeSelectable>();
         if (selectable != null)
         {

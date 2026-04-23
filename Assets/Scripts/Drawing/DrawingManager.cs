@@ -32,7 +32,7 @@ public class DrawingManager : MonoBehaviour
 
         if (InputManager.Instance.PointerDown)
         {
-            currentLine = activeDrawer.StartDrawing(pointerPos);
+            currentLine = activeDrawer.StartDrawing(pointerPos, baseShape.transform);
             isDrawing = true;
         }
 

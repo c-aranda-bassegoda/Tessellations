@@ -18,9 +18,9 @@ public class FreehandDrawingSystem : ILineDrawer
     }
 
     // Return the GameObject so the manager can register it
-    public GameObject StartDrawing(Vector3 startPos)
+    public GameObject StartDrawing(Vector3 startPos, Transform parent)
     {
-        currentLine = GameObject.Instantiate(linePrefab, Vector3.zero, Quaternion.identity);
+        currentLine = GameObject.Instantiate(linePrefab, Vector3.zero, Quaternion.identity, parent);
         currentLineRenderer = currentLine.GetComponent<LineRenderer>();
         points = new List<Vector3>();
         AddPoint(startPos);

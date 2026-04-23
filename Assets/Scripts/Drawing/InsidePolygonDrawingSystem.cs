@@ -15,13 +15,13 @@ public class InsidePolygonDrawingSystem :  ILineDrawer
         baseShape = shape;
     }
 
-    public GameObject StartDrawing(Vector3 startPos)
+    public GameObject StartDrawing(Vector3 startPos, Transform parent)
     {
         if (!baseShape.ContainsPoint(startPos))
             return null;
 
         isDrawingValid = true;
-        return baseDrawer.StartDrawing(startPos);
+        return baseDrawer.StartDrawing(startPos, parent);
     }
 
     public void UpdateDrawing(Vector3 currentPos)
