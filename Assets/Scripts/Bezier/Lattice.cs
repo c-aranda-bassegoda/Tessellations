@@ -45,5 +45,18 @@ public class Lattice : MonoBehaviour
         // Base translation
         Vector2 translation = midB - midA;
         newTile.transform.position += (Vector3)translation;
+
+        // Move line renderers because LineRenderer positions are in world space fml
+        LineRenderer[] lineRenderers = newTile.GetComponentsInChildren<LineRenderer>();
+        foreach (var lr in lineRenderers)
+        {
+            Vector3[] positions = new Vector3[lr.positionCount];
+            lr.GetPositions(positions);
+            for (int i = 0; i < positions.Length; i++)
+            {
+                positions[i] += (Vector3)translation;
+            }
+            lr.SetPositions(positions);
+        }
     }
 }

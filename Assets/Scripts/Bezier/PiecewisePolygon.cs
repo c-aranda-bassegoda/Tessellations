@@ -118,9 +118,9 @@ public class PiecewisePolygon : BezierPolygon
         Vector2 prev = vertices[vertices.Count - 1];
         for (int i = 0; i < vertices.Count; i++)
         {
-            GameObject edgeObj = Instantiate(linePrefab, Vector2.zero, Quaternion.identity);
+            GameObject edgeObj = Instantiate(linePrefab, transform);
             //edgeObj.transform.parent = transform;
-            edgeObj.transform.SetParent(transform, true);
+            edgeObj.transform.SetParent(transform, false);
 
             Path path = edgeObj.AddComponent<Path>();
             path.resolutionPerSegment = resolutionPerSegment;

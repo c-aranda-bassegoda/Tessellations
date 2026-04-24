@@ -65,7 +65,7 @@ public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
 
     public void OnTranslate(Vector2 worldPosition)
     {
-        Vector2 delta = worldPosition - Center;
+        Vector3 delta = worldPosition - Center;
 
         for (int i = 0; i < points.Count; i++)
         {
@@ -76,6 +76,8 @@ public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
             );
             line.SetPosition(i, points[i]);
         }
+
+        //transform.position += delta;
     }
 
     public void OnRotate(float angleDeg, Vector2 pivot)
