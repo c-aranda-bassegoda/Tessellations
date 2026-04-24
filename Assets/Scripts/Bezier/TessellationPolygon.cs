@@ -257,7 +257,7 @@ public class TessellationPolygon : PiecewisePolygon
         return (axisPoint, axisDir);
     }
 
-    private (Vector2 pivot, Vector2 axisDir) GetMidpointReflectionAxis(Path path)
+    public (Vector2 pivot, Vector2 axisDir) GetMidpointReflectionAxis(Path path)
     {
         // Pivot = midpoint of endpoints
         Vector2 pivot = (path.Start + path.End) / 2f;
@@ -295,7 +295,7 @@ public class TessellationPolygon : PiecewisePolygon
     /// </summary>
     /// <param name="edge"></param>
     /// <param name="symEdge"></param>
-    private Matrix2x2 GetRotationMatrix(Path edge, Path symEdge)
+    public Matrix2x2 GetRotationMatrix(Path edge, Path symEdge)
     {
         if (!GetSharedVertex(edge, symEdge, out Vector2 pivot))
         {
