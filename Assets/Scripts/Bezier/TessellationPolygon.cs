@@ -97,11 +97,23 @@ public class TessellationPolygon : PiecewisePolygon
     /// <summary>
     /// Returns the symmetric edge index, or -1 if none
     /// </summary>
-    private int GetSymmetricEdgeIndex(int edgeIndex)
+    public int GetSymmetricEdgeIndex(int edgeIndex)
     {
         if (symmetricEdgeMap != null && edgeIndex < symmetricEdgeMap.Count)
             return symmetricEdgeMap[edgeIndex];
         return -1;
+    }
+
+    /// <summary>
+    /// Returns the symmetry type for the given edge index. Defaults to translation if not set.
+    /// </summary>
+    /// <param name="edgeIndex"></param>
+    /// <returns></returns>
+    public Symmetry GetSymmetryForEdge(int edgeIndex)
+    {
+        if (symmetries != null && edgeIndex < symmetries.Count)
+            return symmetries[edgeIndex];
+        return Symmetry.Translation; // default symmetry
     }
 
     /// <summary>
@@ -294,8 +306,6 @@ public class TessellationPolygon : PiecewisePolygon
         Vector2 dirA = GetDirectionFromPivot(edge, pivot);
         Vector2 dirB = GetDirectionFromPivot(symEdge, pivot);
 
-        //Vector2 dirA = (edge.End + edge.Start).normalized;
-        //Vector2 dirB = (symEdge.End + symEdge.Start).normalized;
         float cos = Vector2.Dot(dirA, dirB);
         float sin = dirA.x * dirB.y - dirA.y * dirB.x; // 2D cross product 
 

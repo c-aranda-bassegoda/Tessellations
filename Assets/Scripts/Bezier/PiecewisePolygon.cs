@@ -7,7 +7,7 @@ using UnityEngine;
 public class PiecewisePolygon : BezierPolygon
 {
     [SerializeField] List<Vector2> vertices;
-    protected List<Path> edges;
+    public List<Path> edges;
     [SerializeField] private GameObject linePrefab; // Prefab with LineRenderer
     [SerializeField] private GameObject nodePrefab;
     [SerializeField] private int resolutionPerSegment = 20;
@@ -110,13 +110,15 @@ public class PiecewisePolygon : BezierPolygon
     void Start()
     {
         if (vertices == null || vertices.Count < 2) return;
+        if (edges.Count > 0) return;
 
         // Makes polygon out of vertex list
         Vector2 prev = vertices[vertices.Count - 1];
         for (int i = 0; i < vertices.Count; i++)
         {
             GameObject edgeObj = Instantiate(linePrefab, Vector2.zero, Quaternion.identity);
-            edgeObj.transform.parent = transform;
+            //edgeObj.transform.parent = transform;
+            edgeObj.transform.SetParent(transform, true);
 
             Path path = edgeObj.AddComponent<Path>();
             path.resolutionPerSegment = resolutionPerSegment;
