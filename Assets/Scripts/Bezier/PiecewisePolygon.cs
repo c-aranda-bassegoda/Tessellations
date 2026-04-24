@@ -104,13 +104,15 @@ public class PiecewisePolygon : BezierPolygon
 
     private void Awake()
     {
-        edges = new List<Path>();
+        if (edges == null)
+            edges = new List<Path>();
     }
 
     void Start()
     {
+        if (edges != null && edges.Count > 0)
+            return;
         if (vertices == null || vertices.Count < 2) return;
-        if (edges.Count > 0) return;
 
         // Makes polygon out of vertex list
         Vector2 prev = vertices[vertices.Count - 1];

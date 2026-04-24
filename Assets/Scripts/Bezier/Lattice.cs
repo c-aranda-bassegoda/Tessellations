@@ -4,11 +4,6 @@ public class Lattice : MonoBehaviour
 {
     public TessellationPolygon tile;
 
-    //void Start()
-    //{
-    //    tile = GetComponent<TessellationPolygon>();
-    //}
-
     public void Tessellate()
     {
         SelectionManager.Instance.Deselect();
