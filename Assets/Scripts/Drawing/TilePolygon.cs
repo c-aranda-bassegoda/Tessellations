@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework.Constraints;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static TessPointSelectable;
 using static UnityEngine.GraphicsBuffer;
 
 public class TilePolygon : DerivedPolygon
@@ -13,6 +15,10 @@ public class TilePolygon : DerivedPolygon
     public int AdjGlideReflections { get; set; }
     public int ParallelGlideReflections { get; set; }
 
+
+    private List<int> symmetricEdgeMap = new List<int>();
+    private List<Symmetry> symmetries = new List<Symmetry>();
+
     private void Awake()
     {
         base.Initialize();
@@ -20,6 +26,25 @@ public class TilePolygon : DerivedPolygon
         StraightRotations = 0;
         AdjGlideReflections = 0;
         ParallelGlideReflections = 0;
+        for (int i = 0; i < BasePolygon.Edges.Count; i++)
+        {
+            symmetricEdgeMap.Add(-1);
+            symmetries.Add(Symmetry.Translation); // default symmetry
+        }
+    }
+
+    internal TessPointSelectable.Symmetry GetSymmetryForEdge(int edgeIndex)
+    {
+        if (symmetries != null && edgeIndex < symmetries.Count)
+            return symmetries[edgeIndex];
+        return Symmetry.Translation; // default symmetry
+    }
+
+    internal int GetSymmetricEdgeIndex(int edgeIndex)
+    {
+        if (symmetricEdgeMap != null && edgeIndex < symmetricEdgeMap.Count)
+            return symmetricEdgeMap[edgeIndex];
+        return -1;
     }
 
     public bool EdgeIsDrawn(Vertex vertex1, Vertex vertex2)
@@ -408,7 +433,40 @@ public class TilePolygon : DerivedPolygon
             return null;
         }
         DrawnEdges--;
+
+        SetSymmetryForEdge(lineObj ,selectedEdg, Symmetry.Translation);
+
         return ls;
+    }
+
+    private void SetSymmetryForEdge(GameObject lineObj, int selectedEdg, Symmetry transf)
+    {
+        int oldEdgeIdx = GetEdgeIndex(lineObj.GetComponent<LineRenderer>());
+        symmetricEdgeMap.RemoveAt(oldEdgeIdx);
+        symmetricEdgeMap.Insert(oldEdgeIdx, selectedEdg);
+        symmetricEdgeMap.RemoveAt(selectedEdg);
+        symmetricEdgeMap.Insert(selectedEdg, oldEdgeIdx);
+        symmetries.RemoveAt(oldEdgeIdx);
+        symmetries.Insert(oldEdgeIdx, transf);
+        symmetries.RemoveAt(selectedEdg);
+        symmetries.Insert(selectedEdg, transf);
+    }
+
+    private int GetEdgeIndex(LineRenderer edge)
+    {
+        for (int i = 0; i < BasePolygon.Edges.Count; i++)
+        {
+            if (((Vector3)BasePolygon.Edges[i].A.Position == edge.GetPosition(0) 
+                && (Vector3)BasePolygon.Edges[i].B.Position == edge.GetPosition(edge.positionCount - 1)) 
+                ||
+                ((Vector3)BasePolygon.Edges[i].A.Position == edge.GetPosition(edge.positionCount-1) 
+                && (Vector3)BasePolygon.Edges[i].B.Position == edge.GetPosition(0)))
+            {
+                return i;
+            }
+        }
+        Debug.LogError("Edge not found in base polygon: ");
+        return -1;
     }
 
     /// <summary>
@@ -479,6 +537,8 @@ public class TilePolygon : DerivedPolygon
             Destroy(newObj);
             return null;
         }
+
+        SetSymmetryForEdge(lineObj, selectedEdg, Symmetry.Rotation);
 
         DrawnEdges--;
         return ls;
@@ -556,6 +616,8 @@ public class TilePolygon : DerivedPolygon
             Destroy(newObj);
             return null;
         }
+
+        SetSymmetryForEdge(lineObj, selectedEdg, Symmetry.GlideReflection);
 
         DrawnEdges--;
         return ls;
