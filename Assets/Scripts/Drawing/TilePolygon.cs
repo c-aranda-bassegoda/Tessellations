@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NUnit.Framework.Constraints;
 using Unity.VisualScripting;
@@ -17,7 +18,9 @@ public class TilePolygon : DerivedPolygon
 
 
     private List<int> symmetricEdgeMap = new List<int>();
+    public List<int> SymmetricEdgeMap => symmetricEdgeMap;
     private List<Symmetry> symmetries = new List<Symmetry>();
+    public List<Symmetry> Symmetries => symmetries;
 
     private void Awake()
     {
@@ -390,7 +393,7 @@ public class TilePolygon : DerivedPolygon
     /// <param name="lineObj"></param>
     /// <param name="selectedEdg"></param>
     /// <returns></returns>
-    internal ISelectable Translate(GameObject lineObj, int selectedEdg)
+    public ISelectable Translate(GameObject lineObj, int selectedEdg)
     {
         Edge edge = BasePolygon.Edges[selectedEdg];
 
@@ -475,7 +478,7 @@ public class TilePolygon : DerivedPolygon
     /// <param name="lineObj"></param>
     /// <param name="selectedEdg"></param>
     /// <returns></returns>
-    internal ISelectable Rotate(GameObject lineObj, int selectedEdg)
+    public ISelectable Rotate(GameObject lineObj, int selectedEdg)
     {
         bool success = false;
 
@@ -544,7 +547,7 @@ public class TilePolygon : DerivedPolygon
         return ls;
     }
 
-    internal ISelectable GlideReflect(GameObject lineObj, int selectedEdg)
+    public ISelectable GlideReflect(GameObject lineObj, int selectedEdg)
     {
         Edge edge = BasePolygon.Edges[selectedEdg];
 
@@ -667,4 +670,73 @@ public class TilePolygon : DerivedPolygon
         }
     }
 
+    public bool GetSharedVertex(Edge edge, Edge symEdge, out Vector2 vertex)
+    {
+        if (edge.A.Position == symEdge.B.Position || edge.A.Position == symEdge.A.Position)
+        {
+            vertex = edge.A.Position;
+            return true;
+        }
+
+        if (edge.B.Position == symEdge.A.Position || edge.B.Position == symEdge.B.Position)
+        {
+            vertex = edge.B.Position;
+            return true;
+        }
+
+        vertex = Vector2.zero;
+        return false;
+    }
+
+    internal Matrix2x2 GetRotationMatrix(Edge edge, Edge symEdge)
+    {
+        if (!GetSharedVertex(edge, symEdge, out Vector2 pivot))
+        {
+            return Matrix2x2.Identity;
+        }
+
+        // Get directions from pivot
+        Vector2 dirA = GetDirectionFromPivot(edge, pivot);
+        Vector2 dirB = GetDirectionFromPivot(symEdge, pivot);
+
+        float cos = Vector2.Dot(dirA, dirB);
+        float sin = dirA.x * dirB.y - dirA.y * dirB.x; // 2D cross product 
+
+        return new Matrix2x2(cos, sin);
+    }
+
+    private Vector2 GetDirectionFromPivot(Edge path, Vector2 pivot)
+    {
+        if (path.A.Position == pivot)
+            return (path.B.Position - path.A.Position).normalized;
+
+        if (path.B.Position == pivot)
+            return (path.A.Position - path.B.Position).normalized;
+
+        throw new Exception("Pivot is not on path.");
+    }
+
+    internal (Vector2 axisPoint, Vector2 axisDir) GetMidpointReflectionAxis(Edge edge)
+    {
+        // Pivot = midpoint of endpoints
+        Vector2 pivot = (edge.A.Position + edge.B.Position) / 2f;
+
+        // Reflection perpendicular to the path
+        Vector2 axisDir = new Vector2(
+        -(edge.B.Position - edge.A.Position).y,
+        (edge.B.Position - edge.A.Position).x
+        ).normalized;
+
+        return (pivot, axisDir);
+    }
+
+    public static bool AreParallel(Edge edgeA, Edge edgeB, float epsilon = 0.0001f)
+    {
+        Vector2 dirA = edgeA.B.Position - edgeA.A.Position;
+        Vector2 dirB = edgeB.B.Position - edgeB.A.Position;
+
+        float cross = dirA.x * dirB.y - dirA.y * dirB.x;
+
+        return Mathf.Abs(cross) < epsilon;
+    }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 // polygon with special vertices which are game objects rather than just data
 public class PiecewisePolygon : BezierPolygon
 {
-    [SerializeField] List<Vector2> vertices;
+    [SerializeField] protected List<Vector2> vertices;
     public List<Path> edges;
     [SerializeField] private GameObject linePrefab; // Prefab with LineRenderer
     [SerializeField] private GameObject nodePrefab;

@@ -15,6 +15,19 @@ public class TessellationPolygon : PiecewisePolygon
     [SerializeField] private List<int> symmetricEdgeMap = new List<int>();
     [SerializeField] private List<Symmetry> symmetries = new List<Symmetry>();
 
+    //public TessellationPolygon(TilePolygon polygon, bool enableSymmetry = true)
+    //{
+    //    this.enableSymmetry = enableSymmetry;
+    //    this.symmetricEdgeMap = polygon.SymmetricEdgeMap;
+    //    this.symmetries = polygon.Symmetries;
+    //    // Copy vertices and edges from the base polygon
+    //    this.vertices = new List<Vector2>((IEnumerable<Vector2>)polygon.Vertices);
+    //    foreach (var e in polygon.Edges)
+    //    {
+    //        this.edges.Add(new Path(e));
+    //    }
+    //}
+
     /// <summary>
     /// Adds a node, and if symmetry is enabled, automatically adds mirrored node
     /// </summary>

@@ -10,6 +10,7 @@ public class Path : MonoBehaviour
     private LineRenderer line;
     public GameObject nodePrefab;
     public float clickThreshold = 0.4f;
+
     public Vector2 Start {  get; private set; }
     public Vector2 End { get; private set; }
 
