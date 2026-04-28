@@ -110,12 +110,12 @@ public class LatticeDraw : MonoBehaviour
             for (int i = 0; i < positions.Length; i++)
             {
                 // Translate point into edge local space
-                Vector2 local = (Vector2)positions[i] + pivot;
+                Vector2 local = (Vector2)positions[i] - pivot;
 
                 Vector2 rotatedLocal = matrix2X2.Multiply(local);
 
                 // Translate back to symEdge
-                Vector2 rotatedPos = rotatedLocal - pivot;
+                Vector2 rotatedPos = rotatedLocal + pivot;
 
                 positions[i] = rotatedPos;
             }
@@ -153,12 +153,12 @@ public class LatticeDraw : MonoBehaviour
                 else
                 {
                     // Translate point into edge local space
-                    Vector2 local = reflectedPos + pivot;
+                    Vector2 local = reflectedPos - pivot;
 
                     Vector2 rotatedLocal = matrix2X2.Multiply(local);
 
                     // Translate back to symEdge
-                    Vector2 rotatedPos = rotatedLocal - pivot;
+                    Vector2 rotatedPos = rotatedLocal + pivot;
 
                     positions[i] = rotatedPos;
                 }
