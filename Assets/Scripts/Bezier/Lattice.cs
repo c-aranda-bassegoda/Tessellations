@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class Lattice : MonoBehaviour
 {
@@ -55,15 +56,11 @@ public class Lattice : MonoBehaviour
 
     private void Translate(GameObject newTile, Path edge, Path symEdge)
     {
+        TessellationPolygon tessellationPolygon = newTile.GetComponent<TessellationPolygon>();
 
-        Vector2 midA = (edge.Start + edge.End) / 2f;
-        Vector2 midB = (symEdge.Start + symEdge.End) / 2f;
+        newTile.transform.position = tessellationPolygon.TranslatePointOnSymEdge(edge, symEdge, newTile.transform.position);
 
-        // Base translation
-        Vector2 translation = midB - midA;
-        newTile.transform.position += (Vector3)translation;
-
-        // Move line renderers because LineRenderer positions are in world space fml
+        // Move line renderers because LineRenderer positions are in world space 
         LineRenderer[] lineRenderers = newTile.GetComponentsInChildren<LineRenderer>();
         foreach (var lr in lineRenderers)
         {
@@ -71,7 +68,7 @@ public class Lattice : MonoBehaviour
             lr.GetPositions(positions);
             for (int i = 0; i < positions.Length; i++)
             {
-                positions[i] += (Vector3)translation;
+                positions[i] = tessellationPolygon.TranslatePointOnSymEdge(edge, symEdge, positions[i]);
             }
             lr.SetPositions(positions);
         }
@@ -81,9 +78,8 @@ public class Lattice : MonoBehaviour
     public void Rotate(GameObject newTile, Path edge, Path symEdge)
     {
         TessellationPolygon tessellationPolygon = newTile.GetComponent<TessellationPolygon>();
-        Vector2 pivot;
-        bool success = tessellationPolygon.GetSharedVertex(edge, symEdge, out pivot);
-        Matrix2x2 matrix2X2 = tessellationPolygon.GetRotationMatrix(edge, symEdge);
+
+        newTile.transform.position = tessellationPolygon.RotatePointOnSymEdge(edge, symEdge, newTile.transform.position);
 
         // Rotate line renderers
         LineRenderer[] lineRenderers = newTile.GetComponentsInChildren<LineRenderer>();
@@ -93,16 +89,7 @@ public class Lattice : MonoBehaviour
             lr.GetPositions(positions);
             for (int i = 0; i < positions.Length; i++)
             {
-
-                // Translate point into edge local space
-                Vector2 local = (Vector2)positions[i] - pivot;
-
-                Vector2 rotatedLocal = matrix2X2.Multiply(local);
-
-                // Translate back to symEdge
-                Vector2 rotatedPos = rotatedLocal + pivot;
-
-                positions[i] = rotatedPos;
+                positions[i] = tessellationPolygon.RotatePointOnSymEdge(edge, symEdge, positions[i]);
             }
             lr.SetPositions(positions);
         }
@@ -112,10 +99,7 @@ public class Lattice : MonoBehaviour
     {
         TessellationPolygon tessellationPolygon = newTile.GetComponent<TessellationPolygon>();
 
-        Vector2 pos = newTile.transform.position;
-        Vector2 reflected = tessellationPolygon.GlideReflectPointOnSymEdge(edge, symEdge, pos);
-
-        newTile.transform.position = reflected;
+        newTile.transform.position = tessellationPolygon.GlideReflectPointOnSymEdge(edge, symEdge, newTile.transform.position);
 
         // Reflect line renderers
         LineRenderer[] lineRenderers = newTile.GetComponentsInChildren<LineRenderer>();
