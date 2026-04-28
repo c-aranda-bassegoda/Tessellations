@@ -46,10 +46,10 @@ public class Lattice : MonoBehaviour
                     GlideReflect(newTile, edge, symEdge);
                     break;
                 default:
+                    // translate the new tile to the correct position
+                    Translate(newTile, edge, symEdge);
                     break;
             }
-            // translate the new tile to the correct position
-            Translate(newTile, edge, symEdge);
         }
     }
 
@@ -80,7 +80,10 @@ public class Lattice : MonoBehaviour
 
     public void Rotate(GameObject newTile, Path edge, Path symEdge)
     {
-        Matrix2x2 matrix2X2 = newTile.GetComponent<TessellationPolygon>().GetRotationMatrix(edge, symEdge);
+        TessellationPolygon tessellationPolygon = newTile.GetComponent<TessellationPolygon>();
+        Vector2 pivot;
+        bool success = tessellationPolygon.GetSharedVertex(edge, symEdge, out pivot);
+        Matrix2x2 matrix2X2 = tessellationPolygon.GetRotationMatrix(edge, symEdge);
 
         // Rotate line renderers
         LineRenderer[] lineRenderers = newTile.GetComponentsInChildren<LineRenderer>();
@@ -90,7 +93,15 @@ public class Lattice : MonoBehaviour
             lr.GetPositions(positions);
             for (int i = 0; i < positions.Length; i++)
             {
-                Vector2 rotatedPos = matrix2X2.Multiply((Vector2)positions[i]);
+
+                // Translate point into edge local space
+                Vector2 local = (Vector2)positions[i] - pivot;
+
+                Vector2 rotatedLocal = matrix2X2.Multiply(local);
+
+                // Translate back to symEdge
+                Vector2 rotatedPos = rotatedLocal + pivot;
+
                 positions[i] = rotatedPos;
             }
             lr.SetPositions(positions);
@@ -99,10 +110,10 @@ public class Lattice : MonoBehaviour
 
     public void GlideReflect(GameObject newTile, Path edge, Path symEdge)
     {
-        var (axisPoint, axisDir) = tile.GetMidpointReflectionAxis(edge);
+        TessellationPolygon tessellationPolygon = newTile.GetComponent<TessellationPolygon>();
 
         Vector2 pos = newTile.transform.position;
-        Vector2 reflected = SymmetryUtils.ReflectAcrossAxis(pos, axisPoint, axisDir);
+        Vector2 reflected = tessellationPolygon.GlideReflectPointOnSymEdge(edge, symEdge, pos);
 
         newTile.transform.position = reflected;
 
@@ -114,7 +125,8 @@ public class Lattice : MonoBehaviour
             lr.GetPositions(positions);
             for (int i = 0; i < positions.Length; i++)
             {
-                Vector2 reflectedPos = SymmetryUtils.ReflectAcrossAxis(positions[i], axisPoint, axisDir);
+                Vector2 reflectedPos = tessellationPolygon.GlideReflectPointOnSymEdge(edge, symEdge, positions[i]);
+
                 positions[i] = reflectedPos;
             }
             lr.SetPositions(positions);

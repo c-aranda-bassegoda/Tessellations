@@ -120,7 +120,7 @@ public class TessellationPolygon : PiecewisePolygon
     /// Translates the point into symmetric edge. Returns the position of pointA when translated onto symEdge
     /// Assumes pointA is a point of edge and edge and symEdge are paralel
     /// </summary>
-    private Vector2 TranslatePointOnSymEdge(Path edge, Path symEdge, Vector2 pointA)
+    public Vector2 TranslatePointOnSymEdge(Path edge, Path symEdge, Vector2 pointA)
     {
         Vector2 midPnt = (edge.End + edge.Start)/2;
         Vector2 midPntSym = (symEdge.End + symEdge.Start) / 2;
@@ -131,7 +131,7 @@ public class TessellationPolygon : PiecewisePolygon
     /// Glide-reflects the point into symmetric edge. Returns the position of pointA when glide-reflected onto symEdge
     /// 
     /// </summary>
-    private Vector2 GlideReflectPointOnSymEdge(Path edge, Path symEdge, Vector2 pointA)
+    public Vector2 GlideReflectPointOnSymEdge(Path edge, Path symEdge, Vector2 pointA)
     {
         (Vector2 axisPoint, Vector2 axisDir) = GetMidpointReflectionAxis(edge);
         Vector2 mirrored = SymmetryUtils.ReflectAcrossAxis(
@@ -174,7 +174,7 @@ public class TessellationPolygon : PiecewisePolygon
         return rotatedPoint;
     }
 
-    private bool GetSharedVertex(Path edge, Path symEdge, out Vector2 vertex)
+    public bool GetSharedVertex(Path edge, Path symEdge, out Vector2 vertex)
     {
         if (edge.Start == symEdge.End || edge.Start == symEdge.Start) 
         { 
