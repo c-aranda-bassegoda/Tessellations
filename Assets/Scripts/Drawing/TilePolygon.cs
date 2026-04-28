@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using NUnit.Framework.Constraints;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -17,10 +18,10 @@ public class TilePolygon : DerivedPolygon
     public int ParallelGlideReflections { get; set; }
 
 
-    private List<int> symmetricEdgeMap = new List<int>();
-    public List<int> SymmetricEdgeMap => symmetricEdgeMap;
-    private List<Symmetry> symmetries = new List<Symmetry>();
-    public List<Symmetry> Symmetries => symmetries;
+    [SerializeField]private List<int> symmetricEdgeMap = new List<int>();
+    //public List<int> SymmetricEdgeMap => symmetricEdgeMap;
+    [SerializeField] private List<Symmetry> symmetries = new List<Symmetry>();
+    //public List<Symmetry> Symmetries => symmetries;
 
     private void Awake()
     {
@@ -464,6 +465,15 @@ public class TilePolygon : DerivedPolygon
                 ||
                 ((Vector3)BasePolygon.Edges[i].A.Position == edge.GetPosition(edge.positionCount-1) 
                 && (Vector3)BasePolygon.Edges[i].B.Position == edge.GetPosition(0)))
+            {
+                return i;
+            }
+        }
+        for (int i = 0; i < BasePolygon.Edges.Count; i++)
+        {
+            if (((Vector3)BasePolygon.Edges[i].MidPoint.Position == edge.GetPosition(edge.positionCount - 1))
+            ||
+                ((Vector3)BasePolygon.Edges[i].MidPoint.Position == edge.GetPosition(0)))
             {
                 return i;
             }

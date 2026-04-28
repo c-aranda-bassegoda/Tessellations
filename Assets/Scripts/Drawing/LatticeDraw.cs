@@ -11,7 +11,7 @@ public class LatticeDraw : MonoBehaviour
     {
         SelectionManager.Instance.Deselect();
 
-        for (int i = 0; i < tile.BasePolygon.Edges.Count; i++)
+        for (int i = 0; i < tile.Edges.Count; i++)
         {
             // Copy the polygon game obj
             GameObject newTile = Instantiate(tile.gameObject, tile.transform.parent);
@@ -21,7 +21,7 @@ public class LatticeDraw : MonoBehaviour
             TessPointSelectable.Symmetry symmetry = tile.GetSymmetryForEdge(i);
 
             // get the tile's edge and its symmetric edge
-            Edge edge = tile.BasePolygon.Edges[i];
+            Edge edge = tile.Edges[i];
             int symIndex = tile.GetSymmetricEdgeIndex(i);
 
             if (symIndex < 0 || symIndex >= tile.Edges.Count)
@@ -72,12 +72,37 @@ public class LatticeDraw : MonoBehaviour
 
     public void Rotate(GameObject newTile, Edge edge, Edge symEdge)
     {
+
+        // TODO: if symEdge = edge, then we rotate 180 degrees around the midpoint of the edge.
+        LineRenderer[] lineRenderers = newTile.GetComponentsInChildren<LineRenderer>();
+
+        if (edge == symEdge)
+        {
+            Vector2 mid = (edge.A.Position + edge.B.Position) / 2f;
+
+            // Rotate line renderers
+            foreach (var lr in lineRenderers)
+            {
+                Vector3[] positions = new Vector3[lr.positionCount];
+                lr.GetPositions(positions);
+                for (int i = 0; i < positions.Length; i++)
+                {
+                    // Rotate 180 degrees around midpoint
+                    Vector2 local = (Vector2)positions[i] - mid;
+                    Vector2 rotatedLocal = -local;
+                    Vector2 rotatedPos = rotatedLocal + mid;
+                    positions[i] = rotatedPos;
+                }
+                lr.SetPositions(positions);
+            }
+            return;
+        }
+
         TilePolygon tilePolygon = newTile.GetComponent<TilePolygon>();
         tilePolygon.GetSharedVertex(edge, symEdge, out Vector2 pivot);
         Matrix2x2 matrix2X2 = tilePolygon.GetRotationMatrix(edge, symEdge);
 
         // Rotate line renderers
-        LineRenderer[] lineRenderers = newTile.GetComponentsInChildren<LineRenderer>();
         foreach (var lr in lineRenderers)
         {
             Vector3[] positions = new Vector3[lr.positionCount];
