@@ -14,6 +14,7 @@ public class PolygonSelectionManager : MonoBehaviour
     [SerializeField] public GameObject polygonsPanel;
     [SerializeField] public List<GameObject> polygons;
     [SerializeField] public GameObject buttonsPanel;
+    [SerializeField] public GameObject homePanel;
     [SerializeField] public List<Button> buttons;
     public Color selectedColor = Color.gray;
 
@@ -98,6 +99,7 @@ public class PolygonSelectionManager : MonoBehaviour
         drawingManager.baseShape = polygons[idx].GetComponent<BezierPolygon>();
         pathManager.polygon = polygons[idx].GetComponent<BezierPolygon>();
         lattice.tile = polygons[idx].GetComponent<TessellationPolygon>();
+        homePanel.SetActive(false);
     }
 
     private void ResetPolygons()
