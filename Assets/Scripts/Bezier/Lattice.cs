@@ -125,7 +125,7 @@ public class Lattice : MonoBehaviour
 
     public void Update()
     {
-        if (ToolManager.Instance.CurrentTool == ToolType.Pencil && Tessellating)
+        if (Tessellating)
         {
             Reset();
             Tessellate();

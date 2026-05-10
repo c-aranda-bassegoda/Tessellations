@@ -82,6 +82,21 @@ public class SelectionManager : MonoBehaviour
         ClearAll();
     }
 
+    public void ClearDrawings()
+    {
+        Deselect();
+        if (selectables == null || selectables.Count == 0)
+            return;
+        List<ISelectable> toRemove = new List<ISelectable>();
+        foreach (var s in selectables)
+        {
+            if (s is LineSelectable)
+                toRemove.Add(s);
+        }
+        foreach (var s in toRemove)
+            s.Remove();
+    }
+
     public ISelectable FindSelectableWithEndpnts(Vector2 a, Vector2 b)
     {
 
