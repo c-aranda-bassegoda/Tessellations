@@ -97,6 +97,16 @@ public class SelectionManager : MonoBehaviour
             s.Remove();
     }
 
+    public void Undo()
+    {
+        Deselect();
+        if (selectables == null || selectables.Count == 0)
+            return;
+        ISelectable s = selectables[selectables.Count - 1];
+        if (s is LineSelectable)
+            s.Remove();
+    }
+
     public ISelectable FindSelectableWithEndpnts(Vector2 a, Vector2 b)
     {
 
