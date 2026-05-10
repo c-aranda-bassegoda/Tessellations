@@ -117,6 +117,12 @@ public class Lattice : MonoBehaviour
         }
     }
 
+    public void Update()
+    {
+        Reset();
+        Tessellate();
+    }
+
     public void Reset()
     {
         foreach (var obj in gameObjects)
