@@ -16,6 +16,7 @@ public class PolygonSelectionManager : MonoBehaviour
     [SerializeField] public GameObject buttonsPanel;
     [SerializeField] public GameObject homePanel;
     [SerializeField] public List<Button> buttons;
+    [SerializeField] public MaskTool maskTool;
     public Color selectedColor = Color.gray;
 
 
@@ -79,12 +80,10 @@ public class PolygonSelectionManager : MonoBehaviour
             polyButton.selectedColor = this.selectedColor;
         }
 
-        ResetPolygons();
         buttons[0].GetComponent<PolygonButton>().SetSelected(true);
+        ResetPolygons();
         polygons[0].SetActive(true);
-        drawingManager.baseShape = polygons[0].GetComponent<BezierPolygon>();
-        pathManager.polygon = polygons[0].GetComponent<BezierPolygon>();
-        lattice.tile = polygons[0].GetComponent<TessellationPolygon>();
+        PassPolygon(0);
     }
 
     public void SetPolygon(int idx)
@@ -96,10 +95,21 @@ public class PolygonSelectionManager : MonoBehaviour
         }
         ResetPolygons();
         polygons[idx].SetActive(true);
+        PassPolygon(idx);
+        homePanel.SetActive(false);
+    }
+
+    private void PassPolygon(int idx)
+    {
+        if (idx < 0 || idx >= polygons.Count)
+        {
+            Debug.LogError($"Index {idx} is out of bounds for the list of polygons.");
+            return;
+        }
         drawingManager.baseShape = polygons[idx].GetComponent<BezierPolygon>();
         pathManager.polygon = polygons[idx].GetComponent<BezierPolygon>();
         lattice.tile = polygons[idx].GetComponent<TessellationPolygon>();
-        homePanel.SetActive(false);
+        maskTool.polygon = polygons[idx].GetComponent<BezierPolygon>();
     }
 
     private void ResetPolygons()
