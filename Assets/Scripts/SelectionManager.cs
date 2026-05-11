@@ -38,7 +38,6 @@ public class SelectionManager : MonoBehaviour
 
         if (InputManager.Instance.PointerDown)
         {
-            Deselect();
             TrySelect(InputManager.Instance.PointerWorldPos);
 
             if (selected is IDraggable draggable)
@@ -184,11 +183,17 @@ public class SelectionManager : MonoBehaviour
     {
 
         if (InputManager.Instance.PointerOverUI)
+        {
+            Deselect();
             return;
+        }
 
         if (EventSystem.current != null &&
             EventSystem.current.IsPointerOverGameObject())
+        {
+            Deselect();
             return;
+        }
 
         for (int i = selectables.Count - 1; i >= 0; i--)
         {
