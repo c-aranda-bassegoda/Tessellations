@@ -21,15 +21,22 @@ public class InputManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        mainCamera = Camera.main;
+        mainCamera = Camera.main; 
+        Input.simulateMouseWithTouches = false;
     }
 
     void Update()
     {
         ResetFrameState();
 
-        HandleMouse();
-        HandleTouch();
+        if (Input.touchCount > 0)
+        {
+            HandleTouch();
+        }
+        else
+        {
+            HandleMouse();
+        }
     }
 
     void ResetFrameState()
@@ -37,6 +44,7 @@ public class InputManager : MonoBehaviour
         PointerDown = false;
         PointerHeld = false;
         PointerUp = false;
+        PointerOverUI = false;
     }
 
     void HandleMouse()

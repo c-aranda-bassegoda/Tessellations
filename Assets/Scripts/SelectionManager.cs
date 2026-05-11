@@ -38,6 +38,7 @@ public class SelectionManager : MonoBehaviour
 
         if (InputManager.Instance.PointerDown)
         {
+            Deselect();
             TrySelect(InputManager.Instance.PointerWorldPos);
 
             if (selected is IDraggable draggable)
