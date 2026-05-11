@@ -9,6 +9,8 @@ public class Lattice : MonoBehaviour
 
     public List<GameObject> gameObjects = new List<GameObject>();
 
+    public bool ChangeOcurred { get; set; }
+
     public bool Tessellating { get; set; }
 
     private void Start()
@@ -125,10 +127,11 @@ public class Lattice : MonoBehaviour
 
     public void Update()
     {
-        if (Tessellating)
+        if (Tessellating && (ToolManager.Instance.CurrentTool == ToolType.Pencil || ChangeOcurred))
         {
             Reset();
             Tessellate();
+            ChangeOcurred = false;
         }
     }
 
