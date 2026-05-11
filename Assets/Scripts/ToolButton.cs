@@ -24,7 +24,7 @@ public class ToolButton : MonoBehaviour
     {
         if (requiresSelection)
         {
-            SelectionManager.Instance.OnSelectionChanged += HandleSelectionChanged;
+            SelectionManager.Instance.OnSelectingChanged += HandleSelectionChanged;
             button.interactable = SelectionManager.Instance.selected != null;
         }
     }
@@ -32,7 +32,7 @@ public class ToolButton : MonoBehaviour
     void OnDestroy()
     {
         if (requiresSelection && SelectionManager.Instance != null)
-            SelectionManager.Instance.OnSelectionChanged -= HandleSelectionChanged;
+            SelectionManager.Instance.OnSelectingChanged -= HandleSelectionChanged;
     }
     private void HandleSelectionChanged(ISelectable selection)
     {

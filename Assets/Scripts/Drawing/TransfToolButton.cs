@@ -9,7 +9,7 @@ public class TransfToolButton : ToolButton
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        SelectionManager.Instance.OnSelectionChanged += HandleSelectionChanged;
+        SelectionManager.Instance.OnSelectingChanged += HandleSelectionChanged;
         //button.interactable = SelectionManager.Instance.selected != null;
         button.gameObject.SetActive(SelectionManager.Instance.selected != null);
     }
@@ -49,7 +49,7 @@ public class TransfToolButton : ToolButton
     void OnDestroy()
     {
         if (SelectionManager.Instance != null)
-            SelectionManager.Instance.OnSelectionChanged -= HandleSelectionChanged;
+            SelectionManager.Instance.OnSelectingChanged -= HandleSelectionChanged;
     }
     // Update is called once per frame
     void Update()

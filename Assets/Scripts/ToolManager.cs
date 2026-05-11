@@ -57,6 +57,6 @@ public class ToolManager : MonoBehaviour
         if (CurrentTool == tool) return;
 
         CurrentTool = tool;
-        //Debug.Log("Selected tool: " + tool);
+        Debug.Log("Selected tool: " + tool);
     }
 }

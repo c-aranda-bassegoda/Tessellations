@@ -5,11 +5,12 @@ using UnityEngine.EventSystems;
 
 public class SelectionManager : MonoBehaviour
 {
-    public event Action<ISelectable> OnSelectionChanged;
+    public event Action<ISelectable> OnSelectingChanged;
     public static SelectionManager Instance { get; private set; }
 
     [SerializeField] List<ISelectable> selectables = new List<ISelectable>();
     public ISelectable selected;
+    public ISelectable lastSelected;
 
     IDraggable currentDraggable;
     bool isDragging;
@@ -29,12 +30,10 @@ public class SelectionManager : MonoBehaviour
     {
         if (ToolManager.Instance.CurrentTool != ToolType.Select && !ToolManager.Instance.CurrentToolRequiresSelection())
         {
-            Deselect();
+            //Debug.Log("Not in select mode, deselecting if needed");
+            OnSelectingChanged?.Invoke(null);
             return;
         }
-
-        if (InputManager.Instance.PointerOverUI)
-            return;
 
         if (InputManager.Instance.PointerDown)
         {
@@ -61,14 +60,16 @@ public class SelectionManager : MonoBehaviour
 
     public void DeleteSelected()
     {
-        if (selected == null)
+        Debug.Log("DeleteSelected");
+        if (lastSelected == null)
             return;
-
-        ISelectable toRemove = selected;
+        Debug.Log("Removing " + lastSelected);
+        ISelectable toRemove = lastSelected;
         Deselect();
         isDragging = false;
         currentDraggable = null;
         toRemove.Remove();
+        OnSelectingChanged?.Invoke(null);
     }
 
 
@@ -184,14 +185,18 @@ public class SelectionManager : MonoBehaviour
 
         if (InputManager.Instance.PointerOverUI)
         {
-            Deselect();
+            Debug.Log("Pointer over UI, ignoring selection");
+            if (selected != null)
+                Deselect();
             return;
         }
 
         if (EventSystem.current != null &&
             EventSystem.current.IsPointerOverGameObject())
         {
-            Deselect();
+            Debug.Log("Pointer over UI (EventSystem), ignoring selection");
+            if (selected != null)
+                Deselect();
             return;
         }
 
@@ -214,26 +219,33 @@ public class SelectionManager : MonoBehaviour
             }
         }
 
-        Deselect();
+        //Deselect();
         
     }
 
     public void Select(ISelectable s)
     {
         if (selected != null)
+        {
             selected.SetSelected(false); // if sth is selected deselect it
+        }
+            lastSelected = selected;
+        Debug.Log("Selecting " + s.ToString());
         selected = s;
         selected.SetSelected(true);
 
-        OnSelectionChanged?.Invoke(selected);
+        OnSelectingChanged?.Invoke(selected);
     }
 
     public void Deselect()
     {
         if (selected != null)
+        {
             selected.SetSelected(false); // if sth is selected deselect it
+        }
+        lastSelected = selected;
+        Debug.Log("Deselecting");
         selected = null;
-        OnSelectionChanged?.Invoke(null);
     }
 
     internal void Deregister(ISelectable selectable)
