@@ -9,13 +9,15 @@ public class Lattice : MonoBehaviour
 
     public List<GameObject> gameObjects = new List<GameObject>();
 
-    public bool ChangeOcurred { get; set; }
+    //public bool ChangeOcurred { get; set; }
+    //private int previousChildCount;
 
     public bool Tessellating { get; set; }
 
     private void Start()
     {
         Tessellating = false;
+        //previousChildCount = tile.transform.childCount;
     }
     public void Tessellate()
     {
@@ -127,12 +129,17 @@ public class Lattice : MonoBehaviour
 
     public void Update()
     {
-        if (Tessellating && (ToolManager.Instance.CurrentTool == ToolType.Pencil || ChangeOcurred))
+        if (Tessellating)
         {
             Reset();
             Tessellate();
-            ChangeOcurred = false;
+            //ChangeOcurred = false;
         }
+        //if (tile.transform.childCount != previousChildCount)
+        //{
+        //    ChangeOcurred = true;
+        //    previousChildCount = tile.transform.childCount;
+        //}
     }
 
     public void Reset()

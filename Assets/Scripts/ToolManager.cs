@@ -18,7 +18,7 @@ public class ToolManager : MonoBehaviour
 {
     public static ToolManager Instance { get; private set; }
 
-    public ToolType CurrentTool { get; private set; } = ToolType.None;
+    [SerializeField] public ToolType CurrentTool { get; private set; } = ToolType.None;
 
     public static readonly HashSet<ToolType> toolsRequiringSelection =
     new HashSet<ToolType>
