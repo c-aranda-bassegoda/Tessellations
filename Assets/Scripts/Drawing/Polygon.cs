@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Searcher.SearcherWindow.Alignment;
 
 // polygon embeded in 2D - Otherwise ContainsPoint is a nonsensical method
 public abstract class Polygon : MonoBehaviour 

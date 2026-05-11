@@ -22,6 +22,7 @@ public class MaskTool : MonoBehaviour
         {
             ActivateMaskObj(true);
         }
+        
     }
     public void ActivateMaskObj(bool active)
     {

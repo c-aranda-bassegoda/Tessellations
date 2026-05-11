@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
-using static UnityEditor.PlayerSettings;
 using UnityEngine.EventSystems;
 
 public class SelectionManager : MonoBehaviour
