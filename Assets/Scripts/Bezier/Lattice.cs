@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using NUnit.Framework;
+using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEditor.PlayerSettings;
 
@@ -8,15 +9,15 @@ public class Lattice : MonoBehaviour
     public TessellationPolygon tile;
 
     public List<GameObject> gameObjects = new List<GameObject>();
-
-    //public bool ChangeOcurred { get; set; }
-    //private int previousChildCount;
+    private bool changeOcurred;
+    private int previousChildCount;
 
     public bool Tessellating { get; set; }
 
     private void Start()
     {
         Tessellating = false;
+        new LatticeManager(this);
         //previousChildCount = tile.transform.childCount;
     }
     public void Tessellate()
@@ -127,19 +128,22 @@ public class Lattice : MonoBehaviour
         }
     }
 
-    public void Update()
+    private void Update()
     {
-        if (Tessellating)
-        {
-            Reset();
-            Tessellate();
-            //ChangeOcurred = false;
-        }
-        //if (tile.transform.childCount != previousChildCount)
+        //if (Tessellating)
         //{
-        //    ChangeOcurred = true;
-        //    previousChildCount = tile.transform.childCount;
+        //    UpdateTess();
         //}
+        if (LatticeManager.Instance != null && Tessellating)
+        {
+            LatticeManager.Instance.Update();
+        }
+    }
+
+    public void UpdateTess()
+    {
+        Reset();
+        Tessellate();
     }
 
     public void Reset()
@@ -149,5 +153,45 @@ public class Lattice : MonoBehaviour
             Destroy(obj);
         }
         gameObjects.Clear();
+    }
+}
+
+public class LatticeManager
+{
+    public static LatticeManager Instance { get; private set; }
+
+    public Lattice lattice;
+
+    public bool ChangeOcurred { get; private set; }
+
+    private int frameCounter;
+
+    public LatticeManager(Lattice lattice)
+    {
+        this.lattice = lattice;
+        Instance = this;
+    }
+    public void MarkEdited()
+    {
+        ChangeOcurred = true;
+        frameCounter = 0;
+    }
+    public void UpdateLattice()
+    {
+        lattice.UpdateTess();
+    }
+
+    public void Update()
+    {
+        if (ChangeOcurred)
+        {
+            if (frameCounter >0)
+            {
+                UpdateLattice();
+                ChangeOcurred = false;
+                frameCounter = 0;
+            }
+            frameCounter++;
+        }
     }
 }

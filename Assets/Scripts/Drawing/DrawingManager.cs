@@ -58,6 +58,7 @@ public class DrawingManager : MonoBehaviour
                 ISelectable selectable = currentLine?.GetComponent<ISelectable>();
                 if (selectable != null)
                     SelectionManager.Instance.Register(selectable);
+                LatticeManager.Instance.UpdateLattice();
             }
             currentLine = null;
             isDrawing = false;
