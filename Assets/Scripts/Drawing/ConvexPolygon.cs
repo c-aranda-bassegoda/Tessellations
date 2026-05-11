@@ -115,5 +115,22 @@ public class ConvexPolygon : Polygon
     {
         throw new NotImplementedException();
     }
+
+    public override (float, float, Vector2, Vector2) GetBoundingBox()
+    {
+        float minX = float.MaxValue, maxX = float.MinValue;
+        float minY = float.MaxValue, maxY = float.MinValue;
+
+        foreach (var v in Vertices)
+        {
+            Vector2 pos = v.Position;
+            if (pos.x < minX) minX = pos.x;
+            if (pos.x > maxX) maxX = pos.x;
+            if (pos.y < minY) minY = pos.y;
+            if (pos.y > maxY) maxY = pos.y;
+        }
+
+        return (maxX - minX, maxY - minY, new Vector2(minX, minY), new Vector2(maxX, maxY));
+    }
 }
 

@@ -8,6 +8,39 @@ public class MaskTool : MonoBehaviour
     // Texture to mask
     [SerializeField] private Sprite sourceSprite;
 
+    private GameObject maskObject;
+
+    private bool isMaskActive = false;
+
+    public void ToggleMaskObj()
+    {
+        if (isMaskActive)
+        {
+            ActivateMaskObj(false);
+        }
+        else
+        {
+            ActivateMaskObj(true);
+        }
+    }
+    public void ActivateMaskObj(bool active)
+    {
+        if (maskObject != null)
+        {
+            Destroy(maskObject);
+            if (active)
+            {
+                CreateMask();
+            }
+        }
+        else if (active)
+        {
+            CreateMask();
+        }
+
+        isMaskActive = active;
+    }
+
     public void CreateMask()
     {
         if (polygon == null || sourceSprite == null)
@@ -17,36 +50,23 @@ public class MaskTool : MonoBehaviour
         }
 
         // Create a game object for the sprite
-        GameObject spriteObj = new GameObject("MaskedSprite");
-        SpriteRenderer sr = spriteObj.AddComponent<SpriteRenderer>();
+        maskObject = new GameObject("MaskedSprite");
+        SpriteRenderer sr = maskObject.AddComponent<SpriteRenderer>();
         // Set parent to polygon for organization
-        spriteObj.transform.SetParent(polygon.transform);
+        maskObject.transform.SetParent(polygon.transform);
 
         // set the sprite to the source sprite
         sr.sprite = sourceSprite;
 
-        // resize to match the polygon using min and max of vertices
-        float minX = float.MaxValue;
-        float maxX = float.MinValue;
-        float minY = float.MaxValue;
-        float maxY = float.MinValue;
-        for (int i = 0; i < polygon.Vertices.Count; i++)
-        {
-            Vector2 pos = polygon.Vertices[i].Position;
-            if (pos.x < minX) minX = pos.x;
-            if (pos.x > maxX) maxX = pos.x;
-            if (pos.y < minY) minY = pos.y;
-            if (pos.y > maxY) maxY = pos.y;
-        }
         // resize the sprite to fit the bounding box of the polygon
-        float width = maxX - minX;
-        float height = maxY - minY;
-        //Debug.Log($"Bounding box: ({minX}, {minY}) to ({maxX}, {maxY}), width: {width}, height: {height}");
-        //Debug.Log($"Source sprite size: {sourceSprite.bounds.size}");
+        (float width, float height, Vector2 bottomCorner, Vector2 topCorner) = polygon.GetBoundingBox();
+        Debug.Log($"Bounding box: width: {width}, height: {height}");
+        Debug.Log($"Source sprite size: {sourceSprite.bounds.size}");
 
         //spriteObj.transform.localScale = new Vector3(0.3f, 0.3f, 1);
-        spriteObj.transform.localScale = new Vector3(width / (float)sourceSprite.bounds.size.x, height / (float)sourceSprite.bounds.size.y, 1);
+        maskObject.transform.localScale = new Vector3(width / (float)sourceSprite.bounds.size.x, height / (float)sourceSprite.bounds.size.y, 1);
 
-
+        // Offset the sprite by bounding box center
+        maskObject.transform.position = new Vector3((bottomCorner.x + topCorner.x) / 2, (bottomCorner.y + topCorner.y) / 2, 0);
     }
 }

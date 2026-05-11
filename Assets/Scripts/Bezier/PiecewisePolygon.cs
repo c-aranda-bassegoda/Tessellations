@@ -139,4 +139,25 @@ public class PiecewisePolygon : BezierPolygon
     {
         throw new NotImplementedException();
     }
+
+    /// <summary>
+    /// Calculates the bounding box of the piecewise polygon by iterating through all edges and finding the min and max x and y values.
+    /// </summary>
+    /// <returns> (width, height, bottomLeftCorner, TopRightCorner) </returns>
+    public override (float, float, Vector2, Vector2) GetBoundingBox()
+    {
+        float minX = float.MaxValue, maxX = float.MinValue, minY = float.MaxValue, maxY = float.MinValue;
+
+        foreach (var edge in edges)
+        {
+            var (edgeMinX, edgeMaxX) = edge.GetBoundingBoxX();
+            var (edgeMinY, edgeMaxY) = edge.GetBoundingBoxY();
+            if (edgeMinX < minX) minX = edgeMinX;
+            if (edgeMaxX > maxX) maxX = edgeMaxX;
+            if (edgeMinY < minY) minY = edgeMinY;
+            if (edgeMaxY > maxY) maxY = edgeMaxY;
+        }
+
+        return (maxX - minX, maxY - minY, new Vector2(minX, minY), new Vector2(maxX, maxY));
+    }
 }

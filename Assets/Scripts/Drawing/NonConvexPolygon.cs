@@ -166,4 +166,29 @@ public class NonConvexPolygon : Polygon
         }
         return null;
     }
+
+    public override (float, float, Vector2, Vector2) GetBoundingBox()
+    {
+        float width = 0;
+        float height = 0;
+
+        float minX = float.MaxValue;
+        float maxX = float.MinValue;
+        float minY = float.MaxValue;
+        float maxY = float.MinValue;
+
+        foreach (var v in _vertices)
+        {
+            Vector2 pos = v.Position;
+            if (pos.x < minX) minX = pos.x;
+            if (pos.x > maxX) maxX = pos.x;
+            if (pos.y < minY) minY = pos.y;
+            if (pos.y > maxY) maxY = pos.y;
+        }
+
+        width = maxX - minX;
+        height = maxY - minY;
+
+        return (width, height, new Vector2(minX, minY), new Vector2(maxX, maxY));
+    }
 }

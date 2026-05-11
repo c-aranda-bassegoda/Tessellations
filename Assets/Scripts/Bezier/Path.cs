@@ -260,4 +260,32 @@ public class Path : MonoBehaviour
         }
         return false;
     }
+
+    internal (float edgeMinX, float edgeMaxX) GetBoundingBoxX()
+    {
+        float minX = float.MaxValue;
+        float maxX = float.MinValue;
+
+        foreach (var p in points)
+        {
+            Vector2 pos = p.Position;
+            if (pos.x < minX) minX = pos.x;
+            if (pos.x > maxX) maxX = pos.x;
+        }
+        return (minX, maxX);
+    }
+
+    internal (float edgeMinY, float edgeMaxY) GetBoundingBoxY()
+    {
+        float minY = float.MaxValue;
+        float maxY = float.MinValue;
+
+        foreach (var p in points)
+        {
+            Vector2 pos = p.Position;
+            if (pos.x < minY) minY = pos.y;
+            if (pos.x > maxY) maxY = pos.y;
+        }
+        return (minY, maxY);
+    }
 }

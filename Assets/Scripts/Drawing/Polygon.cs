@@ -22,6 +22,12 @@ public abstract class Polygon : MonoBehaviour
     // Should indicade whether there is an edge in the Polygon with those vertices
     public abstract bool HasEdge(Vertex a, Vertex b);
 
+    /// <summary>
+    /// Calculates the bounding box of the polygon.
+    /// </summary>
+    /// <returns> (width, height, bottomLeftCorner, TopRightCorner) </returns>
+    public abstract (float, float, Vector2, Vector2) GetBoundingBox();
+
     public abstract bool ReplaceEdge(GameObject line);
 
     protected float snapDistance = 0.2f;
