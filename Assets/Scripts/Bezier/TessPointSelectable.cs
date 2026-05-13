@@ -295,14 +295,23 @@ public class TessPointSelectable : IPointSelectable
 
     private void RotateOntoSymAxis(PathPointSelectable other, Vector2 oldActiveAnchorPos, PathPointSelectable active)
     {
+        Matrix2x2 tramsfMtx = rotMtx;
+        if (symPoint == active)
+        {
+            Matrix2x2 invRot = rotMtx.Inverse();
+            // If active point is the one without handle visuals, we need to apply inverse rotation to get correct handle offsets
+            tramsfMtx = invRot;
+        }
+
+
         // Rotate anchor position
-        Vector2 activeAnchorTransformed = rotMtx.Multiply(active.Position - axisPivot) + axisPivot;
+        Vector2 activeAnchorTransformed = tramsfMtx.Multiply(active.Position - axisPivot) + axisPivot;
 
         switch (active.SelectedPart)
         {
             case PathPointSelectable.ActivePart.HandleIn:
                 {
-                    Vector2 transformedHandle = rotMtx.Multiply(active.HandleInPos - axisPivot) + axisPivot;
+                    Vector2 transformedHandle = tramsfMtx.Multiply(active.HandleInPos - axisPivot) + axisPivot;
 
                     Vector2 offset = transformedHandle - activeAnchorTransformed;
 
@@ -317,7 +326,7 @@ public class TessPointSelectable : IPointSelectable
 
             case PathPointSelectable.ActivePart.HandleOut:
                 {
-                    Vector2 transformedHandle = rotMtx.Multiply(active.HandleOutPos - axisPivot) + axisPivot;
+                    Vector2 transformedHandle = tramsfMtx.Multiply(active.HandleOutPos - axisPivot) + axisPivot;
 
                     Vector2 offset = transformedHandle - activeAnchorTransformed;
 
@@ -332,8 +341,7 @@ public class TessPointSelectable : IPointSelectable
             default:
                 {
                     // Rotate old anchor positions of active point
-                    Vector2 oldTransformed = rotMtx.Multiply(oldActiveAnchorPos - axisPivot) + axisPivot;
-
+                    Vector2 oldTransformed = tramsfMtx.Multiply(oldActiveAnchorPos - axisPivot) + axisPivot;
 
                     // Compute delta in reflected space
                     Vector2 anchorDelta = activeAnchorTransformed - oldTransformed;

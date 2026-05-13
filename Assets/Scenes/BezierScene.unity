@@ -1385,6 +1385,7 @@ MonoBehaviour:
   edges: []
   linePrefab: {fileID: 4737950803987888381, guid: 59cbbdf3e8ecd8e4d91c8cc2d85ed050, type: 3}
   nodePrefab: {fileID: 2200240886250214715, guid: 1b9bfe019cfc46448ab03e3c34371672, type: 3}
+  endNodePrefab: {fileID: 8529161199384999889, guid: cc817fd1ae2097745b09f7ae9669b1e0, type: 3}
   resolutionPerSegment: 10
   clickThreshold: 0.3
   enableSymmetry: 1
@@ -3191,6 +3192,7 @@ MonoBehaviour:
   edges: []
   linePrefab: {fileID: 4737950803987888381, guid: 59cbbdf3e8ecd8e4d91c8cc2d85ed050, type: 3}
   nodePrefab: {fileID: 2200240886250214715, guid: 1b9bfe019cfc46448ab03e3c34371672, type: 3}
+  endNodePrefab: {fileID: 8529161199384999889, guid: cc817fd1ae2097745b09f7ae9669b1e0, type: 3}
   resolutionPerSegment: 10
   clickThreshold: 0.3
   enableSymmetry: 1
@@ -3761,6 +3763,7 @@ MonoBehaviour:
   edges: []
   linePrefab: {fileID: 4737950803987888381, guid: 59cbbdf3e8ecd8e4d91c8cc2d85ed050, type: 3}
   nodePrefab: {fileID: 2200240886250214715, guid: 1b9bfe019cfc46448ab03e3c34371672, type: 3}
+  endNodePrefab: {fileID: 8529161199384999889, guid: cc817fd1ae2097745b09f7ae9669b1e0, type: 3}
   resolutionPerSegment: 10
   clickThreshold: 0.3
   enableSymmetry: 1
@@ -6014,6 +6017,7 @@ MonoBehaviour:
   edges: []
   linePrefab: {fileID: 4737950803987888381, guid: 59cbbdf3e8ecd8e4d91c8cc2d85ed050, type: 3}
   nodePrefab: {fileID: 2200240886250214715, guid: 1b9bfe019cfc46448ab03e3c34371672, type: 3}
+  endNodePrefab: {fileID: 8529161199384999889, guid: cc817fd1ae2097745b09f7ae9669b1e0, type: 3}
   resolutionPerSegment: 10
   clickThreshold: 0.3
   enableSymmetry: 1
@@ -6504,6 +6508,7 @@ MonoBehaviour:
   edges: []
   linePrefab: {fileID: 4737950803987888381, guid: 59cbbdf3e8ecd8e4d91c8cc2d85ed050, type: 3}
   nodePrefab: {fileID: 2200240886250214715, guid: 1b9bfe019cfc46448ab03e3c34371672, type: 3}
+  endNodePrefab: {fileID: 8529161199384999889, guid: cc817fd1ae2097745b09f7ae9669b1e0, type: 3}
   resolutionPerSegment: 10
   clickThreshold: 0.3
   enableSymmetry: 1
@@ -7673,6 +7678,7 @@ MonoBehaviour:
   edges: []
   linePrefab: {fileID: 4737950803987888381, guid: 59cbbdf3e8ecd8e4d91c8cc2d85ed050, type: 3}
   nodePrefab: {fileID: 2200240886250214715, guid: 1b9bfe019cfc46448ab03e3c34371672, type: 3}
+  endNodePrefab: {fileID: 8529161199384999889, guid: cc817fd1ae2097745b09f7ae9669b1e0, type: 3}
   resolutionPerSegment: 10
   clickThreshold: 0.3
   enableSymmetry: 1
@@ -9388,6 +9394,7 @@ MonoBehaviour:
   edges: []
   linePrefab: {fileID: 4737950803987888381, guid: 59cbbdf3e8ecd8e4d91c8cc2d85ed050, type: 3}
   nodePrefab: {fileID: 2200240886250214715, guid: 1b9bfe019cfc46448ab03e3c34371672, type: 3}
+  endNodePrefab: {fileID: 8529161199384999889, guid: cc817fd1ae2097745b09f7ae9669b1e0, type: 3}
   resolutionPerSegment: 10
   clickThreshold: 0.3
   enableSymmetry: 1
@@ -10241,6 +10248,7 @@ MonoBehaviour:
   edges: []
   linePrefab: {fileID: 4737950803987888381, guid: 59cbbdf3e8ecd8e4d91c8cc2d85ed050, type: 3}
   nodePrefab: {fileID: 2200240886250214715, guid: 1b9bfe019cfc46448ab03e3c34371672, type: 3}
+  endNodePrefab: {fileID: 8529161199384999889, guid: cc817fd1ae2097745b09f7ae9669b1e0, type: 3}
   resolutionPerSegment: 10
   clickThreshold: 0.3
   enableSymmetry: 1
@@ -10528,6 +10536,7 @@ MonoBehaviour:
   edges: []
   linePrefab: {fileID: 4737950803987888381, guid: 59cbbdf3e8ecd8e4d91c8cc2d85ed050, type: 3}
   nodePrefab: {fileID: 2200240886250214715, guid: 1b9bfe019cfc46448ab03e3c34371672, type: 3}
+  endNodePrefab: {fileID: 8529161199384999889, guid: cc817fd1ae2097745b09f7ae9669b1e0, type: 3}
   resolutionPerSegment: 10
   clickThreshold: 0.3
   enableSymmetry: 1

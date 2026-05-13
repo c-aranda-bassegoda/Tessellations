@@ -164,7 +164,7 @@ public class TessellationPolygon : PiecewisePolygon
     }
 
     /// <summary>
-    /// Rotates the point into symmetric edge. Returns the position of pointA when glide-reflected onto symEdge
+    /// Rotates the point into symmetric edge. Returns the position of pointA when rotated onto symEdge
     /// </summary>
     public Vector2 RotatePointOnSymEdge(Path edge, Path symEdge, Vector2 pointA)
     {
@@ -202,6 +202,7 @@ public class TessellationPolygon : PiecewisePolygon
         }
 
         vertex = Vector2.zero;
+        Debug.LogError("Edges do not share a vertex: " + edge.Start + "-" + edge.End + " and " + symEdge.Start + "-" + symEdge.End);
         return false;
     }
     private Vector2 GetDirectionFromPivot(Path path, Vector2 pivot)
@@ -397,11 +398,35 @@ public struct Matrix2x2
         m10 = x.y; m11 = y.y;
     }
 
+    public Matrix2x2(float a, float b, float c, float d)
+    {
+        m00 = a; m01 = b;
+        m10 = c; m11 = d;
+    }
+
     public Vector2 Multiply(Vector2 v)
     {
         return new Vector2(
             m00 * v.x + m01 * v.y,
             m10 * v.x + m11 * v.y
+        );
+    }
+
+    internal Matrix2x2 Inverse()
+    {
+        float determinant = (m00 * m11) - (m01 * m10);
+
+        if (Mathf.Approximately(determinant, 0f))
+        {
+            Debug.LogError("Matrix is not invertible.");
+            return this;
+        }
+
+        float invDet = 1f / determinant;
+
+        return new Matrix2x2(
+            m11 * invDet, -m01 * invDet,
+            -m10 * invDet, m00 * invDet
         );
     }
 }

@@ -7,7 +7,8 @@ public class Path : MonoBehaviour
     private List<PathPointSelectable> points;
     public int resolutionPerSegment = 20;
     private LineRenderer line;
-    public GameObject nodePrefab;
+    public GameObject nodePrefab;   
+    public GameObject endNodePrefab;   
     public float clickThreshold = 0.4f;
 
     public Vector2 Start {  get; private set; }
@@ -28,7 +29,7 @@ public class Path : MonoBehaviour
         this.End = end;
         points.Clear();
 
-        NodeSelectable a = Instantiate(nodePrefab, start, Quaternion.identity)
+        NodeSelectable a = Instantiate(endNodePrefab, start, Quaternion.identity)
                         .GetComponent<NodeSelectable>();
         a.transform.SetParent(transform, true);
         PathPointSelectable p1 = new PathPointSelectable();
@@ -38,7 +39,7 @@ public class Path : MonoBehaviour
         p1.handleOutOffset = Vector3.zero;
         p1.smooth = false;
 
-        NodeSelectable b = Instantiate(nodePrefab, end, Quaternion.identity)
+        NodeSelectable b = Instantiate(endNodePrefab, end, Quaternion.identity)
                             .GetComponent<NodeSelectable>();
         b.transform.SetParent(transform, true);
         PathPointSelectable p2 = new PathPointSelectable();

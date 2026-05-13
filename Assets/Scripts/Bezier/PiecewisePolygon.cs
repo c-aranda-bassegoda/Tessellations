@@ -10,6 +10,7 @@ public class PiecewisePolygon : BezierPolygon
     public List<Path> edges;
     [SerializeField] private GameObject linePrefab; // Prefab with LineRenderer
     [SerializeField] private GameObject nodePrefab;
+    [SerializeField] private GameObject endNodePrefab;
     [SerializeField] private int resolutionPerSegment = 20;
     [SerializeField] private float clickThreshold = 0.4f;
 
@@ -125,6 +126,7 @@ public class PiecewisePolygon : BezierPolygon
             Path path = edgeObj.AddComponent<Path>();
             path.resolutionPerSegment = resolutionPerSegment;
             path.nodePrefab = nodePrefab;
+            path.endNodePrefab = endNodePrefab;
             path.clickThreshold = clickThreshold;
             path.Initialize(prev, Vertices[i].Position);
             edges.Add(path);
