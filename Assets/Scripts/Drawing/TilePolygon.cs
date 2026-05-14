@@ -118,12 +118,20 @@ public class TilePolygon : DerivedPolygon
         return result.Count > 0;
     }
 
+    /// <summary>
+    /// Finds edges in the base polygon that are compatible for glide reflection with the selected line.
+    /// An edge is considered compatible if it has the same length and is either parallel or adjacent (shares an endpoint) to the selected line (up to floating pnt error).
+    /// TODO: Additionally, we check if the other edges of the polygon have incompatible symmetries.
+    /// </summary>
+    /// <param name="selectedLine"></param>
+    /// <returns></returns>
     internal List<int> FindGlideReflectionCompatibleEdges(EdgeSelectable selectedLine)
     {
         // We can define glide reflection compatibility as the same criteria as translation compatibility (parallel and equal length),
         // since glide reflection is essentially a translation followed by a reflection.
         // A special case are glide reflections of type VI which reflect on adjacent lines.
         // half edges cannot be glide reflected.
+        // Can't glide reflect if a full edge rotation is present
 
         Debug.Log("Looking for compatible rot...");
         List<int> edges = new List<int>();
@@ -180,11 +188,15 @@ public class TilePolygon : DerivedPolygon
     /// <summary>
     /// Finds edges in the base polygon that are compatible for rotation with the selected line.
     /// An edge is considered compatible if it has the same length (up to floating pnt error) and shares at least one endpoint with the selected line.
+    /// TODO: Additionally, we check if the other edges of the polygon have incompatible symmetries.
     /// </summary>
     /// <param name="selectedLine"> </param> 
     /// <returns>  </returns>
     public List<int> FindRotationCompatibleEdges(EdgeSelectable selectedLine)
     {
+        // Can't full edge rotatie if a Glide reflection is present
+        // Can't full edge rotate if half edge is present 
+
         Debug.Log("Looking for compatible rot...");
         List<int> edges = new List<int>();
         if (selectedLine == null)
@@ -255,6 +267,7 @@ public class TilePolygon : DerivedPolygon
     {
         Debug.Log("Looking for compatible...");
         List<int> edges = new List<int>();
+
         if (selectedLine == null)
         {
             Debug.Log("null edge");
@@ -267,12 +280,32 @@ public class TilePolygon : DerivedPolygon
             return edges;
         }
 
+        edges = FindParalelAndEqualLengthEdges(selectedLine);
+
+        return edges;
+    }
+
+    /// <summary>
+    /// Finds edges in the base polygon that are parallel and of equal length to the selected line (up to floating pnt error).
+    /// </summary>
+    /// <param name="selectedLine"></param>
+    /// <returns></returns>
+    public List<int> FindParalelAndEqualLengthEdges(EdgeSelectable selectedLine)
+    {
+        Debug.Log("Looking for compatible...");
+        List<int> edges = new List<int>();
+        if (selectedLine == null)
+        {
+            Debug.Log("null edge");
+            return edges;
+        }
+
         (Vector2 origA, Vector2 origB) = GetLineEndpoints(selectedLine);
         Vector2 selectedDir = GetEdgeDirection(selectedLine);
         float selectedLength = GetEdgeLength(selectedLine);
 
-        float lengthTolerance = snapDistance; 
-        float directionTolerance = 0.99f;
+        float lengthTolerance = snapDistance;
+        float directionTolerance = 0.9f;
 
         for (int i = 0; i < BasePolygon.SnapVertices.Count; i++)
         {
@@ -292,7 +325,7 @@ public class TilePolygon : DerivedPolygon
             bool directionMatch = Mathf.Abs(Vector2.Dot(dir, selectedDir)) > directionTolerance;
 
             bool isSelf = (a == origA && b == origB) || (a == origB && b == origA);
-            
+
             if (lengthMatch && directionMatch && !isSelf)
             {
                 edges.Add(i);
