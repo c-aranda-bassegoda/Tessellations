@@ -90,11 +90,12 @@ public class SelectionManager : MonoBehaviour
         List<ISelectable> toRemove = new List<ISelectable>();
         foreach (var s in selectables)
         {
-            if (s is LineSelectable)
+            if (s is LineSelectable && s is not EdgeSelectable)
                 toRemove.Add(s);
         }
         foreach (var s in toRemove)
             s.Remove();
+        Update();
     }
 
     public void Undo()
@@ -103,7 +104,7 @@ public class SelectionManager : MonoBehaviour
         if (selectables == null || selectables.Count == 0)
             return;
         ISelectable s = selectables[selectables.Count - 1];
-        if (s is LineSelectable)
+        if (s is LineSelectable && s is not EdgeSelectable)
             s.Remove();
     }
 
