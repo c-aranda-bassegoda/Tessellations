@@ -131,7 +131,6 @@ public class TilePolygon : DerivedPolygon
         // since glide reflection is essentially a translation followed by a reflection.
         // A special case are glide reflections of type VI which reflect on adjacent lines.
         // half edges cannot be glide reflected.
-        // Can't glide reflect if a full edge rotation is present
 
         Debug.Log("Looking for compatible rot...");
         List<int> edges = new List<int>();
@@ -144,6 +143,16 @@ public class TilePolygon : DerivedPolygon
         {
             Debug.Log("Already has symm edge");
             return edges;
+        }
+
+        // Can't glide reflect if a full edge rotation is present
+        for (int i = 0; i < symmetricEdgeMap.Count; i++)
+        {
+            if (symmetries[i] == Symmetry.Rotation && symmetricEdgeMap[i] != i)
+            {
+                Debug.Log("Full edge rotation present, can't glide reflect");
+                return new List<int>();
+            }
         }
 
         (Vector2 origA, Vector2 origB) = GetLineEndpoints(selectedLine);
@@ -194,9 +203,6 @@ public class TilePolygon : DerivedPolygon
     /// <returns>  </returns>
     public List<int> FindRotationCompatibleEdges(EdgeSelectable selectedLine)
     {
-        // Can't full edge rotatie if a Glide reflection is present
-        // Can't full edge rotate if half edge is present 
-
         Debug.Log("Looking for compatible rot...");
         List<int> edges = new List<int>();
         if (selectedLine == null)
@@ -211,13 +217,52 @@ public class TilePolygon : DerivedPolygon
         }
 
         (Vector2 origA, Vector2 origB) = GetLineEndpoints(selectedLine);
-        float selectedLength = GetEdgeLength(selectedLine);
 
-        float lengthTolerance = snapDistance;
+        bool inEdge;
+
+        for (int i = 0; i < BasePolygon.Midpoints.Count; i++)
+        {
+            Vector2 m = BasePolygon.Midpoints[i].Position;
+
+            inEdge = (m == origA || m == origB);
+            Debug.Log("Mid: " + m + "Line ends " + origA + " " + origB);
+
+            if (inEdge)
+            {
+                edges.Add(i);
+                return edges; // if the line is being rotated around a midpoint, there can only be one compatible edge, so we can return early after finding it.
+            }
+        }
+
+        // Can't full edge rotate if a Glide reflection is present
+        foreach (Symmetry symm in symmetries)
+        {
+            if (symm == Symmetry.GlideReflection)
+            {
+                Debug.Log("Glide reflection present, can't rotate full edge");
+                return new List<int>();
+            }
+        }
+
+
+        // Can't full edge rotate if half edge is present i.e. self-reference in symmetricEdgeMap
+        for (int i = 0; i < symmetricEdgeMap.Count; i++)
+        {
+            if (symmetricEdgeMap[i] == i)
+            {
+                Debug.Log("Half edge present, can't rotate full edge");
+                return new List<int>();
+            }
+        }
+
+
+
+        List<int> edgeIdxList = FindEqualLengthEdges(selectedLine);
+
+        float tolerance = snapDistance;
         bool adjacency;
-        bool inEdge = false;
 
-        for (int i = 0; i < BasePolygon.SnapVertices.Count; i++)
+        foreach (int i in edgeIdxList)
         {
             Vertex va = BasePolygon.SnapVertices[i];
             Vertex vb = BasePolygon.SnapVertices[(i + 1) % BasePolygon.SnapVertices.Count];
@@ -226,29 +271,14 @@ public class TilePolygon : DerivedPolygon
             Vector2 a = BasePolygon.SnapVertices[i].Position;
             Vector2 b = BasePolygon.SnapVertices[(i + 1) % BasePolygon.SnapVertices.Count].Position;
 
-            Vector2 dir = (b - a).normalized;
-            float length = Vector2.Distance(a, b);
-
-            bool lengthMatch = Mathf.Abs(length - selectedLength) < lengthTolerance;
-
-            adjacency = (a==origA || a == origB) || (b == origA || b == origB);
+            adjacency = (Mathf.Abs((a - origA).magnitude) < tolerance 
+                || Mathf.Abs((a - origB).magnitude) < tolerance ) 
+                || (Mathf.Abs((b - origA).magnitude) < tolerance 
+                || Mathf.Abs((b - origB).magnitude) < tolerance);
 
             bool isSelf = (a == origA && b == origB) || (a == origB && b == origA);
 
-            if (lengthMatch && adjacency && !isSelf)
-            {
-                edges.Add(i);
-            }
-        }
-
-        for (int i = 0; i < BasePolygon.Midpoints.Count; i++)
-        {
-            Vector2 m = BasePolygon.Midpoints[i].Position;
-
-            inEdge = (m == origA || m == origB);
-            Debug.Log("Mid: "+ m + "Line ends " + origA + " " + origB);
-
-            if (inEdge)
+            if (adjacency && !isSelf)
             {
                 edges.Add(i);
             }
@@ -280,17 +310,17 @@ public class TilePolygon : DerivedPolygon
             return edges;
         }
 
-        edges = FindParalelAndEqualLengthEdges(selectedLine);
+        edges = FindParallelEdges(selectedLine, FindEqualLengthEdges(selectedLine));
 
         return edges;
     }
 
     /// <summary>
-    /// Finds edges in the base polygon that are parallel and of equal length to the selected line (up to floating pnt error).
+    /// Finds edges in the base polygon that are of equal length to the selected line (up to floating pnt error).
     /// </summary>
     /// <param name="selectedLine"></param>
     /// <returns></returns>
-    public List<int> FindParalelAndEqualLengthEdges(EdgeSelectable selectedLine)
+    public List<int> FindEqualLengthEdges(EdgeSelectable selectedLine)
     {
         Debug.Log("Looking for compatible...");
         List<int> edges = new List<int>();
@@ -300,14 +330,112 @@ public class TilePolygon : DerivedPolygon
             return edges;
         }
 
+        for (int i = 0; i < BasePolygon.SnapVertices.Count; i++)
+        {
+            edges.Add(i);
+        }
+
+        if (edges.Count == 0)
+            Debug.Log("No equal length edges found");
+
+        return FindEqualLengthEdges(selectedLine, edges);
+    }
+
+    /// <summary>
+    /// Overloaded version of FindEqualLengthEdges.
+    /// Takes in a list of edge indices to check for length compatibility, instead of checking all edges in the base polygon.
+    /// </summary>
+    /// <param name="selectedLine"></param>
+    /// <param name="edgeIdxList"></param>
+    /// <returns></returns>
+    public List<int> FindEqualLengthEdges(EdgeSelectable selectedLine, List<int> edgeIdxList)
+    {
+        Debug.Log("Looking for compatible...");
+        List<int> edges = new List<int>();
+
+        if (selectedLine == null)
+        {
+            Debug.Log("null edge");
+            return edgeIdxList;
+        }
+
         (Vector2 origA, Vector2 origB) = GetLineEndpoints(selectedLine);
-        Vector2 selectedDir = GetEdgeDirection(selectedLine);
         float selectedLength = GetEdgeLength(selectedLine);
 
         float lengthTolerance = snapDistance;
-        float directionTolerance = 0.9f;
+
+        foreach (int i in edgeIdxList)
+        {
+            Vertex va = BasePolygon.SnapVertices[i];
+            Vertex vb = BasePolygon.SnapVertices[(i + 1) % BasePolygon.SnapVertices.Count];
+            if (EdgeIsDrawn(va, vb) || EdgeIsHalfDrawn(va, vb))
+                continue;
+            Vector2 a = BasePolygon.SnapVertices[i].Position;
+            Vector2 b = BasePolygon.SnapVertices[(i + 1) % BasePolygon.SnapVertices.Count].Position;
+
+            float length = Vector2.Distance(a, b);
+
+            bool lengthMatch = Mathf.Abs(length - selectedLength) < lengthTolerance;
+
+            bool isSelf = (a == origA && b == origB) || (a == origB && b == origA);
+
+            if (lengthMatch && !isSelf)
+            {
+                edges.Add(i);
+            }
+        }
+
+        return edges;
+    }
+
+    /// <summary>
+    /// Finds edges in the base polygon that are parallel to the selected line (up to floating pnt error).
+    /// </summary>
+    /// <param name="selectedLine"></param>
+    /// <returns></returns>
+    public List<int> FindParallelEdges(EdgeSelectable selectedLine)
+    {
+        Debug.Log("Looking for compatible...");
+        List<int> edges = new List<int>();
+        if (selectedLine == null)
+        {
+            Debug.Log("null edge");
+            return edges;
+        }
 
         for (int i = 0; i < BasePolygon.SnapVertices.Count; i++)
+        {
+            edges.Add(i);
+        }
+
+        return FindParallelEdges(selectedLine, edges);
+    }
+
+    /// <summary>
+    /// Overloaded version of FindParallelEdges.
+    /// Takes in a list of edge indices to check for parallelism, instead of checking all edges in the base polygon.
+    /// </summary>
+    /// <param name="selectedLine"></param>
+    /// <param name="edgeIdxList"></param>
+    /// <returns></returns>
+    public List<int> FindParallelEdges(EdgeSelectable selectedLine, List<int> edgeIdxList)
+    {
+        Debug.Log("Looking for compatible...");
+        List<int> edges = new List<int>();
+        if (edgeIdxList == null)
+            return edgeIdxList;
+
+        if (selectedLine == null)
+        {
+            Debug.Log("null edge");
+            return edgeIdxList;
+        }
+
+        (Vector2 origA, Vector2 origB) = GetLineEndpoints(selectedLine);
+        Vector2 selectedDir = GetEdgeDirection(selectedLine);
+        float directionTolerance = 0.9f;
+
+        foreach (int i in edgeIdxList)
         {
             Vertex va = BasePolygon.SnapVertices[i];
             Vertex vb = BasePolygon.SnapVertices[(i + 1) % BasePolygon.SnapVertices.Count];
@@ -317,16 +445,13 @@ public class TilePolygon : DerivedPolygon
             Vector2 b = BasePolygon.SnapVertices[(i + 1) % BasePolygon.SnapVertices.Count].Position;
 
             Vector2 dir = (b - a).normalized;
-            float length = Vector2.Distance(a, b);
-
-            bool lengthMatch = Mathf.Abs(length - selectedLength) < lengthTolerance;
 
             // dot product checks orientation similarity
             bool directionMatch = Mathf.Abs(Vector2.Dot(dir, selectedDir)) > directionTolerance;
 
             bool isSelf = (a == origA && b == origB) || (a == origB && b == origA);
 
-            if (lengthMatch && directionMatch && !isSelf)
+            if (directionMatch && !isSelf)
             {
                 edges.Add(i);
             }
