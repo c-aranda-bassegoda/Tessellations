@@ -71,7 +71,7 @@ public class SymmetryManager : MonoBehaviour
     /// </summary>
     public void CopySelected()
     {
-        var selected = SelectionManager.Instance.selected;
+        var selected = SelectionManager.Instance.lastSelected;
 
         if (selected == null)
         {
