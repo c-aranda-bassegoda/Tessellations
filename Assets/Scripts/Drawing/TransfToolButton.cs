@@ -10,20 +10,23 @@ public class TransfToolButton : ToolButton
     void Start()
     {
         SelectionManager.Instance.OnSelectingChanged += HandleSelectionChanged;
+        SelectionManager.Instance.OnSelectionChanged += HandleSelectionChanged;
         //button.interactable = SelectionManager.Instance.selected != null;
         button.gameObject.SetActive(SelectionManager.Instance.selected != null);
     }
 
     private void HandleSelectionChanged(ISelectable selection)
     {
-        var selected = SelectionManager.Instance.selected;
+        //var selected = SelectionManager.Instance.selected;
 
-        MonoBehaviour mb = selected as MonoBehaviour;
+        Debug.Log("Selection changed, selected: " + selection);
+        MonoBehaviour mb = selection as MonoBehaviour;
 
         if (mb == null)
         {
             button.gameObject.SetActive((selection != null));
             button.interactable = (selection != null);
+            //Debug.LogError("Selected object is not a MonoBehaviour, cannot determine if transformation tools should be active.");
             return;
         }
         EdgeSelectable line = mb.gameObject?.GetComponent<EdgeSelectable>();
@@ -48,9 +51,14 @@ public class TransfToolButton : ToolButton
 
     void OnDestroy()
     {
-        if (SelectionManager.Instance != null)
+        if (SelectionManager.Instance != null) 
+        { 
             SelectionManager.Instance.OnSelectingChanged -= HandleSelectionChanged;
+            SelectionManager.Instance.OnSelectionChanged -= HandleSelectionChanged;
+        }
+        
     }
+
     // Update is called once per frame
     void Update()
     {

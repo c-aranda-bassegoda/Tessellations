@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 public class SelectionManager : MonoBehaviour
 {
     public event Action<ISelectable> OnSelectingChanged;
+    public event Action<ISelectable> OnSelectionChanged;
     public static SelectionManager Instance { get; private set; }
 
     [SerializeField] List<ISelectable> selectables = new List<ISelectable>();
@@ -18,6 +19,20 @@ public class SelectionManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        ToolManager.Instance.OnToolChanged += () =>
+        {
+            if (ToolManager.Instance.CurrentTool != ToolType.Select && !ToolManager.Instance.CurrentToolRequiresSelection())
+            {
+                Debug.Log("Tool changed to non-select, deselecting");
+                OnSelectingChanged?.Invoke(null);
+                selected = null;
+            }
+        };
+    }
+
+    private void Instance_OnToolChanged()
+    {
+        throw new NotImplementedException();
     }
 
     public void Register(ISelectable selectable)
@@ -28,15 +43,20 @@ public class SelectionManager : MonoBehaviour
 
     void Update()
     {
-        if (ToolManager.Instance.CurrentTool != ToolType.Select && !ToolManager.Instance.CurrentToolRequiresSelection())
-        {
-            //Debug.Log("Not in select mode, deselecting if needed");
-            OnSelectingChanged?.Invoke(null);
-            return;
-        }
+        //if (ToolManager.Instance.CurrentTool != ToolType.Select && !ToolManager.Instance.CurrentToolRequiresSelection())
+        //{
+        //    Debug.Log("Not in select mode, deselecting if needed");
+        //    if (ToolManager.Instance.CurrentTool != ToolManager.Instance.PreviousTool)
+        //    {
+        //        OnSelectingChanged?.Invoke(null);
+        //        ToolManager.Instance.PreviousTool = ToolManager.Instance.CurrentTool;
+        //    }
+        //    return;
+        //}
 
         if (InputManager.Instance.PointerDown)
         {
+            Debug.Log("Pointer down, trying to select");
             TrySelect(InputManager.Instance.PointerWorldPos);
 
             if (selected is IDraggable draggable)
@@ -183,23 +203,27 @@ public class SelectionManager : MonoBehaviour
 
     private void TrySelect(Vector2 pointerWorldPos)
     {
-
+        Debug.Log("Trying to select at " + pointerWorldPos);
         if (InputManager.Instance.PointerOverUI)
         {
             Debug.Log("Pointer over UI, ignoring selection");
-            if (selected != null)
+            if (selected != null && selected is not EdgeSelectable)
+            {
                 Deselect();
+            }
             return;
         }
 
-        if (EventSystem.current != null &&
-            EventSystem.current.IsPointerOverGameObject())
-        {
-            Debug.Log("Pointer over UI (EventSystem), ignoring selection");
-            if (selected != null)
-                Deselect();
-            return;
-        }
+        //if (EventSystem.current != null &&
+        //    EventSystem.current.IsPointerOverGameObject())
+        //{
+        //        Debug.Log("Pointer over UI (EventSystem), ignoring selection");
+        //    if (selected != null && selected is not EdgeSelectable)
+        //    {
+        //        Deselect();
+        //    }
+        //    return;
+        //}
 
         for (int i = selectables.Count - 1; i >= 0; i--)
         {
@@ -220,8 +244,8 @@ public class SelectionManager : MonoBehaviour
             }
         }
 
-        //Deselect();
-        
+        Deselect();
+
     }
 
     public void Select(ISelectable s)
@@ -246,6 +270,7 @@ public class SelectionManager : MonoBehaviour
         }
         lastSelected = selected;
         Debug.Log("Deselecting");
+        //OnSelectionChanged?.Invoke(selected);
         selected = null;
     }
 

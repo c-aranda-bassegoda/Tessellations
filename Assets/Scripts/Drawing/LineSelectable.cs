@@ -36,6 +36,7 @@ public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
             if (DistancePointToSegment(worldPoint, points[i], points[i + 1]) <= hitRadius)
                 return true;
         }
+        //SelectionManager.Instance.Deselect();
         return false;
     }
 

@@ -150,7 +150,7 @@ public class TilePolygon : DerivedPolygon
         }
         if (selectedLine.SymmEdge != null)
         {
-            Debug.Log("Already has symm edge");
+            //Debug.Log("Already has symm edge");
             return edges;
         }
 
@@ -224,7 +224,7 @@ public class TilePolygon : DerivedPolygon
         }
         if (selectedLine.SymmEdge != null)
         {
-            Debug.Log("Already has symm edge");
+            //Debug.Log("Already has symm edge");
             return edges;
         }
 
@@ -322,7 +322,7 @@ public class TilePolygon : DerivedPolygon
 
         if (selectedLine.SymmEdge != null)
         {
-            Debug.Log("Already has symm edge");
+            //Debug.Log("Already has symm edge");
             return edges;
         }
 
@@ -620,6 +620,11 @@ public class TilePolygon : DerivedPolygon
     private void SetSymmetryForEdge(GameObject lineObj, int selectedEdg, Symmetry transf)
     {
         int oldEdgeIdx = GetEdgeIndex(lineObj.GetComponent<LineRenderer>());
+        if (oldEdgeIdx == -1)
+        {
+            Debug.LogError("Old edge not found in base polygon");
+            return;
+        }
         symmetricEdgeMap.RemoveAt(oldEdgeIdx);
         symmetricEdgeMap.Insert(oldEdgeIdx, selectedEdg);
         symmetricEdgeMap.RemoveAt(selectedEdg);

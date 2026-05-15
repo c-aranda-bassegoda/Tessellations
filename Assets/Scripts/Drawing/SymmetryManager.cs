@@ -128,7 +128,7 @@ public class SymmetryManager : MonoBehaviour
         {
             SelectionManager.Instance.Register(selectable);
             SelectionManager.Instance.Deselect();
-            SelectionManager.Instance.Select(selectable);
+            //SelectionManager.Instance.Select(selectable);
         }
         else
         {

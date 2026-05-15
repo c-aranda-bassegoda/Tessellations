@@ -202,7 +202,7 @@ public class TessellationPolygon : PiecewisePolygon
         }
 
         vertex = Vector2.zero;
-        Debug.LogError("Edges do not share a vertex: " + edge.Start + "-" + edge.End + " and " + symEdge.Start + "-" + symEdge.End);
+        //Debug.Log("Edges do not share a vertex: " + edge.Start + "-" + edge.End + " and " + symEdge.Start + "-" + symEdge.End);
         return false;
     }
     private Vector2 GetDirectionFromPivot(Path path, Vector2 pivot)
