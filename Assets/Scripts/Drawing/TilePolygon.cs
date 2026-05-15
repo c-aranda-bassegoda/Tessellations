@@ -90,31 +90,40 @@ public class TilePolygon : DerivedPolygon
         List<Vertex> newVertices = base.ToVertices(lineRenderer);
         (Vertex vtx0, Vertex vtxEnd, Vertex vtxM) = base.GetVerticesWhereLine(newVertices);
 
-        Debug.Log("Drawn edges: " + DrawnEdges + "Drawn half edges: " + DrawnHalfEdges + "Drawable: " + TotalEdges / 2);
-
-        if (((float)DrawnEdges + (float)(DrawnHalfEdges / 2)) >= (float)TotalEdges / 2)
-            return false;
-
-        if (!IsMidPoint(newVertices[^1]) && !IsMidPoint(newVertices[0]))
+        bool canBeFreeDrawn;
+        if (IsAHalfEdge(newVertices))
         {
-            Debug.Log("midpoint");
-            if (((float)DrawnEdges + 1 + (float)(DrawnHalfEdges / 2)) > (float)TotalEdges / 2)
-                return false;
+            canBeFreeDrawn = ((float)DrawnEdges + ((float)(DrawnHalfEdges + 1) / 2)) <= (float)TotalEdges / 2;
         }
         else
         {
-            if (((float)DrawnEdges + (float)((DrawnHalfEdges + 1) / 2)) > ((float)TotalEdges / 2))
-                return false;
+            canBeFreeDrawn = ((float)(DrawnEdges + 1) + ((float)DrawnHalfEdges / 2)) <= (float)TotalEdges / 2;
+        }
+        
+        //Debug.Log("Drawn edges: " + DrawnEdges + "Drawn half edges: " + DrawnHalfEdges + "Drawable: " + TotalEdges / 2);
+
+        if (!canBeFreeDrawn)
+        {
+            return false;
         }
 
-        if (!EdgeIsDrawn(vtx0,vtxEnd) && !EdgeIsHalfDrawn(vtx0, vtxEnd, vtxM) && ExistsSymmTransformation(line.GetComponent<EdgeSelectable>()))
+        bool existsSymm = ExistsSymmTransformation(line.GetComponent<EdgeSelectable>());
+        
+
+        if (!EdgeIsDrawn(vtx0,vtxEnd) && !EdgeIsHalfDrawn(vtx0, vtxEnd, vtxM) && existsSymm)
             return base.ReplaceEdge(line);
         return false;
+    }
+
+    private bool IsAHalfEdge(List<Vertex> vertices)
+    {
+        return IsMidPoint(vertices[^1]) || IsMidPoint(vertices[0]);
     }
 
     private bool ExistsSymmTransformation(EdgeSelectable line)
     {
         List<int> result = FindTranslationCompatibleEdges(line).Union(FindRotationCompatibleEdges(line).Union(FindGlideReflectionCompatibleEdges(line))).ToList();
+        Debug.Log("Symmetry transformations found: " + result.Count);
         return result.Count > 0;
     }
 
@@ -132,7 +141,7 @@ public class TilePolygon : DerivedPolygon
         // A special case are glide reflections of type VI which reflect on adjacent lines.
         // half edges cannot be glide reflected.
 
-        Debug.Log("Looking for compatible rot...");
+        //Debug.Log("Looking for compatible rot...");
         List<int> edges = new List<int>();
         if (selectedLine == null)
         {
@@ -150,7 +159,7 @@ public class TilePolygon : DerivedPolygon
         {
             if (symmetries[i] == Symmetry.Rotation && symmetricEdgeMap[i] != i)
             {
-                Debug.Log("Full edge rotation present, can't glide reflect");
+                //Debug.Log("Full edge rotation present, can't glide reflect");
                 return new List<int>();
             }
         }
@@ -161,7 +170,7 @@ public class TilePolygon : DerivedPolygon
 
         float directionTolerance = 0.99f;
 
-        float lengthTolerance = snapDistance;
+        float tolerance = snapDistance;
         bool adjacency;
 
         for (int i = 0; i < BasePolygon.SnapVertices.Count; i++)
@@ -176,9 +185,12 @@ public class TilePolygon : DerivedPolygon
             Vector2 dir = (b - a).normalized;
             float length = Vector2.Distance(a, b);
 
-            bool lengthMatch = Mathf.Abs(length - selectedLength) < lengthTolerance;
+            bool lengthMatch = Mathf.Abs(length - selectedLength) < tolerance;
 
-            adjacency = (a == origA || a == origB) || (b == origA || b == origB);
+            adjacency = (Mathf.Abs((a - origA).magnitude) < tolerance
+                || Mathf.Abs((a - origB).magnitude) < tolerance)
+                || (Mathf.Abs((b - origA).magnitude) < tolerance
+                || Mathf.Abs((b - origB).magnitude) < tolerance);
 
             // dot product checks orientation similarity
             bool directionMatch = Mathf.Abs(Vector2.Dot(dir, selectedDir)) > directionTolerance;
@@ -203,7 +215,7 @@ public class TilePolygon : DerivedPolygon
     /// <returns>  </returns>
     public List<int> FindRotationCompatibleEdges(EdgeSelectable selectedLine)
     {
-        Debug.Log("Looking for compatible rot...");
+        //Debug.Log("Looking for compatible rot...");
         List<int> edges = new List<int>();
         if (selectedLine == null)
         {
@@ -225,13 +237,29 @@ public class TilePolygon : DerivedPolygon
             Vector2 m = BasePolygon.Midpoints[i].Position;
 
             inEdge = (m == origA || m == origB);
-            Debug.Log("Mid: " + m + "Line ends " + origA + " " + origB);
+            //Debug.Log("Mid: " + m + "Line ends " + origA + " " + origB);
 
             if (inEdge)
             {
+                // Can't half edge rotate if a full edge rotation is present
+                for (int j = 0; j < symmetricEdgeMap.Count; j++)
+                {
+                    if (symmetries[j] == Symmetry.Rotation && symmetricEdgeMap[j] != j)
+                    {
+                        //Debug.Log("Full edge rotation present, can't half edge rotate");
+                        return new List<int>();
+                    }
+                }
                 edges.Add(i);
                 return edges; // if the line is being rotated around a midpoint, there can only be one compatible edge, so we can return early after finding it.
             }
+        }
+
+        // Can't full edge rotate if half edge is present 
+        if (DrawnHalfEdges > 0)
+        {
+            //Debug.Log("Half edge present, can't rotate full edge");
+            return new List<int>();
         }
 
         // Can't full edge rotate if a Glide reflection is present
@@ -239,22 +267,10 @@ public class TilePolygon : DerivedPolygon
         {
             if (symm == Symmetry.GlideReflection)
             {
-                Debug.Log("Glide reflection present, can't rotate full edge");
+                //Debug.Log("Glide reflection present, can't rotate full edge");
                 return new List<int>();
             }
         }
-
-
-        // Can't full edge rotate if half edge is present i.e. self-reference in symmetricEdgeMap
-        for (int i = 0; i < symmetricEdgeMap.Count; i++)
-        {
-            if (symmetricEdgeMap[i] == i)
-            {
-                Debug.Log("Half edge present, can't rotate full edge");
-                return new List<int>();
-            }
-        }
-
 
 
         List<int> edgeIdxList = FindEqualLengthEdges(selectedLine);
@@ -295,7 +311,7 @@ public class TilePolygon : DerivedPolygon
     /// <returns></returns>
     public List<int> FindTranslationCompatibleEdges(EdgeSelectable selectedLine)
     {
-        Debug.Log("Looking for compatible...");
+        //Debug.Log("Looking for compatible...");
         List<int> edges = new List<int>();
 
         if (selectedLine == null)
@@ -322,7 +338,7 @@ public class TilePolygon : DerivedPolygon
     /// <returns></returns>
     public List<int> FindEqualLengthEdges(EdgeSelectable selectedLine)
     {
-        Debug.Log("Looking for compatible...");
+        //Debug.Log("Looking for compatible...");
         List<int> edges = new List<int>();
         if (selectedLine == null)
         {
@@ -350,7 +366,7 @@ public class TilePolygon : DerivedPolygon
     /// <returns></returns>
     public List<int> FindEqualLengthEdges(EdgeSelectable selectedLine, List<int> edgeIdxList)
     {
-        Debug.Log("Looking for compatible...");
+        //Debug.Log("Looking for compatible...");
         List<int> edges = new List<int>();
 
         if (selectedLine == null)
@@ -395,7 +411,7 @@ public class TilePolygon : DerivedPolygon
     /// <returns></returns>
     public List<int> FindParallelEdges(EdgeSelectable selectedLine)
     {
-        Debug.Log("Looking for compatible...");
+        //Debug.Log("Looking for compatible...");
         List<int> edges = new List<int>();
         if (selectedLine == null)
         {
@@ -420,7 +436,7 @@ public class TilePolygon : DerivedPolygon
     /// <returns></returns>
     public List<int> FindParallelEdges(EdgeSelectable selectedLine, List<int> edgeIdxList)
     {
-        Debug.Log("Looking for compatible...");
+        //Debug.Log("Looking for compatible...");
         List<int> edges = new List<int>();
         if (edgeIdxList == null)
             return edgeIdxList;
