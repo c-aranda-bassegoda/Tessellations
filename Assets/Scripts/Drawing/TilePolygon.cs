@@ -641,24 +641,29 @@ public class TilePolygon : DerivedPolygon
         symmetries.Insert(selectedEdg, transf);
     }
 
+    private bool AreSameVector(Vector2 v1, Vector2 v2)
+    {
+        return Vector2.Distance(v1, v2) < snapDistance;
+    }
+
     private int GetEdgeIndex(LineRenderer edge)
     {
         for (int i = 0; i < BasePolygon.Edges.Count; i++)
         {
-            if (((Vector3)BasePolygon.Edges[i].A.Position == edge.GetPosition(0) 
-                && (Vector3)BasePolygon.Edges[i].B.Position == edge.GetPosition(edge.positionCount - 1)) 
+            if ((AreSameVector(BasePolygon.Edges[i].A.Position, edge.GetPosition(0)) 
+                && AreSameVector(BasePolygon.Edges[i].B.Position, edge.GetPosition(edge.positionCount - 1))) 
                 ||
-                ((Vector3)BasePolygon.Edges[i].A.Position == edge.GetPosition(edge.positionCount-1) 
-                && (Vector3)BasePolygon.Edges[i].B.Position == edge.GetPosition(0)))
+                (AreSameVector(BasePolygon.Edges[i].A.Position, edge.GetPosition(edge.positionCount - 1)) 
+                && AreSameVector(BasePolygon.Edges[i].B.Position, edge.GetPosition(0))))
             {
                 return i;
             }
         }
         for (int i = 0; i < BasePolygon.Edges.Count; i++)
         {
-            if (((Vector3)BasePolygon.Edges[i].MidPoint.Position == edge.GetPosition(edge.positionCount - 1))
+            if ((AreSameVector(BasePolygon.Edges[i].MidPoint.Position, edge.GetPosition(edge.positionCount - 1)))
             ||
-                ((Vector3)BasePolygon.Edges[i].MidPoint.Position == edge.GetPosition(0)))
+                (AreSameVector(BasePolygon.Edges[i].MidPoint.Position, edge.GetPosition(0))))
             {
                 return i;
             }
