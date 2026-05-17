@@ -127,12 +127,12 @@ public class SymmetryManager : MonoBehaviour
         if (selectable != null)
         {
             SelectionManager.Instance.Register(selectable);
-            SelectionManager.Instance.Deselect();
+            //SelectionManager.Instance.Deselect();
             //SelectionManager.Instance.Select(selectable);
         }
         else
         {
-            SelectionManager.Instance.Deselect();
+            //SelectionManager.Instance.Deselect();
         }
         clipboard = null;
     }

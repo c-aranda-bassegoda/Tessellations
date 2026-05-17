@@ -30,10 +30,6 @@ public class SelectionManager : MonoBehaviour
         };
     }
 
-    private void Instance_OnToolChanged()
-    {
-        throw new NotImplementedException();
-    }
 
     public void Register(ISelectable selectable)
     {
@@ -43,16 +39,16 @@ public class SelectionManager : MonoBehaviour
 
     void Update()
     {
-        //if (ToolManager.Instance.CurrentTool != ToolType.Select && !ToolManager.Instance.CurrentToolRequiresSelection())
-        //{
-        //    Debug.Log("Not in select mode, deselecting if needed");
-        //    if (ToolManager.Instance.CurrentTool != ToolManager.Instance.PreviousTool)
-        //    {
-        //        OnSelectingChanged?.Invoke(null);
-        //        ToolManager.Instance.PreviousTool = ToolManager.Instance.CurrentTool;
-        //    }
-        //    return;
-        //}
+        if (ToolManager.Instance.CurrentTool != ToolType.Select && !ToolManager.Instance.CurrentToolRequiresSelection())
+        {
+            OnSelectingChanged?.Invoke(null);
+            Debug.Log("Not in select mode, deselecting if needed");
+            //if (ToolManager.Instance.CurrentTool != ToolManager.Instance.PreviousTool)
+            //{
+            //    ToolManager.Instance.PreviousTool = ToolManager.Instance.CurrentTool;
+            //}
+            return;
+        }
 
         if (InputManager.Instance.PointerDown)
         {
@@ -217,7 +213,7 @@ public class SelectionManager : MonoBehaviour
         //if (EventSystem.current != null &&
         //    EventSystem.current.IsPointerOverGameObject())
         //{
-        //        Debug.Log("Pointer over UI (EventSystem), ignoring selection");
+        //    Debug.Log("Pointer over UI (EventSystem), ignoring selection");
         //    if (selected != null && selected is not EdgeSelectable)
         //    {
         //        Deselect();
@@ -243,7 +239,8 @@ public class SelectionManager : MonoBehaviour
                 return;
             }
         }
-
+        //if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            //OnSelectionChanged?.Invoke(null);
         Deselect();
 
     }
@@ -254,12 +251,13 @@ public class SelectionManager : MonoBehaviour
         {
             selected.SetSelected(false); // if sth is selected deselect it
         }
-            lastSelected = selected;
+        lastSelected = selected;
         Debug.Log("Selecting " + s.ToString());
         selected = s;
         selected.SetSelected(true);
 
         OnSelectingChanged?.Invoke(selected);
+        //OnSelectionChanged?.Invoke(selected);
     }
 
     public void Deselect()
@@ -270,8 +268,8 @@ public class SelectionManager : MonoBehaviour
         }
         lastSelected = selected;
         Debug.Log("Deselecting");
-        //OnSelectionChanged?.Invoke(selected);
         selected = null;
+        OnSelectionChanged?.Invoke(null);
     }
 
     internal void Deregister(ISelectable selectable)

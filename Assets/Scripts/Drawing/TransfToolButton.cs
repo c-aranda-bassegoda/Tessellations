@@ -9,16 +9,14 @@ public class TransfToolButton : ToolButton
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        SelectionManager.Instance.OnSelectingChanged += HandleSelectionChanged;
+        SelectionManager.Instance.OnSelectingChanged += HandleSelectingChanged;
         SelectionManager.Instance.OnSelectionChanged += HandleSelectionChanged;
         //button.interactable = SelectionManager.Instance.selected != null;
         button.gameObject.SetActive(SelectionManager.Instance.selected != null);
     }
 
-    private void HandleSelectionChanged(ISelectable selection)
+    private void HandleSelectingChanged(ISelectable selection)
     {
-        //var selected = SelectionManager.Instance.selected;
-
         Debug.Log("Selection changed, selected: " + selection);
         MonoBehaviour mb = selection as MonoBehaviour;
 
@@ -49,11 +47,38 @@ public class TransfToolButton : ToolButton
         button.interactable = (selection != null) && active;
     }
 
+    private void HandleSelectionChanged(ISelectable selection)
+    {
+        //var selected = SelectionManager.Instance.selected;
+
+        Debug.Log("Selecting changed, selected: " + selection);
+        MonoBehaviour mb = selection as MonoBehaviour;
+        if (mb == null)
+        {
+            return;
+        }
+        EdgeSelectable line = mb.gameObject?.GetComponent<EdgeSelectable>();
+
+        bool active = false;
+        switch (toolType)
+        {
+            case ToolType.Translate:
+                active = SymmetryManager.Instance.baseShape.FindTranslationCompatibleEdges(line).Count > 0;
+                break;
+            case ToolType.Rotate:
+                active = SymmetryManager.Instance.baseShape.FindRotationCompatibleEdges(line).Count > 0;
+                break;
+            case ToolType.Glide:
+                active = SymmetryManager.Instance.baseShape.FindGlideReflectionCompatibleEdges(line).Count > 0;
+                break;
+        }
+    }
+
     void OnDestroy()
     {
         if (SelectionManager.Instance != null) 
-        { 
-            SelectionManager.Instance.OnSelectingChanged -= HandleSelectionChanged;
+        {
+            SelectionManager.Instance.OnSelectingChanged -= HandleSelectingChanged;
             SelectionManager.Instance.OnSelectionChanged -= HandleSelectionChanged;
         }
         
