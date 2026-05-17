@@ -349,14 +349,11 @@ public class DerivedPolygon : NonConvexPolygon
     {
         Debug.Log("Clear Edge");
         ISelectable oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, vertex2.Position);
-        if (oldEdge != null) DrawnEdges--;
         oldEdge?.Remove();
         Edge edge = BasePolygon.GetEdge(vertex1, vertex2);
         oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, edge.MidPoint.Position);
-        if (oldEdge != null) DrawnEdges--;
         oldEdge?.Remove();
         oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(edge.MidPoint.Position, vertex2.Position);
-        if (oldEdge != null) DrawnEdges--;
         oldEdge?.Remove();
     }
 

@@ -94,13 +94,17 @@ public class TilePolygon : DerivedPolygon
         if (IsAHalfEdge(newVertices))
         {
             canBeFreeDrawn = ((float)DrawnEdges + ((float)(DrawnHalfEdges + 1) / 2)) <= (float)TotalEdges / 2;
+            // verify canBeDrawn computation
+            Debug.Log((float)DrawnEdges + " + " + ((float)(DrawnHalfEdges + 1) / 2) + " <= " + (float)TotalEdges / 2);
         }
         else
         {
             canBeFreeDrawn = ((float)(DrawnEdges + 1) + ((float)DrawnHalfEdges / 2)) <= (float)TotalEdges / 2;
+            // verify canBeDrawn computation
+            Debug.Log((float)(DrawnEdges + 1) + " + " + ((float)DrawnHalfEdges / 2) + " <= " + (float)TotalEdges / 2);
         }
         
-        //Debug.Log("Drawn edges: " + DrawnEdges + "Drawn half edges: " + DrawnHalfEdges + "Drawable: " + TotalEdges / 2);
+        Debug.Log("Drawn edges: " + DrawnEdges + "Drawn half edges: " + DrawnHalfEdges + "Drawable: " + TotalEdges / 2);
 
         if (!canBeFreeDrawn)
         {
@@ -108,7 +112,9 @@ public class TilePolygon : DerivedPolygon
         }
 
         bool existsSymm = ExistsSymmTransformation(line.GetComponent<EdgeSelectable>());
-        
+
+        Debug.Log("Exists symm transformation: " + existsSymm);
+
 
         if (!EdgeIsDrawn(vtx0,vtxEnd) && !EdgeIsHalfDrawn(vtx0, vtxEnd, vtxM) && existsSymm)
             return base.ReplaceEdge(line);

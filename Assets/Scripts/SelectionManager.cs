@@ -41,11 +41,11 @@ public class SelectionManager : MonoBehaviour
     {
         if (ToolManager.Instance.CurrentTool != ToolType.Select && !ToolManager.Instance.CurrentToolRequiresSelection())
         {
-            OnSelectingChanged?.Invoke(null);
-            Debug.Log("Not in select mode, deselecting if needed");
+            //Debug.Log("Not in select mode, deselecting if needed");
             //if (ToolManager.Instance.CurrentTool != ToolManager.Instance.PreviousTool)
             //{
             //    ToolManager.Instance.PreviousTool = ToolManager.Instance.CurrentTool;
+            OnSelectingChanged?.Invoke(null);
             //}
             return;
         }

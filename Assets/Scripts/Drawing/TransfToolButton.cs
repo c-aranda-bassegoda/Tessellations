@@ -17,7 +17,6 @@ public class TransfToolButton : ToolButton
 
     private void HandleSelectingChanged(ISelectable selection)
     {
-        Debug.Log("Selection changed, selected: " + selection);
         MonoBehaviour mb = selection as MonoBehaviour;
 
         if (mb == null)
@@ -49,9 +48,6 @@ public class TransfToolButton : ToolButton
 
     private void HandleSelectionChanged(ISelectable selection)
     {
-        //var selected = SelectionManager.Instance.selected;
-
-        Debug.Log("Selecting changed, selected: " + selection);
         MonoBehaviour mb = selection as MonoBehaviour;
         if (mb == null)
         {

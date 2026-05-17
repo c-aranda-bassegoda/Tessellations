@@ -36,7 +36,6 @@ public class ToolButton : MonoBehaviour
     }
     private void HandleSelectionChanged(ISelectable selection)
     {
-        Debug.Log("ToolButton Selection changed, selected: " + selection);
         button.interactable = selection != null;
     }
 
