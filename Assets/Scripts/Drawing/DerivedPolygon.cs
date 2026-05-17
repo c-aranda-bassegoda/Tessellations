@@ -138,7 +138,7 @@ public class DerivedPolygon : NonConvexPolygon
     /// Resets the vertices of the edge corresponding to the lineRenderer to be a straight line between vtx0 and vtxEnd.
     /// </summary>
     /// <param name="lineRenderer"></param>
-    public void ResetLine(LineRenderer lineRenderer)
+    public virtual void ResetLine(LineRenderer lineRenderer)
     {
         List<Vertex> newVertices = ToVertices(lineRenderer);
         (Vertex vtx0, Vertex vtxEnd, Vertex vtxMid) = GetVerticesWhereLine(newVertices);

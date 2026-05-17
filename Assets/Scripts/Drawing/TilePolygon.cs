@@ -641,6 +641,26 @@ public class TilePolygon : DerivedPolygon
         symmetries.Insert(selectedEdg, transf);
     }
 
+    private void ResetSymmetryForEdge(LineRenderer lineRenderer)
+    {
+        int oldEdgeIdx = GetEdgeIndex(lineRenderer);
+        if (oldEdgeIdx == -1)
+        {
+            Debug.LogError("Old edge not found in base polygon");
+            return;
+        }
+        symmetricEdgeMap.Remove(oldEdgeIdx);
+        symmetricEdgeMap.Insert(oldEdgeIdx, -1);
+        symmetries.RemoveAt(oldEdgeIdx);
+        symmetries.Insert(oldEdgeIdx, Symmetry.Translation);
+    }
+
+    public override void ResetLine(LineRenderer lineRenderer)
+    {
+        ResetSymmetryForEdge(lineRenderer);
+        base.ResetLine(lineRenderer);
+    }
+
     private bool AreSameVector(Vector2 v1, Vector2 v2)
     {
         return Vector2.Distance(v1, v2) < snapDistance;
