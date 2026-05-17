@@ -6,8 +6,6 @@ public class Lattice : MonoBehaviour
     public TessellationPolygon tile;
 
     public List<GameObject> gameObjects = new List<GameObject>();
-    private bool changeOcurred;
-    private int previousChildCount;
 
     public bool Tessellating { get; set; }
 

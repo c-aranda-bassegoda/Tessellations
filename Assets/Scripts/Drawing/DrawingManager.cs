@@ -60,6 +60,8 @@ public class DrawingManager : MonoBehaviour
                     SelectionManager.Instance.Register(selectable);
                 if (ToolManager.Instance.CurrentTool == ToolType.Pencil && LatticeManager.Instance != null)
                     LatticeManager.Instance.UpdateLattice();
+                if (ToolManager.Instance.CurrentTool == ToolType.Pencil && DrawingLatticeManager.Instance != null)
+                    DrawingLatticeManager.Instance.UpdateLattice();
             }
             currentLine = null;
             isDrawing = false;
