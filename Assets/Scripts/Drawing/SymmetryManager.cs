@@ -5,6 +5,8 @@ public class SymmetryManager : MonoBehaviour
 {
     [SerializeField] public TilePolygon baseShape;
 
+    // Warning text (TMP)
+    [SerializeField] public GameObject warningText;
     public static SymmetryManager Instance { get; private set; }
 
     GameObject clipboard;
@@ -17,6 +19,7 @@ public class SymmetryManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        baseShape.warningText = warningText;
     }
 
     void Update()

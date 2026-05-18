@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using NUnit.Framework.Constraints;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -16,6 +17,10 @@ public class TilePolygon : DerivedPolygon
     public int StraightRotations { get; set; }
     public int AdjGlideReflections { get; set; }
     public int ParallelGlideReflections { get; set; }
+
+    public GameObject warningText;
+
+    private string warningMessage;
 
 
     [SerializeField]private List<int> symmetricEdgeMap = new List<int>();
@@ -34,6 +39,33 @@ public class TilePolygon : DerivedPolygon
         {
             symmetricEdgeMap.Add(-1);
             symmetries.Add(Symmetry.Translation); // default symmetry
+        }
+    }
+
+    private void ShowWarning(string message)
+    {
+        if (warningText != null)
+        {
+            // (TMP)
+            TextMeshProUGUI textMesh = warningText.GetComponent<TextMeshProUGUI>();
+            if (textMesh != null)
+            {
+                textMesh.text = message;
+                warningText.SetActive(true);
+                Invoke("HideWarning", 5f); // Hide after 2 seconds
+            }
+            else
+            {
+                Debug.LogError("No TextMesh component found on warningText GameObject.");
+            }
+        }
+    }
+
+    private void HideWarning()
+    {
+        if (warningText != null)
+        {
+            warningText.SetActive(false);
         }
     }
 
@@ -91,6 +123,7 @@ public class TilePolygon : DerivedPolygon
         (Vertex vtx0, Vertex vtxEnd, Vertex vtxM) = base.GetVerticesWhereLine(newVertices);
 
         bool canBeFreeDrawn;
+
         if (IsAHalfEdge(newVertices))
         {
             canBeFreeDrawn = ((float)DrawnEdges + ((float)(DrawnHalfEdges + 1) / 2)) <= (float)TotalEdges / 2;
@@ -108,11 +141,21 @@ public class TilePolygon : DerivedPolygon
 
         if (!canBeFreeDrawn)
         {
+            if (((float)DrawnEdges + ((float)(DrawnHalfEdges + 1) / 2)) <= (float)TotalEdges / 2) // a half edge can be drawn but not a full edge    
+                ShowWarning("Cannot draw\nTry drawing half an edge"); 
+            else
+                ShowWarning("Cannot draw: all \"free\" edges drawn\nTry selecting and transforming an edge");
             return false;
         }
 
         bool existsSymm = ExistsSymmTransformation(line.GetComponent<EdgeSelectable>());
 
+        if (!existsSymm)
+        {
+            if (FindRotationCompatibleEdges(line.GetComponent<EdgeSelectable>()).Count == 0)
+                // afaik this is the only case where an edge can't be drawn for symmetry reasons
+                ShowWarning("Cannot draw a half edge when a full edge rotation is present\nTry drawing a full edge instead");
+        }
         Debug.Log("Exists symm transformation: " + existsSymm);
 
 
@@ -726,8 +769,9 @@ public class TilePolygon : DerivedPolygon
         Vector2 targetA = edge.A.Position;
         Vector2 targetB = edge.B.Position;
         Vector2 targetMid = edge.MidPoint.Position;
+        bool isHalfEdge = Vector2.Distance(a, targetMid)<snapDistance || Vector2.Distance(b, targetMid) < snapDistance;
 
-        if (Vector2.Distance(a, targetMid)<snapDistance || Vector2.Distance(b, targetMid) < snapDistance)
+        if (isHalfEdge)
         {
             ls.OnRotate(180, targetMid);
             success = ExtendEdge(newObj);
@@ -763,7 +807,8 @@ public class TilePolygon : DerivedPolygon
 
         SetSymmetryForEdge(lineObj, selectedEdg, Symmetry.Rotation);
 
-        DrawnEdges--;
+        if (!isHalfEdge)
+            DrawnEdges--;
         return ls;
     }
 
