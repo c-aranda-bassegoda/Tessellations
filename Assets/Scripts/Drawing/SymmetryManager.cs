@@ -149,16 +149,11 @@ public class SymmetryManager : MonoBehaviour
         }
 
         if (selectable != null)
-        {
             SelectionManager.Instance.Register(selectable);
-            //SelectionManager.Instance.Deselect();
-            //SelectionManager.Instance.Select(selectable);
-        }
-        else
-        {
-            //SelectionManager.Instance.Deselect();
-        }
+
         clipboard = null;
+
+        ToolManager.Instance.SetTool(ToolType.Select); // switch back to select tool after pasting for smoother user experience
     }
 
     public bool CanDraw()

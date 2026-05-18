@@ -122,6 +122,8 @@ public class SelectionManager : MonoBehaviour
         ISelectable s = selectables[selectables.Count - 1];
         if (s is LineSelectable && s is not EdgeSelectable)
             s.Remove();
+
+        ToolManager.Instance.SetTool(ToolType.Pencil); // back to pencil for convenience, since undo is only used for drawings
     }
 
     public ISelectable FindSelectableWithEndpnts(Vector2 a, Vector2 b)
