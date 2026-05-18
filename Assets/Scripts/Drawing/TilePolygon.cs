@@ -649,7 +649,7 @@ public class TilePolygon : DerivedPolygon
             Debug.LogError("Old edge not found in base polygon");
             return;
         }
-        symmetricEdgeMap.Remove(oldEdgeIdx);
+        symmetricEdgeMap.RemoveAt(oldEdgeIdx);
         symmetricEdgeMap.Insert(oldEdgeIdx, -1);
         symmetries.RemoveAt(oldEdgeIdx);
         symmetries.Insert(oldEdgeIdx, Symmetry.Translation);
