@@ -207,7 +207,7 @@ public class SelectionManager : MonoBehaviour
             {
                 Deselect();
             }
-            return;
+            //return;
         }
 
         //if (EventSystem.current != null &&
