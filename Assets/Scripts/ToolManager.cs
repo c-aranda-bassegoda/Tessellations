@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+
+// serializable enum for tools
+[System.Serializable] 
 public enum ToolType
 {
     None,
@@ -18,7 +22,13 @@ public class ToolManager : MonoBehaviour
 {
     public static ToolManager Instance { get; private set; }
 
-    [SerializeField] public ToolType CurrentTool { get; private set; } = ToolType.None;
+    [SerializeField]
+    private ToolType currentTool = ToolType.None;
+
+    public ToolType CurrentTool => currentTool;
+
+
+    public event Action OnToolChanged;
 
     public static readonly HashSet<ToolType> toolsRequiringSelection =
     new HashSet<ToolType>
@@ -56,7 +66,9 @@ public class ToolManager : MonoBehaviour
     {
         if (CurrentTool == tool) return;
 
-        CurrentTool = tool;
+        currentTool = tool;
+
+        OnToolChanged?.Invoke(); 
         Debug.Log("Selected tool: " + tool);
     }
 }

@@ -14,6 +14,8 @@ public class InputManager : MonoBehaviour
 
     public bool PointerOverUI { get; private set; }
 
+    public float ZoomDelta { get; private set; }
+    public bool UsingTouch { get; private set; }
 
 
     Camera mainCamera;
@@ -45,6 +47,8 @@ public class InputManager : MonoBehaviour
         PointerHeld = false;
         PointerUp = false;
         PointerOverUI = false;
+
+        ZoomDelta = 0f;
     }
 
     void HandleMouse()
@@ -56,12 +60,30 @@ public class InputManager : MonoBehaviour
         PointerOverUI = EventSystem.current.IsPointerOverGameObject();
 
         PointerWorldPos = GetWorldPosition(Input.mousePosition);
+
+        ZoomDelta = Input.mouseScrollDelta.y;
     }
 
     void HandleTouch()
     {
         if (Input.touchCount == 0)
             return;
+
+        if (Input.touchCount >= 2)
+        {
+            Touch touch0 = Input.GetTouch(0);
+            Touch touch1 = Input.GetTouch(1);
+
+            Vector2 prevPos0 = touch0.position - touch0.deltaPosition;
+            Vector2 prevPos1 = touch1.position - touch1.deltaPosition;
+
+            float prevDistance = Vector2.Distance(prevPos0, prevPos1);
+            float currentDistance = Vector2.Distance(touch0.position, touch1.position);
+
+            ZoomDelta = currentDistance - prevDistance;
+
+            return; // Don't process further touches if we're zooming
+        }
 
         Touch touch = Input.GetTouch(0);
 

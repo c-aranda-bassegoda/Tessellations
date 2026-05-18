@@ -3,9 +3,17 @@ using UnityEngine;
 
 public class LatticeDraw : MonoBehaviour
 {
-    public TilePolygon tile;
+    public  TilePolygon tile;
 
     public List<GameObject> gameObjects = new List<GameObject>();
+
+    public bool Tessellating { get; set; }
+
+    private void Start()
+    {
+        Tessellating = false;
+        new DrawingLatticeManager(this);
+    }
 
     public void Tessellate()
     {
@@ -72,8 +80,6 @@ public class LatticeDraw : MonoBehaviour
 
     public void Rotate(GameObject newTile, Edge edge, Edge symEdge)
     {
-
-        // TODO: if symEdge = edge, then we rotate 180 degrees around the midpoint of the edge.
         LineRenderer[] lineRenderers = newTile.GetComponentsInChildren<LineRenderer>();
 
         if (edge == symEdge)
@@ -167,6 +173,20 @@ public class LatticeDraw : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (DrawingLatticeManager.Instance != null && Tessellating)
+        {
+            DrawingLatticeManager.Instance.Update();
+        }
+    }
+
+    public void UpdateTess()
+    {
+        Reset();
+        Tessellate();
+    }
+
     public void Reset()
     {
         foreach (var obj in gameObjects)
@@ -174,5 +194,44 @@ public class LatticeDraw : MonoBehaviour
             Destroy(obj);
         }
         gameObjects.Clear();
+    }
+}
+
+public class DrawingLatticeManager
+{
+    public static DrawingLatticeManager Instance { get; private set; }
+
+    public LatticeDraw lattice;
+
+    public bool ChangeOcurred { get; private set; }
+
+    private int frameCounter;
+    public DrawingLatticeManager(LatticeDraw lattice)
+    {
+        this.lattice = lattice;
+        Instance = this;
+    }
+    public void MarkEdited()
+    {
+        ChangeOcurred = true;
+        frameCounter = 0;
+    }
+    public void UpdateLattice()
+    {
+        lattice.UpdateTess();
+    }
+
+    public void Update()
+    {
+        if (ChangeOcurred)
+        {
+            if (frameCounter > 0)
+            {
+                UpdateLattice();
+                ChangeOcurred = false;
+                frameCounter = 0;
+            }
+            frameCounter++;
+        }
     }
 }

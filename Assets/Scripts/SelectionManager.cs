@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 public class SelectionManager : MonoBehaviour
 {
     public event Action<ISelectable> OnSelectingChanged;
+    public event Action<ISelectable> OnSelectionChanged;
     public static SelectionManager Instance { get; private set; }
 
     [SerializeField] List<ISelectable> selectables = new List<ISelectable>();
@@ -18,7 +19,17 @@ public class SelectionManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        ToolManager.Instance.OnToolChanged += () =>
+        {
+            if (ToolManager.Instance.CurrentTool != ToolType.Select && !ToolManager.Instance.CurrentToolRequiresSelection())
+            {
+                Debug.Log("Tool changed to non-select, deselecting");
+                OnSelectingChanged?.Invoke(null);
+                selected = null;
+            }
+        };
     }
+
 
     public void Register(ISelectable selectable)
     {
@@ -31,12 +42,17 @@ public class SelectionManager : MonoBehaviour
         if (ToolManager.Instance.CurrentTool != ToolType.Select && !ToolManager.Instance.CurrentToolRequiresSelection())
         {
             //Debug.Log("Not in select mode, deselecting if needed");
+            //if (ToolManager.Instance.CurrentTool != ToolManager.Instance.PreviousTool)
+            //{
+            //    ToolManager.Instance.PreviousTool = ToolManager.Instance.CurrentTool;
             OnSelectingChanged?.Invoke(null);
+            //}
             return;
         }
 
         if (InputManager.Instance.PointerDown)
         {
+            Debug.Log("Pointer down, trying to select");
             TrySelect(InputManager.Instance.PointerWorldPos);
 
             if (selected is IDraggable draggable)
@@ -90,11 +106,12 @@ public class SelectionManager : MonoBehaviour
         List<ISelectable> toRemove = new List<ISelectable>();
         foreach (var s in selectables)
         {
-            if (s is LineSelectable)
+            if (s is LineSelectable && s is not EdgeSelectable)
                 toRemove.Add(s);
         }
         foreach (var s in toRemove)
             s.Remove();
+        Update();
     }
 
     public void Undo()
@@ -103,8 +120,10 @@ public class SelectionManager : MonoBehaviour
         if (selectables == null || selectables.Count == 0)
             return;
         ISelectable s = selectables[selectables.Count - 1];
-        if (s is LineSelectable)
+        if (s is LineSelectable && s is not EdgeSelectable)
             s.Remove();
+
+        ToolManager.Instance.SetTool(ToolType.Pencil); // back to pencil for convenience, since undo is only used for drawings
     }
 
     public ISelectable FindSelectableWithEndpnts(Vector2 a, Vector2 b)
@@ -182,23 +201,27 @@ public class SelectionManager : MonoBehaviour
 
     private void TrySelect(Vector2 pointerWorldPos)
     {
-
+        Debug.Log("Trying to select at " + pointerWorldPos);
         if (InputManager.Instance.PointerOverUI)
         {
             Debug.Log("Pointer over UI, ignoring selection");
-            if (selected != null)
+            if (selected != null && selected is not EdgeSelectable)
+            {
                 Deselect();
-            return;
+            }
+            //return;
         }
 
-        if (EventSystem.current != null &&
-            EventSystem.current.IsPointerOverGameObject())
-        {
-            Debug.Log("Pointer over UI (EventSystem), ignoring selection");
-            if (selected != null)
-                Deselect();
-            return;
-        }
+        //if (EventSystem.current != null &&
+        //    EventSystem.current.IsPointerOverGameObject())
+        //{
+        //    Debug.Log("Pointer over UI (EventSystem), ignoring selection");
+        //    if (selected != null && selected is not EdgeSelectable)
+        //    {
+        //        Deselect();
+        //    }
+        //    return;
+        //}
 
         for (int i = selectables.Count - 1; i >= 0; i--)
         {
@@ -218,9 +241,10 @@ public class SelectionManager : MonoBehaviour
                 return;
             }
         }
+        //if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            //OnSelectionChanged?.Invoke(null);
+        Deselect();
 
-        //Deselect();
-        
     }
 
     public void Select(ISelectable s)
@@ -229,12 +253,13 @@ public class SelectionManager : MonoBehaviour
         {
             selected.SetSelected(false); // if sth is selected deselect it
         }
-            lastSelected = selected;
+        lastSelected = selected;
         Debug.Log("Selecting " + s.ToString());
         selected = s;
         selected.SetSelected(true);
 
         OnSelectingChanged?.Invoke(selected);
+        //OnSelectionChanged?.Invoke(selected);
     }
 
     public void Deselect()
@@ -246,6 +271,7 @@ public class SelectionManager : MonoBehaviour
         lastSelected = selected;
         Debug.Log("Deselecting");
         selected = null;
+        OnSelectionChanged?.Invoke(null);
     }
 
     internal void Deregister(ISelectable selectable)

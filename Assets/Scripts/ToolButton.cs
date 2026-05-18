@@ -47,12 +47,12 @@ public class ToolButton : MonoBehaviour
         icon.color = selected ? selectedColor : normalColor;
     }
 
-    public void OnClick()
+    public virtual void OnClick()
     {
         if (selected)
         {
             selected = false;
-            ToolManager.Instance.SetTool(ToolType.None);
+            //ToolManager.Instance.SetTool(ToolType.None);
         } else
         {
             selected = true;

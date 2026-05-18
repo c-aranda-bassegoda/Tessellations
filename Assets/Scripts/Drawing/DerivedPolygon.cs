@@ -138,7 +138,7 @@ public class DerivedPolygon : NonConvexPolygon
     /// Resets the vertices of the edge corresponding to the lineRenderer to be a straight line between vtx0 and vtxEnd.
     /// </summary>
     /// <param name="lineRenderer"></param>
-    public void ResetLine(LineRenderer lineRenderer)
+    public virtual void ResetLine(LineRenderer lineRenderer)
     {
         List<Vertex> newVertices = ToVertices(lineRenderer);
         (Vertex vtx0, Vertex vtxEnd, Vertex vtxMid) = GetVerticesWhereLine(newVertices);
@@ -349,14 +349,11 @@ public class DerivedPolygon : NonConvexPolygon
     {
         Debug.Log("Clear Edge");
         ISelectable oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, vertex2.Position);
-        if (oldEdge != null) DrawnEdges--;
         oldEdge?.Remove();
         Edge edge = BasePolygon.GetEdge(vertex1, vertex2);
         oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, edge.MidPoint.Position);
-        if (oldEdge != null) DrawnEdges--;
         oldEdge?.Remove();
         oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(edge.MidPoint.Position, vertex2.Position);
-        if (oldEdge != null) DrawnEdges--;
         oldEdge?.Remove();
     }
 

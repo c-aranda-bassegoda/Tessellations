@@ -489,6 +489,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1147643399}
+        m_TargetAssemblyTypeName: ToolButton, Assembly-CSharp
+        m_MethodName: OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &67552587
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2658,6 +2670,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d90753770cedf6447b033d3ea31d9027, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentTool: 0
 --- !u!4 &516835667
 Transform:
   m_ObjectHideFlags: 0
@@ -11151,6 +11164,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2070609252}
   m_CullTransparentMesh: 1
+--- !u!1 &2117477103
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2117477105}
+  - component: {fileID: 2117477104}
+  m_Layer: 0
+  m_Name: Zoom controller
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2117477104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2117477103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e316756ef9175654b9409a4d5c40d84b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cam: {fileID: 291103164}
+  zoomSpeed: 0.01
+  minZoom: 2
+  maxZoom: 20
+  mouseZoomSpeed: 2
+  pinchZoomSpeed: 0.02
+--- !u!4 &2117477105
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2117477103}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -43.68453, y: 4.604474, z: 519.5017}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2133046498
 GameObject:
   m_ObjectHideFlags: 0
@@ -11272,3 +11335,4 @@ SceneRoots:
   - {fileID: 1215493402}
   - {fileID: 1128681751}
   - {fileID: 1104286706}
+  - {fileID: 2117477105}

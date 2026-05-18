@@ -36,6 +36,7 @@ public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
             if (DistancePointToSegment(worldPoint, points[i], points[i + 1]) <= hitRadius)
                 return true;
         }
+        //SelectionManager.Instance.Deselect();
         return false;
     }
 
@@ -60,7 +61,11 @@ public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
         if (SelectionManager.Instance != null)
             SelectionManager.Instance.Deregister(this);
 
-        LatticeManager.Instance.MarkEdited();
+        if (LatticeManager.Instance != null)
+            LatticeManager.Instance.MarkEdited();
+
+        if (DrawingLatticeManager.Instance != null)
+            DrawingLatticeManager.Instance.MarkEdited();
         Destroy(gameObject);
     }
 
