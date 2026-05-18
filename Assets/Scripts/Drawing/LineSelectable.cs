@@ -61,11 +61,9 @@ public class LineSelectable : MonoBehaviour, ISelectable, ITransformable
         if (SelectionManager.Instance != null)
             SelectionManager.Instance.Deregister(this);
 
-        if (LatticeManager.Instance != null)
-            LatticeManager.Instance.MarkEdited();
+        LatticeManager.Instance?.MarkEdited();
+        DrawingLatticeManager.Instance?.MarkEdited();
 
-        if (DrawingLatticeManager.Instance != null)
-            DrawingLatticeManager.Instance.MarkEdited();
         Destroy(gameObject);
     }
 

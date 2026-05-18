@@ -223,7 +223,7 @@ public class DerivedPolygon : NonConvexPolygon
         Wipe(oldVertices2);
         if (IsMidPoint(newVertices[^1]))
         {
-            Debug.Log("First half");
+            //Debug.Log("First half");
             newVertices.RemoveAt(0);
             newVertices.RemoveAt(newVertices.Count - 1);
             oldVertices.InsertRange(1,newVertices);
@@ -231,7 +231,7 @@ public class DerivedPolygon : NonConvexPolygon
         }
         else if (IsMidPoint(newVertices[0]))
         {
-            Debug.Log("2nd half");
+            //Debug.Log("2nd half");
             newVertices.RemoveAt(0);
             newVertices.RemoveAt(newVertices.Count - 1);
             oldVertices2.InsertRange(1, newVertices);
@@ -240,7 +240,7 @@ public class DerivedPolygon : NonConvexPolygon
         } 
         else
         {
-            Debug.Log("all");
+            //Debug.Log("all");
             newVertices.RemoveAt(0);
             newVertices.RemoveAt(newVertices.Count - 1);
             oldVertices.InsertRange(1, newVertices);
@@ -349,12 +349,24 @@ public class DerivedPolygon : NonConvexPolygon
     {
         Debug.Log("Clear Edge");
         ISelectable oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, vertex2.Position);
-        oldEdge?.Remove();
+        if (oldEdge != null)
+        {
+            oldEdge.Remove();
+            return;
+        }
         Edge edge = BasePolygon.GetEdge(vertex1, vertex2);
         oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(vertex1.Position, edge.MidPoint.Position);
-        oldEdge?.Remove();
+        if (oldEdge != null)
+        {
+            oldEdge.Remove();
+            return;
+        }
         oldEdge = SelectionManager.Instance.FindSelectableWithEndpnts(edge.MidPoint.Position, vertex2.Position);
-        oldEdge?.Remove();
+        if (oldEdge != null)
+        {
+            oldEdge.Remove();
+            return;
+        }
     }
 
 

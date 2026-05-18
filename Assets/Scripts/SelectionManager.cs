@@ -33,7 +33,7 @@ public class SelectionManager : MonoBehaviour
 
     public void Register(ISelectable selectable)
     {
-        Debug.Log("Added Selectable");
+        //Debug.Log("Added Selectable");
         selectables.Add(selectable);
     }
 
