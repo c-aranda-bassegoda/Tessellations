@@ -65,6 +65,7 @@ public class SymmetryManager : MonoBehaviour
         if (InputManager.Instance.PointerDown)
         {
             Paste(pointerPos);
+            ToolManager.Instance.SetTool(ToolType.None); // resets selecting "session"
             ToolManager.Instance.SetTool(ToolType.Select); // switch back to select tool after pasting for smoother user experience
             baseShape.DehighlightEdges();
         }
