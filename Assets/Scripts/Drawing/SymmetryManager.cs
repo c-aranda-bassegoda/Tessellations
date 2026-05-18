@@ -65,7 +65,7 @@ public class SymmetryManager : MonoBehaviour
         if (InputManager.Instance.PointerDown)
         {
             Paste(pointerPos);
-            ToolManager.Instance.SetTool(ToolType.None);
+            ToolManager.Instance.SetTool(ToolType.Select); // switch back to select tool after pasting for smoother user experience
             baseShape.DehighlightEdges();
         }
     }
@@ -153,7 +153,6 @@ public class SymmetryManager : MonoBehaviour
 
         clipboard = null;
 
-        ToolManager.Instance.SetTool(ToolType.Select); // switch back to select tool after pasting for smoother user experience
     }
 
     public bool CanDraw()
