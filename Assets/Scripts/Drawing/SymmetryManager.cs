@@ -21,49 +21,73 @@ public class SymmetryManager : MonoBehaviour
 
     void Update()
     {
-        ToolType currentTool = ToolManager.Instance.CurrentTool;
+        //ToolType currentTool = ToolManager.Instance.CurrentTool;
+
+        if (clipboard == null)
+            return;
 
         Vector3 pointerPos = InputManager.Instance.PointerWorldPos;
 
-        // tool changed
-        if (currentTool != lastTool)
-        {
-            if (!ToolManager.Instance.CurrentToolIsTransformationTool())
-                baseShape.DehighlightEdges();
-            else
-            {
-                CopySelected();
-                EdgeSelectable line = clipboard?.GetComponent<EdgeSelectable>();
-                compatibleEdgeIdxs.Clear();
-                switch (currentTool)
-                {
-                    case ToolType.Translate:
-                        compatibleEdgeIdxs = baseShape.FindTranslationCompatibleEdges(line);
-                        break;
-                    case ToolType.Rotate:
-                        compatibleEdgeIdxs = baseShape.FindRotationCompatibleEdges(line);
-                        break;
-                    case ToolType.Glide:
-                        compatibleEdgeIdxs = baseShape.FindGlideReflectionCompatibleEdges(line);
-                        break;
-                }
-                baseShape.HighlightEdges(compatibleEdgeIdxs, Color.red);
-            }
+        //// tool changed
+        //if (currentTool != lastTool)
+        //{
+        //    if (!ToolManager.Instance.CurrentToolIsTransformationTool())
+        //        baseShape.DehighlightEdges();
+        //    else
+        //    {
+        //        CopySelected();
+        //        EdgeSelectable line = clipboard?.GetComponent<EdgeSelectable>();
+        //        compatibleEdgeIdxs.Clear();
+        //        switch (currentTool)
+        //        {
+        //            case ToolType.Translate:
+        //                compatibleEdgeIdxs = baseShape.FindTranslationCompatibleEdges(line);
+        //                break;
+        //            case ToolType.Rotate:
+        //                compatibleEdgeIdxs = baseShape.FindRotationCompatibleEdges(line);
+        //                break;
+        //            case ToolType.Glide:
+        //                compatibleEdgeIdxs = baseShape.FindGlideReflectionCompatibleEdges(line);
+        //                break;
+        //        }
+        //        baseShape.HighlightEdges(compatibleEdgeIdxs, Color.red);
+        //    }
 
-            lastTool = currentTool;
-        } 
+        //    lastTool = currentTool;
+        //} 
 
-        if (!ToolManager.Instance.CurrentToolIsTransformationTool())
-            return;
+        //if (!ToolManager.Instance.CurrentToolIsTransformationTool())
+        //    return;
 
-        if (InputManager.Instance.PointerOverUI)
-            return;
+        //if (InputManager.Instance.PointerOverUI)
+        //    return;
 
         if (InputManager.Instance.PointerDown)
         {
             Paste(pointerPos);
             ToolManager.Instance.SetTool(ToolType.None);
+            baseShape.DehighlightEdges();
         }
+    }
+
+    public void TransformOptionsSelectedEdge(ToolType toolType)
+    {
+        CopySelected();
+        EdgeSelectable line = clipboard?.GetComponent<EdgeSelectable>();
+        compatibleEdgeIdxs.Clear();
+        switch (toolType)
+        {
+            case ToolType.Translate:
+                compatibleEdgeIdxs = baseShape.FindTranslationCompatibleEdges(line);
+                break;
+            case ToolType.Rotate:
+                compatibleEdgeIdxs = baseShape.FindRotationCompatibleEdges(line);
+                break;
+            case ToolType.Glide:
+                compatibleEdgeIdxs = baseShape.FindGlideReflectionCompatibleEdges(line);
+                break;
+        }
+        baseShape.HighlightEdges(compatibleEdgeIdxs, Color.red);
     }
 
     /// <summary>

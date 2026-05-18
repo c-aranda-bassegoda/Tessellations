@@ -85,4 +85,11 @@ public class TransfToolButton : ToolButton
     {
         
     }
+
+    public override void OnClick()
+    {
+        Debug.Log("Clicked " + toolType);
+        ToolManager.Instance.SetTool(toolType);
+        SymmetryManager.Instance.TransformOptionsSelectedEdge(toolType);
+    }
 }
