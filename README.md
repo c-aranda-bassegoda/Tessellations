@@ -1,0 +1,4 @@
+This project contains two distinct interfaces that allow for the creation of tessellations as were used for the research project "Playing with patterns: an Escher inspired interactive museum experience" which can also be found here.
+Each interface is implemented in a different scene and the Builds folder contains one build for each scene.
+The interface was designed to be used on a touch screen but can also be used on a computer.
+
