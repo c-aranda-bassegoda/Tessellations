@@ -10,5 +10,9 @@ https://github.com/user-attachments/assets/d1ea2809-64f9-4cc4-bd51-0e0248286bb4
 
 https://github.com/user-attachments/assets/aaef9b0b-ac04-409b-bb53-046a6c34bd53
 
-https://c-aranda-bassegoda.github.io/Tessellations/WebBuilds/Draw%20app/
 
+The drawing interfaces can be used through the following links:
+
+https://c-aranda-bassegoda.github.io/Tessellations/WebBuilds/Nodes%20app/
+
+https://c-aranda-bassegoda.github.io/Tessellations/WebBuilds/Draw%20app/
