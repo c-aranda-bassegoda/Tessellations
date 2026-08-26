@@ -124,13 +124,40 @@
 
     @media (max-width: 600px) {
       main {
-        padding: 40px 20px;
+              padding: 40px 20px;
+            }
+      
+            h1 {
+              font-size: 2.5rem;
+            }
+          }
+      
+          .videos {
+        margin-top: 50px;
       }
-
-      h1 {
-        font-size: 2.5rem;
+      
+      .video-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 25px;
       }
-    }
+      
+      .video-card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+      }
+      
+      .video-card h3 {
+        margin-top: 0;
+      }
+      
+      video {
+        width: 100%;
+        display: block;
+        border-radius: 8px;
+      }
   </style>
 </head>
 
@@ -155,8 +182,8 @@
         <h2>Drawing Interface</h2>
 
         <p>
-          Create tessellations by directly drawing and manipulating
-          shapes within the interface.
+          Create tessellations by directly drawing edges and assigning
+          symmetries within the interface.
         </p>
 
         <a class="button"
@@ -170,8 +197,8 @@
         <h2>Nodes Interface</h2>
 
         <p>
-          Create tessellations by manipulating nodes and constructing
-          shapes through geometric transformations.
+          Create tessellations by choosing a symmetry and manipulating nodes 
+          which copy and transform according to the chosen symmetries.
         </p>
 
         <a class="button"
@@ -199,19 +226,35 @@
       </p>
 
 
-      <div class="links">
+      <section class="videos">
 
-        <a class="text-link"
-           href="https://github.com/user-attachments/assets/d1ea2809-64f9-4cc4-bd51-0e0248286bb4">
-          Video: Drawing Interface
-        </a>
-
-        <a class="text-link"
-           href="https://github.com/user-attachments/assets/aaef9b0b-ac04-409b-bb53-046a6c34bd53">
-          Video: Nodes Interface
-        </a>
-
-      </div>
+        <h2>Interface Demonstrations</h2>
+      
+        <div class="video-grid">
+      
+          <div class="video-card">
+            <h3>Drawing Interface</h3>
+      
+            <video controls>
+              <source src="https://github.com/user-attachments/assets/d1ea2809-64f9-4cc4-bd51-0e0248286bb4"
+                      type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+      
+          <div class="video-card">
+            <h3>Nodes Interface</h3>
+      
+            <video controls>
+              <source src="https://github.com/user-attachments/assets/aaef9b0b-ac04-409b-bb53-046a6c34bd53"
+                      type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+      
+        </div>
+      
+      </section>
 
     </section>
 
