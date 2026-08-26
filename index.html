@@ -493,6 +493,7 @@
       const nextButton = gallery.querySelector(".next");
 
       let currentImage = 0;
+      let timer;
 
       function showImage(index) {
         images.forEach(image => {
@@ -514,11 +515,26 @@
         showImage(currentImage);
       }
 
-      nextButton.addEventListener("click", nextImage);
-      previousButton.addEventListener("click", previousImage);
+      function startTimer() {
+        clearInterval(timer);
 
-      // Automatically change image every 4 seconds
-      setInterval(nextImage, 4000);
+        timer = setInterval(() => {
+          nextImage();
+        }, 4000);
+      }
+
+      nextButton.addEventListener("click", () => {
+        nextImage();
+        startTimer();
+      });
+
+      previousButton.addEventListener("click", () => {
+        previousImage();
+        startTimer();
+      });
+
+      // Each gallery gets its own independent timer
+      startTimer();
 
     });
   </script>
