@@ -4,15 +4,19 @@ Each interface is implemented in a different scene and the Builds folder contain
 The interface was designed to be used on a touch screen but can also be used on a computer.
 
 
-Videos of the interfaces can be found here:
+Videos of (how to use) the interfaces can be found here:
+
+**Nodes App**
 
 https://github.com/user-attachments/assets/d1ea2809-64f9-4cc4-bd51-0e0248286bb4
+
+**Draw App**
 
 https://github.com/user-attachments/assets/aaef9b0b-ac04-409b-bb53-046a6c34bd53
 
 
-The drawing interfaces can be used through the following links:
+The drawing interfaces can be accessed through the following links:
 
-https://c-aranda-bassegoda.github.io/Tessellations/WebBuilds/Nodes%20app/
+[Nodes App - https://c-aranda-bassegoda.github.io/Tessellations/WebBuilds/Nodes%20app/](https://c-aranda-bassegoda.github.io/Tessellations/WebBuilds/Nodes%20app/)
 
-https://c-aranda-bassegoda.github.io/Tessellations/WebBuilds/Draw%20app/
+[Draw App - https://c-aranda-bassegoda.github.io/Tessellations/WebBuilds/Draw%20app/](https://c-aranda-bassegoda.github.io/Tessellations/WebBuilds/Draw%20app/)
