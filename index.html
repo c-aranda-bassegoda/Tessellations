@@ -208,9 +208,114 @@
         height: 100%;
         object-fit: cover;
       }
+
+      /* Gallery */
+      .galleries {
+        margin-top: 60px;
+      }
+
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 25px;
+      }
+
+      .gallery-card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+      }
+
+      .gallery-card h3 {
+        margin-top: 0;
+      }
+
+      .gallery-image-container {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #eee;
+      }
+
+      .gallery-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: none;
+      }
+
+      .gallery-image.active {
+        display: block;
+      }
+
+      .gallery-controls {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .gallery-button {
+        border: none;
+        background: #222;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .gallery-button:hover {
+        opacity: 0.75;
+      }
+
+      @media (max-width: 600px) {
+        .gallery-grid {
+          grid-template-columns: 1fr;
+        }
+      }
   </style>
 </head>
+<script>
+  document.querySelectorAll(".gallery-card").forEach(gallery => {
 
+    const images = gallery.querySelectorAll(".gallery-image");
+    const previousButton = gallery.querySelector(".previous");
+    const nextButton = gallery.querySelector(".next");
+
+    let currentImage = 0;
+
+    function showImage(index) {
+      images.forEach(image => {
+        image.classList.remove("active");
+      });
+
+      images[index].classList.add("active");
+    }
+
+    function nextImage() {
+      currentImage = (currentImage + 1) % images.length;
+      showImage(currentImage);
+    }
+
+    function previousImage() {
+      currentImage =
+        (currentImage - 1 + images.length) % images.length;
+
+      showImage(currentImage);
+    }
+
+    nextButton.addEventListener("click", nextImage);
+    previousButton.addEventListener("click", previousImage);
+
+    // Automatically change image every 4 seconds
+    setInterval(nextImage, 4000);
+
+  });
+</script>
 <body>
 
   <main>
@@ -336,6 +441,76 @@
 
     </section>
 
+    <section class="galleries">
+
+      <h2>Interface Galleries</h2>
+
+      <div class="gallery-grid">
+
+        <!-- Drawing Interface Gallery -->
+        <div class="gallery-card">
+          <h3>Drawing Interface</h3>
+
+          <div class="gallery-image-container">
+            <img src="Images/Draw%20app/1.jpeg"
+                class="gallery-image active"
+                alt="Drawing Interface picture 1">
+
+            <img src="Images/Draw%20app/2.jpeg"
+                class="gallery-image"
+                alt="Drawing Interface picture 2">
+
+            <img src="Images/Draw%20app/3.jpeg"
+                class="gallery-image"
+                alt="Drawing Interface picture 3">
+            <img src="Images/Draw%20app/4.jpeg"
+                class="gallery-image"
+                alt="Drawing Interface picture 4">
+            <img src="Images/Draw%20app/5.jpeg"
+                class="gallery-image"
+                alt="Drawing Interface picture 5">
+          </div>
+
+          <div class="gallery-controls">
+            <button class="gallery-button previous">← Previous</button>
+            <button class="gallery-button next">Next →</button>
+          </div>
+        </div>
+
+
+        <!-- Nodes Interface Gallery -->
+        <div class="gallery-card">
+          <h3>Nodes Interface</h3>
+
+          <div class="gallery-image-container">
+            <img src="Images/Nodes%20app/1.jpeg"
+                class="gallery-image active"
+                alt="Nodes Interface picture 1">
+
+            <img src="Images/Nodes%20app/2.jpeg"
+                class="gallery-image"
+                alt="Nodes Interface picture 2">
+
+            <img src="Images/Nodes%20app/3.jpeg"
+                class="gallery-image"
+                alt="Nodes Interface picture 3">
+            <img src="Images/Nodes%20app/4.jpeg"
+                class="gallery-image"
+                alt="Nodes Interface picture 4">
+            <img src="Images/Nodes%20app/5.jpeg"
+                class="gallery-image"
+                alt="Nodes Interface picture 5">
+          </div>
+
+          <div class="gallery-controls">
+            <button class="gallery-button previous">← Previous</button>
+            <button class="gallery-button next">Next →</button>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
 
     <footer>
       Tessellations · Interactive Museum Research Project
