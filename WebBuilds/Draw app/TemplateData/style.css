@@ -20,7 +20,13 @@ body { padding: 0; margin: 0 }
   top: 0;
   left: 0;
   width: 100%;
-  height: 60px;
+  height: 160px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  padding: 25px;
   z-index: 1000;
 }
 
@@ -52,17 +58,24 @@ body { padding: 0; margin: 0 }
 
 #unity-build-title {
   margin-left: 20px;
+
   font-family: Arial, sans-serif;
   font-size: 24px;
   font-weight: bold;
+
+  white-space: nowrap;
 }
 
 #unity-fullscreen-button {
   cursor: pointer;
+
   margin-left: auto;
-  margin-right: 25px;
+
   width: 38px;
   height: 38px;
+
+  flex: 0 0 38px;
+
   background: url('fullscreen-button.png') no-repeat center;
 }
 
