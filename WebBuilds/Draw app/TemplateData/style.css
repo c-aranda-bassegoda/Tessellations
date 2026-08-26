@@ -20,7 +20,7 @@ body { padding: 0; margin: 0 }
   top: 0;
   left: 0;
   width: 100%;
-  height: 110px;
+  height: 60px;
   z-index: 1000;
 }
 
@@ -29,8 +29,8 @@ body { padding: 0; margin: 0 }
   top: 25px;
   left: 25px;
 
-  width: 110px;
-  height: 110px;
+  width: 60px;
+  height: 60px;
 
   border-radius: 50%;
   overflow: hidden;
