@@ -212,6 +212,10 @@
       /* Gallery */
       .galleries {
         margin-top: 60px;
+        background: white;
+        padding: 35px;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.08);
       }
 
       .gallery-grid {
@@ -279,43 +283,7 @@
       }
   </style>
 </head>
-<script>
-  document.querySelectorAll(".gallery-card").forEach(gallery => {
 
-    const images = gallery.querySelectorAll(".gallery-image");
-    const previousButton = gallery.querySelector(".previous");
-    const nextButton = gallery.querySelector(".next");
-
-    let currentImage = 0;
-
-    function showImage(index) {
-      images.forEach(image => {
-        image.classList.remove("active");
-      });
-
-      images[index].classList.add("active");
-    }
-
-    function nextImage() {
-      currentImage = (currentImage + 1) % images.length;
-      showImage(currentImage);
-    }
-
-    function previousImage() {
-      currentImage =
-        (currentImage - 1 + images.length) % images.length;
-
-      showImage(currentImage);
-    }
-
-    nextButton.addEventListener("click", nextImage);
-    previousButton.addEventListener("click", previousImage);
-
-    // Automatically change image every 4 seconds
-    setInterval(nextImage, 4000);
-
-  });
-</script>
 <body>
 
   <main>
@@ -517,7 +485,43 @@
     </footer>
 
   </main>
+  <script>
+    document.querySelectorAll(".gallery-card").forEach(gallery => {
 
+      const images = gallery.querySelectorAll(".gallery-image");
+      const previousButton = gallery.querySelector(".previous");
+      const nextButton = gallery.querySelector(".next");
+
+      let currentImage = 0;
+
+      function showImage(index) {
+        images.forEach(image => {
+          image.classList.remove("active");
+        });
+
+        images[index].classList.add("active");
+      }
+
+      function nextImage() {
+        currentImage = (currentImage + 1) % images.length;
+        showImage(currentImage);
+      }
+
+      function previousImage() {
+        currentImage =
+          (currentImage - 1 + images.length) % images.length;
+
+        showImage(currentImage);
+      }
+
+      nextButton.addEventListener("click", nextImage);
+      previousButton.addEventListener("click", previousImage);
+
+      // Automatically change image every 4 seconds
+      setInterval(nextImage, 4000);
+
+    });
+  </script>
 </body>
 </html>
 
