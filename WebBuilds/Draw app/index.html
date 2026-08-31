@@ -12,118 +12,443 @@
       <a href="../../" class="home-logo">
         <img src="../../Images/fisheslogo.png" alt="Home page">
       </a>
-      <div id="unity-build-title">Tessellations</div>
-      <div id="unity-fullscreen-button"></div>
+    
+      <div id="unity-build-title">
+        Tessellations
+      </div>
+    
+    
+      <!-- Header controls -->
+    
+      <div style="
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      ">
+    
+        <!-- Question / Help button -->
+    
+        <button
+          id="help-button"
+          type="button"
+          aria-label="How to use the Drawing Interface"
+          title="How to use the Drawing Interface">
+          ?
+        </button>
+    
+    
+        <!-- Unity fullscreen button -->
+    
+        <div id="unity-fullscreen-button"></div>
+    
+      </div>
+    
     </header>
+    
+    
+    <!-- =========================
+         Unity WebGL
+         ========================= -->
+    
     <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+    
+      <canvas
+        id="unity-canvas"
+        width="960"
+        height="600"
+        tabindex="-1">
+      </canvas>
+    
       <div id="unity-loading-bar">
+    
         <div id="unity-logo"></div>
+    
         <div id="unity-progress-bar-empty">
           <div id="unity-progress-bar-full"></div>
         </div>
+    
       </div>
-      <div id="unity-warning"> </div>
+    
+      <div id="unity-warning"></div>
+    
     </div>
+    
+    
+    <!-- =========================
+         Help Modal
+         ========================= -->
+    
+    <div
+      id="help-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="help-title">
+    
+      <div id="help-modal-content">
+    
+        <button
+          id="help-close"
+          type="button"
+          aria-label="Close instructions">
+          &times;
+        </button>
+    
+    
+        <h2 id="help-title">
+          How to Use the Drawing Interface
+        </h2>
+    
+        <p>
+          Create your own tessellation by drawing edges, applying
+          symmetry transformations, and then repeating your tile.
+        </p>
+    
+    
+        <!-- Demonstration video -->
+    
+        <video id="help-video" controls>
+    
+          <source
+            src="https://github.com/user-attachments/assets/aaef9b0b-ac04-409b-bb53-046a6c34bd53"
+            type="video/mp4">
+    
+          Your browser does not support the video tag.
+    
+        </video>
+    
+    
+        <h3>
+          Quick Guide
+        </h3>
+    
+    
+        <ol id="help-steps">
+    
+          <li>
+            <strong>Start with the square tile.</strong>
+            Begin with the guiding square shown on the start screen.
+          </li>
+    
+          <li>
+            <strong>Draw your edges.</strong>
+            Free-draw up to half of the edges of the square.
+            You can draw a full edge, from a blue dot to a blue dot,
+            or a half edge, from a blue dot to a red dot.
+          </li>
+    
+          <li>
+            <strong>Select your edges.</strong>
+            Select the edge or edges you have drawn and choose a
+            symmetry transformation.
+          </li>
+    
+          <li>
+            <strong>Look for the red edges.</strong>
+            The edges where the chosen transformation can be applied
+            will be highlighted in red.
+          </li>
+    
+          <li>
+            <strong>Choose a red edge.</strong>
+            Select one of the highlighted red edges.
+            Your previously selected edge will be copied according
+            to the chosen symmetry.
+          </li>
+    
+          <li>
+            <strong>Repeat.</strong>
+            Continue drawing, selecting transformations, and choosing
+            red edges until all of the remaining edges have been created.
+          </li>
+    
+          <li>
+            <strong>Tessellate.</strong>
+            Select <strong>Tessellate</strong> to copy your tile and
+            reveal its immediate neighbouring tiles.
+          </li>
+    
+          <li>
+            <strong>Decorate.</strong>
+            Once your tessellation is complete, decorate the interior
+            of the tile to create your final pattern.
+          </li>
+    
+        </ol>
+    
+    
+        <p>
+          <strong>Tip:</strong>
+          Experiment with different edge shapes and symmetry
+          transformations to discover different tessellations.
+        </p>
+    
+      </div>
+    
+    </div>
+    
+    
     <script>
+    
       var canvas = document.querySelector("#unity-canvas");
-
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
+    
+    
+      // ============================================================
+      // Unity warning banner
+      // ============================================================
+    
       function unityShowBanner(msg, type) {
-        var warningBanner = document.querySelector("#unity-warning");
+    
+        var warningBanner =
+          document.querySelector("#unity-warning");
+    
         function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+    
+          warningBanner.style.display =
+            warningBanner.children.length ? 'block' : 'none';
+    
         }
+    
         var div = document.createElement('div');
+    
         div.innerHTML = msg;
+    
         warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+    
+        if (type == 'error') {
+    
+          div.style =
+            'background: red; padding: 10px;';
+    
+        } else {
+    
+          if (type == 'warning') {
+    
+            div.style =
+              'background: yellow; padding: 10px;';
+    
+          }
+    
           setTimeout(function() {
+    
             warningBanner.removeChild(div);
+    
             updateBannerVisibility();
+    
           }, 5000);
         }
+    
         updateBannerVisibility();
       }
-
+    
+    
+      // ============================================================
+      // Unity configuration
+      // ============================================================
+    
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/Draw app.loader.js";
+    
+      var loaderUrl =
+        buildUrl + "/Draw app.loader.js";
+    
       var config = {
+    
         arguments: [],
-        dataUrl: buildUrl + "/Draw app.data",
-        frameworkUrl: buildUrl + "/Draw app.framework.js",
-        codeUrl: buildUrl + "/Draw app.wasm",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "Tessellations",
-        productVersion: "1.0",
-        showBanner: unityShowBanner,
+    
+        dataUrl:
+          buildUrl + "/Draw app.data",
+    
+        frameworkUrl:
+          buildUrl + "/Draw app.framework.js",
+    
+        codeUrl:
+          buildUrl + "/Draw app.wasm",
+    
+        streamingAssetsUrl:
+          "StreamingAssets",
+    
+        companyName:
+          "DefaultCompany",
+    
+        productName:
+          "Tessellations",
+    
+        productVersion:
+          "1.0",
+    
+        showBanner:
+          unityShowBanner,
+    
       };
-
-      // By default, Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
-
-      // If you would like all file writes inside Unity Application.persistentDataPath
-      // directory to automatically persist so that the contents are remembered when
-      // the user revisits the site the next time, uncomment the following line:
-      // config.autoSyncPersistentDataPath = true;
-      // This autosyncing is currently not the default behavior to avoid regressing
-      // existing user projects that might rely on the earlier manual
-      // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
-      // expected to change.
-
+    
+    
+      // ============================================================
+      // Mobile / desktop settings
+      // ============================================================
+    
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-
+    
         var meta = document.createElement('meta');
+    
         meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-        document.querySelector("#unity-container").className = "unity-mobile";
+    
+        meta.content =
+          'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+    
+        document
+          .getElementsByTagName('head')[0]
+          .appendChild(meta);
+    
+        document
+          .querySelector("#unity-container")
+          .className = "unity-mobile";
+    
         canvas.className = "unity-mobile";
-
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
-
-
+    
       } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
+    
         canvas.style.width = "960px";
         canvas.style.height = "600px";
+    
       }
-
-      document.querySelector("#unity-loading-bar").style.display = "block";
-
-      var script = document.createElement("script");
+    
+    
+      // ============================================================
+      // Unity loading
+      // ============================================================
+    
+      document
+        .querySelector("#unity-loading-bar")
+        .style.display = "block";
+    
+    
+      var script =
+        document.createElement("script");
+    
       script.src = loaderUrl;
+    
+    
       script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                document.querySelector("#unity-loading-bar").style.display = "none";
-                document.querySelector("#unity-fullscreen-button").onclick = () => {
-                  unityInstance.SetFullscreen(1);
-                };
-
-              }).catch((message) => {
-                alert(message);
-              });
+    
+        createUnityInstance(
+          canvas,
+          config,
+          (progress) => {
+    
+            document
+              .querySelector("#unity-progress-bar-full")
+              .style.width =
+              100 * progress + "%";
+    
+          }
+    
+        ).then((unityInstance) => {
+    
+          document
+            .querySelector("#unity-loading-bar")
+            .style.display = "none";
+    
+    
+          document
+            .querySelector("#unity-fullscreen-button")
+            .onclick = () => {
+    
+              unityInstance.SetFullscreen(1);
+    
             };
-
+    
+    
+        }).catch((message) => {
+    
+          alert(message);
+    
+        });
+    
+      };
+    
+    
       document.body.appendChild(script);
-
+    
+    
+      // ============================================================
+      // HELP / HOW-TO MODAL
+      // ============================================================
+    
+      const helpButton =
+        document.getElementById("help-button");
+    
+      const helpModal =
+        document.getElementById("help-modal");
+    
+      const helpClose =
+        document.getElementById("help-close");
+    
+      const helpVideo =
+        document.getElementById("help-video");
+    
+    
+      // Open help
+    
+      helpButton.addEventListener("click", () => {
+    
+        helpModal.style.display = "block";
+    
+        document.body.style.overflow = "hidden";
+    
+      });
+    
+    
+      // Close help
+    
+      function closeHelp() {
+    
+        helpModal.style.display = "none";
+    
+        document.body.style.overflow = "";
+    
+        // Stop video when the popup closes
+        helpVideo.pause();
+    
+      }
+    
+    
+      helpClose.addEventListener(
+        "click",
+        closeHelp
+      );
+    
+    
+      // Close when clicking outside the white box
+    
+      helpModal.addEventListener(
+        "click",
+        (event) => {
+    
+          if (event.target === helpModal) {
+    
+            closeHelp();
+    
+          }
+    
+        }
+      );
+    
+    
+      // Close with Escape
+    
+      document.addEventListener(
+        "keydown",
+        (event) => {
+    
+          if (event.key === "Escape") {
+    
+            closeHelp();
+    
+          }
+    
+        }
+      );
+    
     </script>
+
   </body>
 </html>
