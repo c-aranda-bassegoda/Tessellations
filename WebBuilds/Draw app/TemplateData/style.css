@@ -259,7 +259,7 @@ body { padding: 0; margin: 0 }
   }
 
 
-instruction-button {
+.instruction-button {
   display: inline-block;
   padding: 4px 10px;
   background-color: #e6e6e6;
